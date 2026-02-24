@@ -5,6 +5,7 @@ import { Textarea } from '../components/ui/textarea.jsx';
 import { useSpeech } from '../hooks/useSpeech.js';
 import { useAudioVisualizer } from '../hooks/useAudioVisualizer.js';
 import { authFetch } from '../lib/api.js';
+import { useAuth } from '../context/AuthContext.jsx';
 
 function formatDate(dateStr) {
   const [year, month, day] = dateStr.split('-').map(Number);
@@ -76,6 +77,16 @@ function SpinningRing() {
 
 export default function TodayPage() {
   const todayDate = getTodayDate();
+  const { user } = useAuth();
+
+  // EAI-19: personalized greeting
+  const [displayName, setDisplayName] = useState('');
+  useEffect(() => {
+    authFetch('/api/profile')
+      .then((r) => r.json())
+      .then((d) => setDisplayName(d.display_name || user?.email?.split('@')[0] || ''))
+      .catch(() => {});
+  }, [user]);
 
   // EAI-16: id-based tracking (null = fresh new entry)
   const [currentNoteId, setCurrentNoteId] = useState(null);
@@ -289,15 +300,23 @@ export default function TodayPage() {
 
       <div className="max-w-2xl mx-auto w-full px-4 py-8 flex flex-col gap-6">
 
-        {/* Header */}
+        {/* Header — EAI-19: personalized greeting */}
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-xl font-semibold text-foreground leading-tight">
-              {viewingDate ? formatDate(viewingDate) : 'Today'}
-            </h1>
-            <p className="text-muted-foreground text-xs mt-0.5">
-              {viewingDate ? `Editing past entry` : formatDate(todayDate)}
-            </p>
+            {viewingDate ? (
+              <>
+                <h1 className="text-xl font-semibold text-foreground leading-tight">{formatDate(viewingDate)}</h1>
+                <p className="text-muted-foreground text-xs mt-0.5">Editing past entry</p>
+              </>
+            ) : (
+              <>
+                <p className="text-xs text-muted-foreground mb-0.5">{formatDate(todayDate)}</p>
+                <h1 className="text-xl font-semibold text-foreground leading-tight">
+                  Hey {displayName ? <span className="capitalize">{displayName}</span> : 'there'},{' '}
+                  <span className="text-muted-foreground font-normal">what's on your mind?</span>
+                </h1>
+              </>
+            )}
           </div>
           {!isNewEntry && (
             <Button variant="outline" size="sm" onClick={startNewEntry}>+ New entry</Button>

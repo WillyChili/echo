@@ -5,6 +5,7 @@ import TodayPage from './pages/TodayPage.jsx';
 import ChatPage from './pages/ChatPage.jsx';
 import AuthPage from './pages/AuthPage.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
+import EditProfilePage from './pages/EditProfilePage.jsx';
 
 function AppRoutes() {
   const { user, loading } = useAuth();
@@ -26,8 +27,9 @@ function AppRoutes() {
         <Routes>
           <Route path="/"         element={<TodayPage />} />
           <Route path="/chat"     element={<ChatPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
-          <Route path="*"         element={<Navigate to="/" replace />} />
+          <Route path="/settings"     element={<SettingsPage />} />
+          <Route path="/edit-profile" element={<EditProfilePage />} />
+          <Route path="*"             element={<Navigate to="/" replace />} />
         </Routes>
       </main>
     </div>

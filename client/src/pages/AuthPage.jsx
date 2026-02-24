@@ -1,6 +1,18 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 
+// Waveform bar pattern: height (px) + animation delay (s)
+const BARS = [
+  { h: 10, d: 0.00 }, { h: 20, d: 0.07 }, { h: 34, d: 0.14 },
+  { h: 26, d: 0.21 }, { h: 16, d: 0.28 }, { h: 30, d: 0.35 },
+  { h: 44, d: 0.42 }, { h: 36, d: 0.49 }, { h: 22, d: 0.56 },
+  { h: 38, d: 0.63 }, { h: 48, d: 0.70 }, { h: 36, d: 0.77 },
+  { h: 48, d: 0.84 }, { h: 38, d: 0.91 }, { h: 22, d: 0.98 },
+  { h: 36, d: 1.05 }, { h: 44, d: 1.12 }, { h: 30, d: 1.19 },
+  { h: 16, d: 1.26 }, { h: 26, d: 1.33 }, { h: 34, d: 1.40 },
+  { h: 20, d: 1.47 }, { h: 10, d: 1.54 },
+];
+
 function GoogleIcon() {
   return (
     <svg className="w-4 h-4" viewBox="0 0 24 24">
@@ -58,82 +70,95 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-neutral-950 px-4">
-      <div className="w-full max-w-sm">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-secondary to-muted border border-border/50 flex items-center justify-center text-xl font-semibold text-foreground mx-auto mb-3 select-none">
-            e
-          </div>
-          <h1 className="text-2xl font-semibold text-foreground">Echo</h1>
-          <p className="text-sm text-muted-foreground mt-1">Your personal AI reflection</p>
+    <div className="min-h-screen flex flex-col bg-neutral-950 overflow-hidden">
+
+      {/* ── Hero ── */}
+      <div className="flex-1 flex flex-col items-center justify-center px-6 pb-6">
+
+        {/* Animated waveform */}
+        <div className="flex items-center gap-[3px] mb-10" style={{ height: '56px' }}>
+          {BARS.map((bar, i) => (
+            <div
+              key={i}
+              className="w-[3px] rounded-full bg-mint"
+              style={{
+                height: `${bar.h}px`,
+                transformOrigin: 'center',
+                animation: `wave-bar 1.6s ease-in-out ${bar.d}s infinite`,
+              }}
+            />
+          ))}
         </div>
 
-        {/* Card */}
-        <div className="bg-card border border-border/60 rounded-2xl p-6">
-          <h2 className="text-base font-medium text-foreground mb-5">
-            {mode === 'login' ? 'Sign in' : 'Create account'}
-          </h2>
+        {/* Branding */}
+        <h1 className="text-3xl font-semibold text-foreground tracking-tight">echo</h1>
+        <p className="text-sm text-muted-foreground mt-2">Your personal AI reflection</p>
+      </div>
 
-          {/* Email form */}
-          <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full bg-background border border-input rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-              className="w-full bg-background border border-input rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-            />
+      {/* ── Bottom sheet form ── */}
+      <div className="bg-card border-t border-border/40 rounded-t-3xl px-6 pt-7 pb-10">
+        <h2 className="text-base font-medium text-foreground mb-5">
+          {mode === 'login' ? 'Sign in' : 'Create account'}
+        </h2>
 
-            {error   && <p className="text-xs text-red-400">{error}</p>}
-            {message && <p className="text-xs text-green-400">{message}</p>}
+        {/* Email / password */}
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="w-full bg-background border border-input rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            minLength={6}
+            className="w-full bg-background border border-input rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+          />
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-foreground text-background rounded-xl py-2.5 text-sm font-medium active:opacity-70 transition-opacity disabled:opacity-50 mt-1"
-            >
-              {loading ? 'Loading…' : mode === 'login' ? 'Sign in' : 'Create account'}
-            </button>
-          </form>
+          {error   && <p className="text-xs text-red-400">{error}</p>}
+          {message && <p className="text-xs text-green-400">{message}</p>}
 
-          {/* Divider */}
-          <div className="flex items-center gap-3 my-4">
-            <div className="flex-1 h-px bg-border/50" />
-            <span className="text-xs text-muted-foreground">or</span>
-            <div className="flex-1 h-px bg-border/50" />
-          </div>
-
-          {/* Google */}
           <button
-            onClick={handleGoogle}
-            disabled={googleLoading}
-            className="w-full flex items-center justify-center gap-2.5 bg-background border border-input rounded-xl py-2.5 text-sm text-foreground font-medium active:opacity-70 transition-opacity disabled:opacity-50"
+            type="submit"
+            disabled={loading}
+            className="w-full bg-foreground text-background rounded-xl py-3 text-sm font-medium active:opacity-70 transition-opacity disabled:opacity-50 mt-1"
           >
-            <GoogleIcon />
-            {googleLoading ? 'Redirecting…' : 'Continue with Google'}
+            {loading ? 'Loading…' : mode === 'login' ? 'Sign in' : 'Create account'}
           </button>
+        </form>
 
-          <p className="text-xs text-muted-foreground text-center mt-4">
-            {mode === 'login' ? "Don't have an account? " : 'Already have an account? '}
-            <button
-              onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setError(null); setMessage(null); }}
-              className="text-foreground underline"
-            >
-              {mode === 'login' ? 'Sign up' : 'Sign in'}
-            </button>
-          </p>
+        {/* Divider */}
+        <div className="flex items-center gap-3 my-4">
+          <div className="flex-1 h-px bg-border/50" />
+          <span className="text-xs text-muted-foreground">or</span>
+          <div className="flex-1 h-px bg-border/50" />
         </div>
+
+        {/* Google */}
+        <button
+          onClick={handleGoogle}
+          disabled={googleLoading}
+          className="w-full flex items-center justify-center gap-2.5 bg-background border border-input rounded-xl py-3 text-sm text-foreground font-medium active:opacity-70 transition-opacity disabled:opacity-50"
+        >
+          <GoogleIcon />
+          {googleLoading ? 'Redirecting…' : 'Continue with Google'}
+        </button>
+
+        <p className="text-xs text-muted-foreground text-center mt-5">
+          {mode === 'login' ? "Don't have an account? " : 'Already have an account? '}
+          <button
+            onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setError(null); setMessage(null); }}
+            className="text-foreground underline"
+          >
+            {mode === 'login' ? 'Sign up' : 'Sign in'}
+          </button>
+        </p>
       </div>
     </div>
   );

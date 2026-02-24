@@ -68,6 +68,12 @@
     to   { transform: rotate(360deg); }
   }
 
+  /* Auth waveform bars */
+  @keyframes wave-bar {
+    0%, 100% { transform: scaleY(0.2); opacity: 0.35; }
+    50%       { transform: scaleY(1);   opacity: 1;    }
+  }
+
   /* Squircle progressive enhancement */
   @supports (corner-shape: squircle) {
     .squircle { corner-shape: squircle; }

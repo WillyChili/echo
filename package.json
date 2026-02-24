@@ -1,0 +1,21 @@
+{
+  "name": "echo-app",
+  "version": "1.0.0",
+  "description": "Echo — personal journaling and AI companion",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "node server.js",
+    "client": "npm --prefix client run dev",
+    "install:all": "npm install && npm --prefix client install",
+    "seed": "node server/seed.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.6.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

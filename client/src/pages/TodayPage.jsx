@@ -4,6 +4,7 @@ import { Button } from '../components/ui/button.jsx';
 import { Textarea } from '../components/ui/textarea.jsx';
 import { useSpeech } from '../hooks/useSpeech.js';
 import { useAudioVisualizer } from '../hooks/useAudioVisualizer.js';
+import { authFetch } from '../lib/api.js';
 
 function formatDate(dateStr) {
   const [year, month, day] = dateStr.split('-').map(Number);
@@ -120,7 +121,7 @@ export default function TodayPage() {
   // ── Load all notes ────────────────────────────────────────────────────────
   const fetchAllNotes = useCallback(async () => {
     try {
-      const res = await fetch('/api/notes');
+      const res = await authFetch('/api/notes');
       if (res.ok) setNotes(await res.json());
     } catch { /* ignore */ }
   }, []);
@@ -139,15 +140,13 @@ export default function TodayPage() {
       try {
         let res;
         if (currentNoteId) {
-          res = await fetch(`/api/notes/${currentNoteId}`, {
+          res = await authFetch(`/api/notes/${currentNoteId}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ content }),
           });
         } else {
-          res = await fetch('/api/notes', {
+          res = await authFetch('/api/notes', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ date: todayDate, content }),
           });
           if (res.ok) {
@@ -180,15 +179,13 @@ export default function TodayPage() {
     try {
       let res;
       if (currentNoteId) {
-        res = await fetch(`/api/notes/${currentNoteId}`, {
+        res = await authFetch(`/api/notes/${currentNoteId}`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ content }),
         });
       } else {
-        res = await fetch('/api/notes', {
+        res = await authFetch('/api/notes', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ date: todayDate, content }),
         });
       }
@@ -266,7 +263,7 @@ export default function TodayPage() {
 
   const deleteSelected = useCallback(async () => {
     const ids = Array.from(selectedIds);
-    await Promise.all(ids.map((id) => fetch(`/api/notes/${id}`, { method: 'DELETE' })));
+    await Promise.all(ids.map((id) => authFetch(`/api/notes/${id}`, { method: 'DELETE' })));
     if (ids.includes(currentNoteId)) startNewEntry();
     setSelectionMode(false);
     setSelectedIds(new Set());

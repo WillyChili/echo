@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
+const auth = require('../middleware/auth');
+const supabase = require('../supabase');
 
 const CLAUDE_API_URL = 'https://api.anthropic.com/v1/messages';
-const MODEL = 'claude-haiku-4-5-20251001';
+const DEFAULT_MODEL = 'claude-haiku-4-5-20251001';
 
 function buildSystemPrompt(notes) {
   if (!notes || notes.length === 0) {
@@ -11,7 +13,7 @@ function buildSystemPrompt(notes) {
 
   const noteCount = notes.length;
   const notesText = notes
-    .slice() // don't mutate original
+    .slice()
     .sort((a, b) => (a.date < b.date ? -1 : 1))
     .map((n) => `[${n.date}]\n${n.content}`)
     .join('\n\n---\n\n');
@@ -35,6 +37,9 @@ Instructions:
 - Never break character. Never say you're an AI unless directly and explicitly asked.`;
 }
 
+// All chat routes require authentication
+router.use(auth);
+
 // POST /api/chat
 router.post('/', async (req, res) => {
   try {
@@ -44,10 +49,22 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'userMessage is required.' });
     }
 
-    const apiKey = process.env.ANTHROPIC_API_KEY;
+    // Use user's own API key if they have one, otherwise fallback to server key
+    let apiKey = process.env.ANTHROPIC_API_KEY;
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('api_key')
+      .eq('id', req.user.id)
+      .single();
+
+    if (profile?.api_key) {
+      apiKey = profile.api_key;
+    }
+
     if (!apiKey || apiKey === 'your_api_key_here') {
       return res.status(500).json({
-        error: 'ANTHROPIC_API_KEY is not configured. Add it to your .env file.',
+        error: 'No API key configured. Add your Anthropic key in Settings.',
       });
     }
 
@@ -61,7 +78,7 @@ router.post('/', async (req, res) => {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: MODEL,
+        model: DEFAULT_MODEL,
         max_tokens: 1024,
         system: systemPrompt,
         messages: [{ role: 'user', content: userMessage }],

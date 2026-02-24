@@ -3,6 +3,7 @@ import MicButton from '../components/MicButton.jsx';
 import { Button } from '../components/ui/button.jsx';
 import { useSpeech } from '../hooks/useSpeech.js';
 import { cn } from '@/lib/utils';
+import { authFetch } from '../lib/api.js';
 
 function SendIcon() {
   return (
@@ -66,13 +67,12 @@ export default function ChatPage() {
     try {
       let notes = [];
       try {
-        const notesRes = await fetch('/api/notes');
+        const notesRes = await authFetch('/api/notes');
         if (notesRes.ok) notes = await notesRes.json();
       } catch { /* proceed without notes */ }
 
-      const res = await fetch('/api/chat', {
+      const res = await authFetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userMessage: text, notes }),
       });
 

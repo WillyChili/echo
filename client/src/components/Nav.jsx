@@ -1,7 +1,10 @@
 import { NavLink } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { useAuth } from '../context/AuthContext';
 
 export default function Nav() {
+  const { user, signOut } = useAuth();
+
   const linkClass = ({ isActive }) =>
     cn(
       'px-4 py-2 rounded-xl text-sm font-medium transition-colors duration-150 squircle select-none',
@@ -19,6 +22,13 @@ export default function Nav() {
         <div className="flex items-center gap-1">
           <NavLink to="/" end className={linkClass}>Today</NavLink>
           <NavLink to="/chat" className={linkClass}>Echo</NavLink>
+          <NavLink to="/settings" className={linkClass}>Settings</NavLink>
+          <button
+            onClick={signOut}
+            className="px-4 py-2 rounded-xl text-sm font-medium text-muted-foreground active:text-foreground active:bg-secondary/50 transition-colors duration-150 select-none"
+          >
+            Sign out
+          </button>
         </div>
       </div>
     </nav>

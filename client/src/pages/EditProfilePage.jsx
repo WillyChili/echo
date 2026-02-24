@@ -3,37 +3,30 @@ import { authFetch } from '../lib/api';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 
-function Row({ label, sublabel, children }) {
+// ── Floating-label field (Instagram-style) ───────────────────────────────────
+function Field({ label, children, noBorder }) {
   return (
-    <div className="flex items-center justify-between px-4 py-4">
-      <div>
-        <p className="text-sm text-foreground">{label}</p>
-        {sublabel && <p className="text-xs text-muted-foreground mt-0.5">{sublabel}</p>}
-      </div>
-      <div className="shrink-0 ml-4">{children}</div>
+    <div className={`px-5 py-3.5 ${!noBorder ? 'border-b border-border/30' : ''}`}>
+      <p className="text-[11px] text-muted-foreground mb-0.5 select-none">{label}</p>
+      {children}
     </div>
   );
-}
-
-function Separator() {
-  return <div className="h-px bg-border/40 mx-4" />;
 }
 
 export default function EditProfilePage() {
   const { user } = useAuth();
   const fileRef = useRef(null);
 
-  const [displayName, setDisplayName]   = useState('');
-  const [avatarUrl, setAvatarUrl]       = useState(null);
+  const [displayName, setDisplayName]     = useState('');
+  const [avatarUrl, setAvatarUrl]         = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
-  const [language, setLanguage]         = useState('en');
-  const [fetching, setFetching]         = useState(true);
-  const [saving, setSaving]             = useState(false);
+  const [language, setLanguage]           = useState('en');
+  const [fetching, setFetching]           = useState(true);
+  const [saving, setSaving]               = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
-  const [saved, setSaved]               = useState(false);
-  const [error, setError]               = useState(null);
+  const [saved, setSaved]                 = useState(false);
+  const [error, setError]                 = useState(null);
 
-  // Load profile
   useEffect(() => {
     authFetch('/api/profile')
       .then((r) => r.json())
@@ -46,17 +39,14 @@ export default function EditProfilePage() {
       .finally(() => setFetching(false));
   }, []);
 
-  // Handle avatar file pick
   const handleAvatarChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Show preview immediately
     const reader = new FileReader();
     reader.onload = (ev) => setAvatarPreview(ev.target.result);
     reader.readAsDataURL(file);
 
-    // Upload to Supabase Storage
     setUploadingAvatar(true);
     setError(null);
     try {
@@ -64,22 +54,19 @@ export default function EditProfilePage() {
       const { error: uploadError } = await supabase.storage
         .from('avatars')
         .upload(path, file, { upsert: true, contentType: file.type });
-
       if (uploadError) throw uploadError;
 
       const { data: { publicUrl } } = supabase.storage
         .from('avatars')
         .getPublicUrl(path);
 
-      // Save URL to profile
       await authFetch('/api/profile', {
         method: 'POST',
         body: JSON.stringify({ avatar_url: publicUrl }),
       });
-
       setAvatarUrl(publicUrl);
-    } catch (err) {
-      setError('Could not upload photo. Make sure the "avatars" storage bucket exists in Supabase.');
+    } catch {
+      setError('Could not upload photo. Make sure the "avatars" bucket exists in Supabase Storage.');
       setAvatarPreview(null);
     } finally {
       setUploadingAvatar(false);
@@ -112,101 +99,111 @@ export default function EditProfilePage() {
 
   return (
     <div className="max-w-xl mx-auto px-4 py-8">
-      <h1 className="text-lg font-semibold text-foreground mb-1">Profile</h1>
-      <p className="text-sm text-muted-foreground mb-6">Manage your account settings.</p>
+      {/* Title */}
+      <h1 className="text-base font-semibold text-foreground text-center mb-7">Edit profile</h1>
 
       {fetching ? (
-        <p className="text-xs text-muted-foreground">Loading…</p>
+        <p className="text-xs text-muted-foreground text-center">Loading…</p>
       ) : (
-        <form onSubmit={handleSave}>
-          <div className="bg-card border border-border/60 rounded-2xl overflow-hidden">
+        <form onSubmit={handleSave} className="flex flex-col gap-6">
 
-            {/* Avatar row */}
-            <Row
-              label="Photo"
-              sublabel={uploadingAvatar ? 'Uploading…' : 'Tap to change'}
+          {/* ── Avatar ─────────────────────────────────────────────────────── */}
+          <div className="flex flex-col items-center gap-2">
+            <button
+              type="button"
+              onClick={() => fileRef.current?.click()}
+              disabled={uploadingAvatar}
+              className="relative w-20 h-20 rounded-full overflow-hidden bg-gradient-to-br from-secondary to-muted border border-border/50 flex items-center justify-center active:opacity-75 transition-opacity"
             >
-              <button
-                type="button"
-                onClick={() => fileRef.current?.click()}
-                disabled={uploadingAvatar}
-                className="relative w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-secondary to-muted border border-border/60 flex items-center justify-center active:opacity-70 transition-opacity"
-              >
-                {currentAvatar ? (
-                  <img src={currentAvatar} alt="avatar" className="w-full h-full object-cover" />
-                ) : (
-                  <span className="text-base font-semibold text-foreground select-none">{initials}</span>
-                )}
-                <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 active:opacity-100 transition-opacity rounded-full">
-                  <CameraIcon />
-                </div>
-              </button>
-              <input
-                ref={fileRef}
-                type="file"
-                accept="image/*"
-                capture="user"
-                className="hidden"
-                onChange={handleAvatarChange}
-              />
-            </Row>
+              {currentAvatar
+                ? <img src={currentAvatar} alt="avatar" className="w-full h-full object-cover" />
+                : <span className="text-2xl font-semibold text-foreground select-none">{initials}</span>
+              }
+              {/* Camera overlay on press */}
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded-full opacity-0 active:opacity-100 transition-opacity">
+                <CameraIcon />
+              </div>
+            </button>
 
-            <Separator />
+            <button
+              type="button"
+              onClick={() => fileRef.current?.click()}
+              disabled={uploadingAvatar}
+              className="text-sm text-mint font-medium active:opacity-70 transition-opacity"
+            >
+              {uploadingAvatar ? 'Uploading…' : 'Edit photo'}
+            </button>
 
-            {/* Name row */}
-            <div className="px-4 py-4">
-              <p className="text-sm text-foreground mb-2">Name</p>
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleAvatarChange}
+            />
+          </div>
+
+          {/* ── Fields ─────────────────────────────────────────────────────── */}
+          <div className="bg-card border border-border/50 rounded-2xl overflow-hidden">
+
+            <Field label="Name">
               <input
                 type="text"
                 placeholder="Your name"
                 value={displayName}
                 onChange={(e) => { setSaved(false); setDisplayName(e.target.value); }}
-                className="w-full bg-background border border-input rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none"
               />
-              <p className="text-xs text-muted-foreground mt-1.5">
-                Email: <span className="text-foreground/70">{user?.email}</span>
-              </p>
-            </div>
+            </Field>
 
-            <Separator />
+            <Field label="Email">
+              <p className="text-sm text-foreground/50">{user?.email}</p>
+            </Field>
 
-            {/* Language row */}
-            <Row label="Language" sublabel="Interface language">
-              <div className="flex rounded-xl overflow-hidden border border-input">
-                {['en', 'es'].map((lang) => (
-                  <button
-                    key={lang}
-                    type="button"
-                    onClick={() => setLanguage(lang)}
-                    className={`px-4 py-1.5 text-xs font-medium transition-colors select-none ${
-                      language === lang
-                        ? 'bg-foreground text-background'
-                        : 'bg-background text-muted-foreground active:bg-secondary'
-                    }`}
-                  >
-                    {lang === 'en' ? 'EN' : 'ES'}
-                  </button>
-                ))}
+            <Field label="Language">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-foreground">
+                  {language === 'en' ? 'English' : 'Español'}
+                </span>
+                <div className="flex rounded-lg overflow-hidden border border-border/50">
+                  {['en', 'es'].map((lang) => (
+                    <button
+                      key={lang}
+                      type="button"
+                      onClick={() => setLanguage(lang)}
+                      className={`px-3 py-1 text-xs font-medium transition-colors select-none ${
+                        language === lang
+                          ? 'bg-foreground text-background'
+                          : 'bg-transparent text-muted-foreground active:bg-secondary'
+                      }`}
+                    >
+                      {lang.toUpperCase()}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </Row>
+            </Field>
 
-            <Separator />
-
-            {/* Notifications row */}
-            <Row label="Notifications" sublabel="Coming soon">
-              <div className="w-10 h-6 rounded-full bg-border/50 flex items-center px-0.5 opacity-40 cursor-not-allowed">
-                <div className="w-5 h-5 rounded-full bg-muted-foreground" />
+            <Field label="Notifications" noBorder>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground/50">Coming soon</span>
+                {/* disabled toggle */}
+                <div className="w-10 h-6 rounded-full bg-border/40 flex items-center px-0.5 opacity-40 cursor-not-allowed">
+                  <div className="w-5 h-5 rounded-full bg-muted-foreground" />
+                </div>
               </div>
-            </Row>
+            </Field>
           </div>
 
-          {error  && <p className="text-xs text-red-400 mt-3 px-1">{error}</p>}
-          {saved  && <p className="text-xs text-mint mt-3 px-1">Saved ✓</p>}
+          {/* ── Feedback ───────────────────────────────────────────────────── */}
+          {error && <p className="text-xs text-red-400 px-1">{error}</p>}
+          {saved && <p className="text-xs text-mint px-1">Saved ✓</p>}
 
+          {/* ── Save button ────────────────────────────────────────────────── */}
           <button
             type="submit"
             disabled={saving || !displayName.trim()}
-            className="w-full mt-4 bg-foreground text-background rounded-xl py-3 text-sm font-medium active:opacity-70 transition-opacity disabled:opacity-40"
+            className="w-full bg-foreground text-background rounded-xl py-3 text-sm font-medium active:opacity-70 transition-opacity disabled:opacity-40"
           >
             {saving ? 'Saving…' : 'Save changes'}
           </button>
@@ -218,7 +215,7 @@ export default function EditProfilePage() {
 
 function CameraIcon() {
   return (
-    <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
       <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z" />
     </svg>

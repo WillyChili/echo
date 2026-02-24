@@ -2,15 +2,19 @@ import { useState, useRef, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '../context/AuthContext';
+import { authFetch } from '../lib/api';
 
-function Avatar({ email, onClick }) {
+function Avatar({ email, avatarUrl, onClick }) {
   const initials = email ? email[0].toUpperCase() : '?';
   return (
     <button
       onClick={onClick}
-      className="w-8 h-8 rounded-full bg-gradient-to-br from-secondary to-muted border border-border/60 flex items-center justify-center text-sm font-semibold text-foreground select-none active:opacity-70 transition-opacity"
+      className="w-8 h-8 rounded-full bg-gradient-to-br from-secondary to-muted border border-border/60 flex items-center justify-center text-sm font-semibold text-foreground select-none active:opacity-70 transition-opacity overflow-hidden"
     >
-      {initials}
+      {avatarUrl
+        ? <img src={avatarUrl} alt="avatar" className="w-full h-full object-cover" />
+        : initials
+      }
     </button>
   );
 }
@@ -54,6 +58,15 @@ function DropdownMenu({ onClose }) {
 export default function Nav() {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState(null);
+
+  useEffect(() => {
+    if (!user) return;
+    authFetch('/api/profile')
+      .then((r) => r.json())
+      .then((d) => { if (d.avatar_url) setAvatarUrl(d.avatar_url); })
+      .catch(() => {});
+  }, [user]);
 
   const linkClass = ({ isActive }) =>
     cn(
@@ -73,7 +86,7 @@ export default function Nav() {
           <NavLink to="/" end className={linkClass}>Today</NavLink>
           <NavLink to="/chat" className={linkClass}>Echo</NavLink>
           <div className="relative ml-2">
-            <Avatar email={user?.email} onClick={() => setOpen((o) => !o)} />
+            <Avatar email={user?.email} avatarUrl={avatarUrl} onClick={() => setOpen((o) => !o)} />
             {open && <DropdownMenu onClose={() => setOpen(false)} />}
           </div>
         </div>

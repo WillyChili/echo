@@ -306,7 +306,7 @@ export default function TodayPage() {
             {viewingDate ? (
               <>
                 <h1 className="text-xl font-semibold text-foreground leading-tight">{formatDate(viewingDate)}</h1>
-                <p className="text-muted-foreground text-xs mt-0.5">Editing past entry</p>
+                <p className="text-muted-foreground text-xs mt-0.5">Editing past note</p>
               </>
             ) : (
               <>
@@ -319,7 +319,7 @@ export default function TodayPage() {
             )}
           </div>
           {!isNewEntry && (
-            <Button variant="outline" size="sm" onClick={startNewEntry}>+ New entry</Button>
+            <Button variant="outline" size="sm" onClick={startNewEntry}>+ New note</Button>
           )}
         </div>
 
@@ -327,7 +327,7 @@ export default function TodayPage() {
         <Textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder={isNewEntry ? "What's on your mind..." : 'Edit this entry...'}
+          placeholder={isNewEntry ? "What's on your mind..." : 'Edit this note...'}
           rows={8}
           className="text-base"
         />
@@ -370,7 +370,7 @@ export default function TodayPage() {
         {notes.length > 0 && (
           <div className={`mt-6 ${selectionMode ? 'pb-24' : ''}`}>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Past entries</h2>
+              <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Past notes</h2>
               {!selectionMode && <span className="text-xs text-muted-foreground/50">Hold to select</span>}
             </div>
             <ul className="flex flex-col gap-2">
@@ -426,7 +426,7 @@ export default function TodayPage() {
 
         {notes.length === 0 && (
           <p className="text-muted-foreground text-sm text-center py-4 mt-4">
-            Your past entries will appear here.
+            Your past notes will appear here.
           </p>
         )}
       </div>

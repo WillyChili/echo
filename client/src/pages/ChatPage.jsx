@@ -107,9 +107,12 @@ export default function ChatPage() {
   return (
     <div className="flex flex-col h-[calc(100vh-3.5rem)]">
       {/* Notice bar */}
-      <div className="bg-card/60 border-b border-border/60 py-2 px-4">
-        <p className="text-xs text-muted-foreground text-center max-w-2xl mx-auto">
-          Echo learns from your notes. The more you write, the more it sounds like you.
+      <div className="px-4 py-2.5 border-b border-border/60">
+        <p className="text-xs text-center max-w-2xl mx-auto">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-mint/50 bg-mint/10 text-mint font-medium">
+            <span className="w-1.5 h-1.5 rounded-full bg-mint shrink-0" />
+            Echo learns from your notes — the more you write, the more it sounds like you.
+          </span>
         </p>
       </div>
 
@@ -137,13 +140,7 @@ export default function ChatPage() {
       <div className="border-t border-border/60 bg-background/80 backdrop-blur-sm px-4 py-4">
         <div className="max-w-2xl mx-auto">
           {micError && <p className="text-xs text-red-400 mb-2">{micError}</p>}
-          <div className="flex items-end gap-2">
-            <MicButton
-              isRecording={isRecording}
-              isSupported={isSupported}
-              onToggle={toggleMic}
-              size="sm"
-            />
+          <div className="flex items-center gap-2">
             <div className="flex-1 relative">
               <textarea
                 ref={inputRef}
@@ -156,12 +153,17 @@ export default function ChatPage() {
                 style={{ overflowY: 'auto' }}
               />
             </div>
-            {/* EAI-10: no hover — active: only */}
+            <MicButton
+              isRecording={isRecording}
+              isSupported={isSupported}
+              onToggle={toggleMic}
+              size="sm"
+            />
             <Button
               size="icon"
               onClick={send}
               disabled={!input.trim() || isLoading}
-              className="rounded-full mb-0.5 shrink-0"
+              className="rounded-full shrink-0"
             >
               <SendIcon />
             </Button>

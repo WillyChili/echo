@@ -54,6 +54,20 @@ const translations = {
     edit_profile_bio_placeholder: 'Tell Echo a bit about yourself',
     edit_profile_photo_error: 'Could not upload photo. Make sure the "avatars" bucket exists in Supabase Storage.',
 
+    // OnboardingPage
+    onboarding_lang_title: 'Choose your language',
+    onboarding_name_title: 'What should Echo call you?',
+    onboarding_name_placeholder: 'Your name',
+    onboarding_bio_title: 'Tell Echo about yourself',
+    onboarding_bio_subtitle: 'This helps Echo understand you better.',
+    onboarding_bio_placeholder: 'A little about you...',
+    onboarding_skip: 'Skip for now',
+    onboarding_continue: 'Continue',
+    onboarding_loading_1: 'Setting language to English...',
+    onboarding_loading_2: 'Hi {name}!',
+    onboarding_loading_3: 'Personalizing your experience...',
+    onboarding_loading_4: 'Echo is ready.',
+
     // SettingsPage
     settings_title: 'Settings',
     settings_subtitle: 'Manage your Echo preferences.',
@@ -122,6 +136,20 @@ const translations = {
     edit_profile_bio: 'Bio',
     edit_profile_bio_placeholder: 'Contale a Echo un poco sobre vos',
     edit_profile_photo_error: 'No se pudo subir la foto. Asegúrate de que el bucket "avatars" existe en Supabase Storage.',
+
+    // OnboardingPage
+    onboarding_lang_title: 'Elegi tu idioma',
+    onboarding_name_title: 'Como queres que Echo te llame?',
+    onboarding_name_placeholder: 'Tu nombre',
+    onboarding_bio_title: 'Contale algo a Echo sobre vos',
+    onboarding_bio_subtitle: 'Esto ayuda a Echo a entenderte mejor.',
+    onboarding_bio_placeholder: 'Un poco sobre ti...',
+    onboarding_skip: 'Omitir por ahora',
+    onboarding_continue: 'Continuar',
+    onboarding_loading_1: 'Configurando el idioma...',
+    onboarding_loading_2: 'Hola {name}!',
+    onboarding_loading_3: 'Personalizando tu experiencia...',
+    onboarding_loading_4: 'Echo esta listo.',
 
     // SettingsPage
     settings_title: 'Ajustes',

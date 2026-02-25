@@ -9,9 +9,11 @@ export function ProfileProvider({ children }) {
   const [avatarUrl, setAvatarUrl] = useState(null);
   const [displayName, setDisplayName] = useState('');
   const [language, setLanguage] = useState('en');
+  const [profileLoading, setProfileLoading] = useState(true);
 
   const refreshProfile = useCallback(() => {
-    if (!user) return;
+    if (!user) { setProfileLoading(false); return; }
+    setProfileLoading(true);
     authFetch('/api/profile')
       .then((r) => r.json())
       .then((d) => {
@@ -21,7 +23,8 @@ export function ProfileProvider({ children }) {
         if ('display_name' in d) setDisplayName(d.display_name || '');
         if ('language' in d) setLanguage(d.language || 'en');
       })
-      .catch(() => {}); // network error — preserve existing state
+      .catch(() => {}) // network error - preserve existing state
+      .finally(() => setProfileLoading(false));
   }, [user]);
 
   // Fetch on mount / when user changes
@@ -30,7 +33,7 @@ export function ProfileProvider({ children }) {
   }, [refreshProfile]);
 
   return (
-    <ProfileContext.Provider value={{ avatarUrl, setAvatarUrl, displayName, setDisplayName, language, setLanguage, refreshProfile }}>
+    <ProfileContext.Provider value={{ avatarUrl, setAvatarUrl, displayName, setDisplayName, language, setLanguage, refreshProfile, profileLoading }}>
       {children}
     </ProfileContext.Provider>
   );

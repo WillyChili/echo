@@ -74,6 +74,18 @@
     50%       { transform: scaleY(1);   opacity: 1;    }
   }
 
+  /* Onboarding particle orbit */
+  @keyframes orbit-particle {
+    from { transform: rotate(var(--angle)) translateX(var(--r)); }
+    to   { transform: rotate(calc(var(--angle) + 360deg)) translateX(var(--r)); }
+  }
+
+  /* Onboarding loading message fade */
+  @keyframes fade-message {
+    0%, 100% { opacity: 0; transform: translateY(6px); }
+    20%, 75%  { opacity: 1; transform: translateY(0); }
+  }
+
   /* Squircle progressive enhancement */
   @supports (corner-shape: squircle) {
     .squircle { corner-shape: squircle; }

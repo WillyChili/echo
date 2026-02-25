@@ -173,9 +173,6 @@ export default function OnboardingPage() {
     <div className="min-h-screen flex items-center justify-center bg-neutral-950 px-6">
       <div className="w-full max-w-sm">
 
-        {/* Stepper */}
-        <Stepper step={step} />
-
         {/* Step 0: Language */}
         {step === 0 && (
           <div className="text-center">
@@ -203,6 +200,7 @@ export default function OnboardingPage() {
                 </div>
               </button>
             </div>
+            <div className="mt-8"><Stepper step={step} /></div>
           </div>
         )}
 
@@ -235,6 +233,7 @@ export default function OnboardingPage() {
             >
               {lang === 'es' ? 'Volver' : 'Back'}
             </button>
+            <div className="mt-8"><Stepper step={step} /></div>
           </div>
         )}
 
@@ -264,6 +263,7 @@ export default function OnboardingPage() {
             >
               {t('onboarding_skip')}
             </button>
+            <div className="mt-8"><Stepper step={step} /></div>
           </div>
         )}
       </div>

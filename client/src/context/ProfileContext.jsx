@@ -9,6 +9,7 @@ export function ProfileProvider({ children }) {
   const [avatarUrl, setAvatarUrl] = useState(null);
   const [displayName, setDisplayName] = useState('');
   const [language, setLanguage] = useState('en');
+  const [bio, setBio] = useState('');
   const [profileLoading, setProfileLoading] = useState(true);
 
   const refreshProfile = useCallback(() => {
@@ -22,6 +23,7 @@ export function ProfileProvider({ children }) {
         if ('avatar_url' in d) setAvatarUrl(d.avatar_url || null);
         if ('display_name' in d) setDisplayName(d.display_name || '');
         if ('language' in d) setLanguage(d.language || 'en');
+        if ('bio' in d) setBio(d.bio || '');
       })
       .catch(() => {}) // network error - preserve existing state
       .finally(() => setProfileLoading(false));
@@ -33,7 +35,7 @@ export function ProfileProvider({ children }) {
   }, [refreshProfile]);
 
   return (
-    <ProfileContext.Provider value={{ avatarUrl, setAvatarUrl, displayName, setDisplayName, language, setLanguage, refreshProfile, profileLoading }}>
+    <ProfileContext.Provider value={{ avatarUrl, setAvatarUrl, displayName, setDisplayName, language, setLanguage, bio, setBio, refreshProfile, profileLoading }}>
       {children}
     </ProfileContext.Provider>
   );

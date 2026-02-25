@@ -17,7 +17,7 @@ function Field({ label, children }) {
 
 export default function EditProfilePage() {
   const { user } = useAuth();
-  const { language, setLanguage, setAvatarUrl: setProfileAvatarUrl, refreshProfile } = useProfile();
+  const { language, setLanguage, bio: profileBio, setBio: setProfileBio, setAvatarUrl: setProfileAvatarUrl, refreshProfile } = useProfile();
   const { t } = useTranslation();
   const fileRef = useRef(null);
 
@@ -30,6 +30,11 @@ export default function EditProfilePage() {
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [saved, setSaved]                 = useState(false);
   const [error, setError]                 = useState(null);
+
+  // Seed bio from ProfileContext immediately (avoids empty field flash)
+  useEffect(() => {
+    if (profileBio) setBio(profileBio);
+  }, [profileBio]);
 
   useEffect(() => {
     authFetch('/api/profile')
@@ -98,6 +103,7 @@ export default function EditProfilePage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to save.');
       setSaved(true);
+      setProfileBio(bio); // sync bio to context
       refreshProfile(); // sync Nav display name
       setTimeout(() => setSaved(false), 2500);
     } catch (err) {

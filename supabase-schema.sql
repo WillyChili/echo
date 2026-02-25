@@ -5,11 +5,21 @@
 
 -- 1. PROFILES (extended user info)
 CREATE TABLE IF NOT EXISTS profiles (
-  id          UUID  REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
-  api_key     TEXT,                          -- user's own Anthropic API key (optional)
-  llm_provider TEXT DEFAULT 'anthropic',    -- future: openai, gemini, etc.
-  created_at  TIMESTAMPTZ DEFAULT NOW()
+  id           UUID  REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
+  display_name TEXT,                          -- chosen display name (set during onboarding)
+  avatar_url   TEXT,                          -- public URL of uploaded avatar
+  language     TEXT DEFAULT 'en',             -- UI language: 'en' | 'es'
+  bio          TEXT,                          -- short user bio for Echo context
+  api_key      TEXT,                          -- user's own Anthropic API key (optional)
+  llm_provider TEXT DEFAULT 'anthropic',      -- future: openai, gemini, etc.
+  created_at   TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Migration: add columns if the table already exists without them
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS display_name TEXT;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS avatar_url   TEXT;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS language     TEXT DEFAULT 'en';
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS bio          TEXT;
 
 -- 2. NOTES
 CREATE TABLE IF NOT EXISTS notes (

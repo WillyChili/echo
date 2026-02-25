@@ -101,7 +101,7 @@ function CalendarIcon({ className }) {
   );
 }
 
-function MiniCalendar({ year, month, today, selectedDate, noteDates, onSelectDate, onPrevMonth, onNextMonth }) {
+function MiniCalendar({ year, month, today, selectedDate, noteDates, onSelectDate, onPrevMonth, onNextMonth, onClose }) {
   const todayYear = parseInt(today.split('-')[0]);
   const todayMonth = parseInt(today.split('-')[1]) - 1;
   const canGoNext = year < todayYear || (year === todayYear && month < todayMonth);
@@ -116,56 +116,59 @@ function MiniCalendar({ year, month, today, selectedDate, noteDates, onSelectDat
   const monthLabel = new Date(year, month, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
   return (
-    <div className="absolute top-full left-0 mt-2 z-50 bg-card border border-border/80 rounded-2xl p-4 shadow-2xl w-72">
-      <div className="flex items-center justify-between mb-4">
-        <button onClick={onPrevMonth} className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-muted transition-colors text-muted-foreground">
-          <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-            <path d="M15 18l-6-6 6-6"/>
-          </svg>
-        </button>
-        <span className="text-sm font-medium text-foreground">{monthLabel}</span>
-        <button onClick={onNextMonth} disabled={!canGoNext} className={`w-7 h-7 flex items-center justify-center rounded-full transition-colors ${canGoNext ? 'hover:bg-muted text-muted-foreground' : 'opacity-20 cursor-default text-muted-foreground'}`}>
-          <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-            <path d="M9 18l6-6-6-6"/>
-          </svg>
-        </button>
-      </div>
+    <>
+      {/* Backdrop */}
+      <div className="fixed inset-0 z-40" onClick={onClose} />
+      {/* Centered panel */}
+      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-card border border-border/80 rounded-2xl p-4 shadow-2xl w-72">
+        <div className="flex items-center justify-between mb-4">
+          <button onClick={onPrevMonth} className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-muted transition-colors text-muted-foreground">
+            <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+              <path d="M15 18l-6-6 6-6"/>
+            </svg>
+          </button>
+          <span className="text-sm font-medium text-foreground">{monthLabel}</span>
+          <button onClick={onNextMonth} disabled={!canGoNext} className={`w-7 h-7 flex items-center justify-center rounded-full transition-colors ${canGoNext ? 'hover:bg-muted text-muted-foreground' : 'opacity-20 cursor-default text-muted-foreground'}`}>
+            <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </button>
+        </div>
 
-      <div className="grid grid-cols-7 mb-2">
-        {['M','T','W','T','F','S','S'].map((d, i) => (
-          <span key={i} className="text-center text-[10px] text-muted-foreground/50 font-medium">{d}</span>
-        ))}
-      </div>
+        <div className="grid grid-cols-7 mb-2">
+          {['M','T','W','T','F','S','S'].map((d, i) => (
+            <span key={i} className="text-center text-[10px] text-muted-foreground/50 font-medium">{d}</span>
+          ))}
+        </div>
 
-      <div className="grid grid-cols-7 gap-y-1">
-        {cells.map((day, i) => {
-          if (!day) return <div key={i} />;
-          const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-          const isToday = dateStr === today;
-          const isSelected = dateStr === selectedDate;
-          const hasNote = noteDates.has(dateStr);
-          const isFuture = dateStr > today;
-          return (
-            <button
-              key={i}
-              disabled={isFuture}
-              onClick={() => onSelectDate(dateStr)}
-              className={`relative flex flex-col items-center justify-center h-8 w-8 mx-auto rounded-full text-xs transition-colors
-                ${isFuture ? 'opacity-25 cursor-default' : 'cursor-pointer'}
-                ${isSelected ? 'bg-mint text-background font-semibold'
-                  : isToday ? 'border border-mint/60 text-mint hover:bg-mint/10'
-                  : !isFuture ? 'text-foreground hover:bg-muted' : 'text-foreground'}
-              `}
-            >
-              {day}
-              {hasNote && !isSelected && (
-                <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-mint" />
-              )}
-            </button>
-          );
-        })}
+        <div className="grid grid-cols-7 gap-y-1">
+          {cells.map((day, i) => {
+            if (!day) return <div key={i} />;
+            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const isToday = dateStr === today;
+            const isSelected = dateStr === selectedDate;
+            const hasNote = noteDates.has(dateStr);
+            const isFuture = dateStr > today;
+            return (
+              <button
+                key={i}
+                disabled={isFuture}
+                onClick={() => onSelectDate(dateStr)}
+                className={`flex flex-col items-center justify-center gap-0.5 h-9 w-8 mx-auto rounded-xl text-xs transition-colors
+                  ${isFuture ? 'opacity-25 cursor-default' : 'cursor-pointer'}
+                  ${isSelected ? 'bg-mint text-background font-semibold'
+                    : isToday ? 'border border-mint/60 text-mint hover:bg-mint/10'
+                    : !isFuture ? 'text-foreground hover:bg-muted' : 'text-foreground'}
+                `}
+              >
+                <span>{day}</span>
+                <span className={`w-1 h-1 rounded-full ${hasNote && !isSelected ? 'bg-mint' : 'invisible'}`} />
+              </button>
+            );
+          })}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -526,6 +529,7 @@ export default function TodayPage() {
                 onSelectDate={handleSelectDate}
                 onPrevMonth={handlePrevMonth}
                 onNextMonth={handleNextMonth}
+                onClose={() => setCalendarOpen(false)}
               />
             )}
           </div>

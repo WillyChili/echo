@@ -140,8 +140,8 @@ export default function OnboardingPage() {
 
   const finish = async (skipBio = false) => {
     setSaving(true);
-    goForward(3);
     const finalBio = skipBio ? '' : bio;
+    // Save first, then show animation
     try {
       await authFetch('/api/profile', {
         method: 'POST',
@@ -152,8 +152,9 @@ export default function OnboardingPage() {
         }),
       });
     } catch (_) {
-      // best effort
+      // best effort - proceed to animation even on network error
     }
+    goForward(3);
     // Wait for animation then refresh (gate in App.jsx shows main app once displayName is set)
     setTimeout(async () => {
       await refreshProfile();

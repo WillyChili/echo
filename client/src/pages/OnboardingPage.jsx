@@ -98,7 +98,7 @@ function Stepper({ step }) {
             i === step
               ? 'w-5 h-1.5 bg-mint'
               : i < step
-              ? 'w-1.5 h-1.5 border border-mint'
+              ? 'w-1.5 h-1.5 bg-mint opacity-70'
               : 'w-1.5 h-1.5 bg-border'
           }`}
         />
@@ -112,11 +112,15 @@ export default function OnboardingPage() {
   const { t } = useTranslation();
 
   const [step, setStep] = useState(0);
+  const [direction, setDirection] = useState('right');
   const [lang, setLang] = useState('en');
   const [name, setName] = useState('');
   const [bio, setBio] = useState('');
   const [saving, setSaving] = useState(false);
   const nameRef = useRef(null);
+
+  const goForward = (nextStep) => { setDirection('right'); setStep(nextStep); };
+  const goBack    = (nextStep) => { setDirection('left');  setStep(nextStep); };
 
   // Focus name input when step changes to 1
   useEffect(() => {
@@ -126,17 +130,17 @@ export default function OnboardingPage() {
   const selectLang = (l) => {
     setLang(l);
     setLanguage(l); // update context so t() reflects choice immediately
-    setStep(1);
+    goForward(1);
   };
 
   const goToBio = () => {
     if (!name.trim()) return;
-    setStep(2);
+    goForward(2);
   };
 
   const finish = async (skipBio = false) => {
     setSaving(true);
-    setStep(3);
+    goForward(3);
     const finalBio = skipBio ? '' : bio;
     try {
       await authFetch('/api/profile', {
@@ -169,13 +173,17 @@ export default function OnboardingPage() {
     return <ParticleBurst name={name} messages={loadingMessages} />;
   }
 
+  const slideStyle = {
+    animation: `${direction === 'right' ? 'slide-in-right' : 'slide-in-left'} 0.28s ease-out both`,
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-neutral-950 px-6">
+    <div className="min-h-screen flex items-center justify-center bg-neutral-950 px-6 overflow-hidden">
       <div className="w-full max-w-sm">
 
         {/* Step 0: Language */}
         {step === 0 && (
-          <div className="text-center">
+          <div key={0} style={slideStyle} className="text-center">
             <h1 className="text-xl font-semibold text-foreground mb-2">Choose your language</h1>
             <p className="text-sm text-muted-foreground mb-8">Elegi tu idioma</p>
             <div className="flex flex-col gap-3">
@@ -198,7 +206,7 @@ export default function OnboardingPage() {
 
         {/* Step 1: Name */}
         {step === 1 && (
-          <div className="text-center">
+          <div key={1} style={slideStyle} className="text-center">
             <h1 className="text-xl font-semibold text-foreground mb-2">{t('onboarding_name_title')}</h1>
             <p className="text-sm text-muted-foreground mb-8">
               {lang === 'es' ? 'Echo te va a llamar por este nombre.' : 'Echo will use this to address you.'}
@@ -220,7 +228,7 @@ export default function OnboardingPage() {
               {t('onboarding_continue')}
             </button>
             <button
-              onClick={() => setStep(0)}
+              onClick={() => goBack(0)}
               className="mt-3 text-xs text-muted-foreground active:opacity-70"
             >
               {lang === 'es' ? 'Volver' : 'Back'}
@@ -231,7 +239,7 @@ export default function OnboardingPage() {
 
         {/* Step 2: Bio */}
         {step === 2 && (
-          <div className="text-center">
+          <div key={2} style={slideStyle} className="text-center">
             <h1 className="text-xl font-semibold text-foreground mb-1">{t('onboarding_bio_title')}</h1>
             <p className="text-sm text-muted-foreground mb-6">{t('onboarding_bio_subtitle')}</p>
             <textarea

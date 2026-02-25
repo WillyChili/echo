@@ -19,6 +19,15 @@ function formatDate(dateStr, language = 'en') {
   });
 }
 
+function formatDateShort(dateStr, language = 'en') {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  const locale = LOCALE_MAP[language] || 'en-US';
+  const sameYear = year === new Date().getFullYear();
+  return new Date(year, month - 1, day).toLocaleDateString(locale, {
+    month: 'long', day: 'numeric', ...(sameYear ? {} : { year: 'numeric' }),
+  });
+}
+
 function formatTime(isoStr, language = 'en') {
   if (!isoStr) return '';
   const locale = LOCALE_MAP[language] || 'en-US';
@@ -81,6 +90,85 @@ function SpinningRing() {
   );
 }
 
+function CalendarIcon({ className }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+      <line x1="16" y1="2" x2="16" y2="6"/>
+      <line x1="8" y1="2" x2="8" y2="6"/>
+      <line x1="3" y1="10" x2="21" y2="10"/>
+    </svg>
+  );
+}
+
+function MiniCalendar({ year, month, today, selectedDate, noteDates, onSelectDate, onPrevMonth, onNextMonth }) {
+  const todayYear = parseInt(today.split('-')[0]);
+  const todayMonth = parseInt(today.split('-')[1]) - 1;
+  const canGoNext = year < todayYear || (year === todayYear && month < todayMonth);
+
+  const firstDay = (new Date(year, month, 1).getDay() + 6) % 7;
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  const cells = [];
+  for (let i = 0; i < firstDay; i++) cells.push(null);
+  for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+
+  const monthLabel = new Date(year, month, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+  return (
+    <div className="absolute top-full left-0 mt-2 z-50 bg-card border border-border/80 rounded-2xl p-4 shadow-2xl w-72">
+      <div className="flex items-center justify-between mb-4">
+        <button onClick={onPrevMonth} className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-muted transition-colors text-muted-foreground">
+          <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+            <path d="M15 18l-6-6 6-6"/>
+          </svg>
+        </button>
+        <span className="text-sm font-medium text-foreground">{monthLabel}</span>
+        <button onClick={onNextMonth} disabled={!canGoNext} className={`w-7 h-7 flex items-center justify-center rounded-full transition-colors ${canGoNext ? 'hover:bg-muted text-muted-foreground' : 'opacity-20 cursor-default text-muted-foreground'}`}>
+          <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+            <path d="M9 18l6-6-6-6"/>
+          </svg>
+        </button>
+      </div>
+
+      <div className="grid grid-cols-7 mb-2">
+        {['M','T','W','T','F','S','S'].map((d, i) => (
+          <span key={i} className="text-center text-[10px] text-muted-foreground/50 font-medium">{d}</span>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-7 gap-y-1">
+        {cells.map((day, i) => {
+          if (!day) return <div key={i} />;
+          const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+          const isToday = dateStr === today;
+          const isSelected = dateStr === selectedDate;
+          const hasNote = noteDates.has(dateStr);
+          const isFuture = dateStr > today;
+          return (
+            <button
+              key={i}
+              disabled={isFuture}
+              onClick={() => onSelectDate(dateStr)}
+              className={`relative flex flex-col items-center justify-center h-8 w-8 mx-auto rounded-full text-xs transition-colors
+                ${isFuture ? 'opacity-25 cursor-default' : 'cursor-pointer'}
+                ${isSelected ? 'bg-mint text-background font-semibold'
+                  : isToday ? 'border border-mint/60 text-mint hover:bg-mint/10'
+                  : !isFuture ? 'text-foreground hover:bg-muted' : 'text-foreground'}
+              `}
+            >
+              {day}
+              {hasNote && !isSelected && (
+                <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-mint" />
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export default function TodayPage() {
   const todayDate = getTodayDate();
   const { user } = useAuth();
@@ -97,6 +185,15 @@ export default function TodayPage() {
   const [saveStatus, setSaveStatus] = useState('');
   const [micError, setMicError] = useState(null);
   const [viewingDate, setViewingDate] = useState(null);
+
+  // Calendar date picker
+  const [selectedDate, setSelectedDate] = useState(todayDate);
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [calendarMonth, setCalendarMonth] = useState(() => {
+    const d = new Date();
+    return { year: d.getFullYear(), month: d.getMonth() };
+  });
+  const calendarRef = useRef(null);
 
   // EAI-10: Long-press selection
   const [selectionMode, setSelectionMode] = useState(false);
@@ -140,6 +237,43 @@ export default function TodayPage() {
   }, []);
 
   useEffect(() => { fetchAllNotes(); }, [fetchAllNotes]);
+
+  // Derived: notes for selected date + all dates that have notes (for calendar dots)
+  const displayedNotes = notes.filter(n => n.date === selectedDate);
+  const allNoteDates = new Set(notes.map(n => n.date));
+
+  // Close calendar on outside click
+  useEffect(() => {
+    if (!calendarOpen) return;
+    const handler = (e) => {
+      if (calendarRef.current && !calendarRef.current.contains(e.target)) {
+        setCalendarOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    document.addEventListener('touchstart', handler);
+    return () => {
+      document.removeEventListener('mousedown', handler);
+      document.removeEventListener('touchstart', handler);
+    };
+  }, [calendarOpen]);
+
+  const handleSelectDate = (date) => {
+    setSelectedDate(date);
+    setCalendarOpen(false);
+  };
+
+  const handlePrevMonth = () => {
+    setCalendarMonth(({ year, month }) =>
+      month === 0 ? { year: year - 1, month: 11 } : { year, month: month - 1 }
+    );
+  };
+
+  const handleNextMonth = () => {
+    setCalendarMonth(({ year, month }) =>
+      month === 11 ? { year: year + 1, month: 0 } : { year, month: month + 1 }
+    );
+  };
 
   // ── EAI-16: Auto-save (POST new / PUT existing) ───────────────────────────
   useEffect(() => {
@@ -367,15 +501,38 @@ export default function TodayPage() {
           </Button>
         </div>
 
-        {/* EAI-13: Extra margin before past entries */}
-        {notes.length > 0 && (
-          <div className={`mt-6 ${selectionMode ? 'pb-24' : ''}`}>
+        {/* Notes section with calendar picker */}
+        <div className={`mt-6 ${selectionMode ? 'pb-24' : ''}`}>
+          <div className="relative" ref={calendarRef}>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">{t('today_past_notes')}</h2>
+              <button
+                onClick={() => setCalendarOpen(o => !o)}
+                className="flex items-center gap-1.5 group"
+              >
+                <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
+                  {selectedDate === todayDate ? t('today_notes_header') : formatDateShort(selectedDate, language)}
+                </h2>
+                <CalendarIcon className="w-3.5 h-3.5 text-mint opacity-60 group-hover:opacity-100 transition-opacity" />
+              </button>
               {!selectionMode && <span className="text-xs text-muted-foreground/50">{t('today_hold_to_select')}</span>}
             </div>
+            {calendarOpen && (
+              <MiniCalendar
+                year={calendarMonth.year}
+                month={calendarMonth.month}
+                today={todayDate}
+                selectedDate={selectedDate}
+                noteDates={allNoteDates}
+                onSelectDate={handleSelectDate}
+                onPrevMonth={handlePrevMonth}
+                onNextMonth={handleNextMonth}
+              />
+            )}
+          </div>
+
+          {displayedNotes.length > 0 ? (
             <ul className="flex flex-col gap-2">
-              {notes.map((note) => {
+              {displayedNotes.map((note) => {
                 const isSelected = selectedIds.has(note.id);
                 const isActive = currentNoteId === note.id;
                 const isPressing = pressingId === note.id;
@@ -399,8 +556,7 @@ export default function TodayPage() {
                     >
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-2 min-w-0">
-                          <span className="text-xs text-muted-foreground shrink-0">{formatDate(note.date, language)}</span>
-                          <span className="text-xs text-muted-foreground/50 shrink-0">{formatTime(note.created_at, language)}</span>
+                          <span className="text-xs text-muted-foreground shrink-0">{formatTime(note.created_at, language)}</span>
                         </div>
                         {selectionMode && (
                           <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
@@ -422,14 +578,12 @@ export default function TodayPage() {
                 );
               })}
             </ul>
-          </div>
-        )}
-
-        {notes.length === 0 && (
-          <p className="text-muted-foreground text-sm text-center py-4 mt-4">
-            {t('today_no_notes')}
-          </p>
-        )}
+          ) : (
+            <p className="text-muted-foreground text-sm text-center py-4">
+              {selectedDate === todayDate ? t('today_no_notes') : t('today_no_notes_date')}
+            </p>
+          )}
+        </div>
       </div>
     </>
   );

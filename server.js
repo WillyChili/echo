@@ -4,6 +4,7 @@ const cors = require('cors');
 
 const notesRouter    = require('./server/routes/notes');
 const chatRouter     = require('./server/routes/chat');
+const messagesRouter = require('./server/routes/messages');
 const settingsRouter = require('./server/routes/settings');
 const profileRouter  = require('./server/routes/profile');
 
@@ -16,6 +17,7 @@ app.use(express.json({ limit: '2mb' }));
 
 app.use('/api/notes',    notesRouter);
 app.use('/api/chat',     chatRouter);
+app.use('/api/messages', messagesRouter);
 app.use('/api/settings', settingsRouter);
 app.use('/api/profile',  profileRouter);
 

@@ -2,11 +2,13 @@ import { useState, useEffect, useRef } from 'react';
 import { authFetch } from '../lib/api';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
+import { useProfile } from '../context/ProfileContext';
+import { useTranslation } from '../hooks/useTranslation';
 
-// ── Floating-label field (Instagram-style) ───────────────────────────────────
-function Field({ label, children, noBorder }) {
+// ── Individual field card (Instagram-style) ──────────────────────────────────
+function Field({ label, children }) {
   return (
-    <div className={`px-5 py-3.5 ${!noBorder ? 'border-b border-border/30' : ''}`}>
+    <div className="bg-card border border-border/50 rounded-2xl px-4 py-3">
       <p className="text-[11px] text-muted-foreground mb-0.5 select-none">{label}</p>
       {children}
     </div>
@@ -15,12 +17,14 @@ function Field({ label, children, noBorder }) {
 
 export default function EditProfilePage() {
   const { user } = useAuth();
+  const { language, setLanguage, setAvatarUrl: setProfileAvatarUrl, refreshProfile } = useProfile();
+  const { t } = useTranslation();
   const fileRef = useRef(null);
 
   const [displayName, setDisplayName]     = useState('');
+  const [bio, setBio]                     = useState('');
   const [avatarUrl, setAvatarUrl]         = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
-  const [language, setLanguage]           = useState('en');
   const [fetching, setFetching]           = useState(true);
   const [saving, setSaving]               = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -33,7 +37,8 @@ export default function EditProfilePage() {
       .then((d) => {
         if (d.display_name) setDisplayName(d.display_name);
         if (d.avatar_url)   setAvatarUrl(d.avatar_url);
-        if (d.language)     setLanguage(d.language);
+        if (d.bio)          setBio(d.bio);
+        // language is managed in ProfileContext
       })
       .catch(() => {})
       .finally(() => setFetching(false));
@@ -60,13 +65,20 @@ export default function EditProfilePage() {
         .from('avatars')
         .getPublicUrl(path);
 
-      await authFetch('/api/profile', {
+      // Append cache-busting timestamp so the browser always fetches the new image
+      const cacheBustedUrl = `${publicUrl}?t=${Date.now()}`;
+
+      const res = await authFetch('/api/profile', {
         method: 'POST',
-        body: JSON.stringify({ avatar_url: publicUrl }),
+        body: JSON.stringify({ avatar_url: cacheBustedUrl }),
       });
-      setAvatarUrl(publicUrl);
+      if (!res.ok) throw new Error('Failed to save avatar');
+
+      // Update both local state and ProfileContext so Nav refreshes immediately
+      setAvatarUrl(cacheBustedUrl);
+      setProfileAvatarUrl(cacheBustedUrl);
     } catch {
-      setError('Could not upload photo. Make sure the "avatars" bucket exists in Supabase Storage.');
+      setError(t('edit_profile_photo_error'));
       setAvatarPreview(null);
     } finally {
       setUploadingAvatar(false);
@@ -81,11 +93,12 @@ export default function EditProfilePage() {
     try {
       const res = await authFetch('/api/profile', {
         method: 'POST',
-        body: JSON.stringify({ display_name: displayName, language }),
+        body: JSON.stringify({ display_name: displayName, language, bio }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to save.');
       setSaved(true);
+      refreshProfile(); // sync Nav display name
       setTimeout(() => setSaved(false), 2500);
     } catch (err) {
       setError(err.message);
@@ -98,12 +111,12 @@ export default function EditProfilePage() {
   const initials = user?.email?.[0]?.toUpperCase() || '?';
 
   return (
-    <div className="max-w-xl mx-auto px-4 py-8">
+    <div className="px-3 py-8">
       {/* Title */}
-      <h1 className="text-base font-semibold text-foreground text-center mb-7">Edit profile</h1>
+      <h1 className="text-base font-semibold text-foreground text-center mb-7">{t('edit_profile_title')}</h1>
 
       {fetching ? (
-        <p className="text-xs text-muted-foreground text-center">Loading…</p>
+        <p className="text-xs text-muted-foreground text-center">{t('edit_profile_loading')}</p>
       ) : (
         <form onSubmit={handleSave} className="flex flex-col gap-6">
 
@@ -131,7 +144,7 @@ export default function EditProfilePage() {
               disabled={uploadingAvatar}
               className="text-sm text-mint font-medium active:opacity-70 transition-opacity"
             >
-              {uploadingAvatar ? 'Uploading…' : 'Edit photo'}
+              {uploadingAvatar ? t('edit_profile_uploading') : t('edit_profile_edit_photo')}
             </button>
 
             <input
@@ -144,23 +157,33 @@ export default function EditProfilePage() {
           </div>
 
           {/* ── Fields ─────────────────────────────────────────────────────── */}
-          <div className="bg-card border border-border/50 rounded-2xl overflow-hidden">
+          <div className="flex flex-col gap-3">
 
-            <Field label="Name">
+            <Field label={t('edit_profile_name')}>
               <input
                 type="text"
-                placeholder="Your name"
+                placeholder={t('edit_profile_name_placeholder')}
                 value={displayName}
                 onChange={(e) => { setSaved(false); setDisplayName(e.target.value); }}
                 className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none"
               />
             </Field>
 
-            <Field label="Email">
+            <Field label={t('edit_profile_bio')}>
+              <textarea
+                placeholder={t('edit_profile_bio_placeholder')}
+                value={bio}
+                onChange={(e) => { setSaved(false); setBio(e.target.value); }}
+                rows={3}
+                className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none resize-none leading-relaxed"
+              />
+            </Field>
+
+            <Field label={t('edit_profile_email')}>
               <p className="text-sm text-foreground/50">{user?.email}</p>
             </Field>
 
-            <Field label="Language">
+            <Field label={t('edit_profile_language')}>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-foreground">
                   {language === 'en' ? 'English' : 'Español'}
@@ -170,7 +193,7 @@ export default function EditProfilePage() {
                     <button
                       key={lang}
                       type="button"
-                      onClick={() => setLanguage(lang)}
+                      onClick={() => { setLanguage(lang); }}
                       className={`px-3 py-1 text-xs font-medium transition-colors select-none ${
                         language === lang
                           ? 'bg-foreground text-background'
@@ -184,20 +207,21 @@ export default function EditProfilePage() {
               </div>
             </Field>
 
-            <Field label="Notifications" noBorder>
+            <Field label={t('edit_profile_notifications')}>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground/50">Coming soon</span>
+                <span className="text-sm text-muted-foreground/50">{t('edit_profile_coming_soon')}</span>
                 {/* disabled toggle */}
                 <div className="w-10 h-6 rounded-full bg-border/40 flex items-center px-0.5 opacity-40 cursor-not-allowed">
                   <div className="w-5 h-5 rounded-full bg-muted-foreground" />
                 </div>
               </div>
             </Field>
+
           </div>
 
           {/* ── Feedback ───────────────────────────────────────────────────── */}
           {error && <p className="text-xs text-red-400 px-1">{error}</p>}
-          {saved && <p className="text-xs text-mint px-1">Saved ✓</p>}
+          {saved && <p className="text-xs text-mint px-1">{t('edit_profile_saved')}</p>}
 
           {/* ── Save button ────────────────────────────────────────────────── */}
           <button
@@ -205,7 +229,7 @@ export default function EditProfilePage() {
             disabled={saving || !displayName.trim()}
             className="w-full bg-foreground text-background rounded-xl py-3 text-sm font-medium active:opacity-70 transition-opacity disabled:opacity-40"
           >
-            {saving ? 'Saving…' : 'Save changes'}
+            {saving ? t('edit_profile_saving') : t('edit_profile_save')}
           </button>
         </form>
       )}

@@ -6,18 +6,24 @@ import { useSpeech } from '../hooks/useSpeech.js';
 import { useAudioVisualizer } from '../hooks/useAudioVisualizer.js';
 import { authFetch } from '../lib/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
+import { useTranslation } from '../hooks/useTranslation.js';
+import { useProfile } from '../context/ProfileContext.jsx';
 
-function formatDate(dateStr) {
+const LOCALE_MAP = { en: 'en-US', es: 'es-ES' };
+
+function formatDate(dateStr, language = 'en') {
   const [year, month, day] = dateStr.split('-').map(Number);
-  return new Date(year, month - 1, day).toLocaleDateString('en-US', {
+  const locale = LOCALE_MAP[language] || 'en-US';
+  return new Date(year, month - 1, day).toLocaleDateString(locale, {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
   });
 }
 
-function formatTime(isoStr) {
+function formatTime(isoStr, language = 'en') {
   if (!isoStr) return '';
+  const locale = LOCALE_MAP[language] || 'en-US';
   const date = new Date(isoStr.includes('T') ? isoStr : isoStr + 'Z');
-  return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+  return date.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit', hour12: language !== 'es' });
 }
 
 function getTodayDate() {
@@ -78,15 +84,11 @@ function SpinningRing() {
 export default function TodayPage() {
   const todayDate = getTodayDate();
   const { user } = useAuth();
+  const { t, language } = useTranslation();
+  const { displayName: profileDisplayName } = useProfile();
 
-  // EAI-19: personalized greeting
-  const [displayName, setDisplayName] = useState('');
-  useEffect(() => {
-    authFetch('/api/profile')
-      .then((r) => r.json())
-      .then((d) => setDisplayName(d.display_name || user?.email?.split('@')[0] || ''))
-      .catch(() => {});
-  }, [user]);
+  // EAI-19: personalized greeting — use ProfileContext, fallback to email prefix
+  const displayName = profileDisplayName || user?.email?.split('@')[0] || '';
 
   // EAI-16: id-based tracking (null = fresh new entry)
   const [currentNoteId, setCurrentNoteId] = useState(null);
@@ -288,11 +290,11 @@ export default function TodayPage() {
       {/* Selection toolbar */}
       {selectionMode && (
         <div className="fixed bottom-0 left-0 right-0 z-[100] bg-background border-t border-border px-4 py-3 pb-6 flex items-center justify-between gap-4">
-          <span className="text-sm text-foreground font-medium">{selectedIds.size} selected</span>
+          <span className="text-sm text-foreground font-medium">{selectedIds.size} {t('today_selected')}</span>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={cancelSelection}>Cancel</Button>
+            <Button variant="outline" size="sm" onClick={cancelSelection}>{t('today_cancel')}</Button>
             <Button variant="destructive" size="sm" onClick={deleteSelected} className="bg-red-600 text-white">
-              Delete{selectedIds.size > 1 ? ` (${selectedIds.size})` : ''}
+              {t('today_delete')}{selectedIds.size > 1 ? ` (${selectedIds.size})` : ''}
             </Button>
           </div>
         </div>
@@ -305,21 +307,20 @@ export default function TodayPage() {
           <div>
             {viewingDate ? (
               <>
-                <h1 className="text-xl font-semibold text-foreground leading-tight">{formatDate(viewingDate)}</h1>
-                <p className="text-muted-foreground text-xs mt-0.5">Editing past note</p>
+                <h1 className="text-xl font-semibold text-foreground leading-tight">{formatDate(viewingDate, language)}</h1>
+                <p className="text-muted-foreground text-xs mt-0.5">{t('today_editing_past')}</p>
               </>
             ) : (
               <>
-                <p className="text-xs text-muted-foreground mb-0.5">{formatDate(todayDate)}</p>
+                <p className="text-xs text-muted-foreground mb-0.5">{formatDate(todayDate, language)}</p>
                 <h1 className="text-xl font-semibold text-foreground leading-tight">
-                  Hey {displayName ? <span className="capitalize">{displayName}</span> : 'there'},{' '}
-                  <span className="text-muted-foreground font-normal">what's on your mind?</span>
+                  {t('today_greeting_hey')}{displayName ? <>, <span className="capitalize">{displayName}</span></> : ''}
                 </h1>
               </>
             )}
           </div>
           {!isNewEntry && (
-            <Button variant="outline" size="sm" onClick={startNewEntry}>+ New note</Button>
+            <Button variant="outline" size="sm" onClick={startNewEntry}>{t('today_new_note')}</Button>
           )}
         </div>
 
@@ -327,7 +328,7 @@ export default function TodayPage() {
         <Textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder={isNewEntry ? "What's on your mind..." : 'Edit this note...'}
+          placeholder={isNewEntry ? t('today_placeholder_new') : t('today_placeholder_edit')}
           rows={8}
           className="text-base"
         />
@@ -348,7 +349,7 @@ export default function TodayPage() {
             </div>
             <WaveAnimation heights={[...barHeights].reverse()} />
           </div>
-          {isRecording && <span className="text-xs text-mint animate-pulse tracking-wide">Listening...</span>}
+          {isRecording && <span className="text-xs text-mint animate-pulse tracking-wide">{t('today_listening')}</span>}
           {micError && <span className="text-xs text-red-400">{micError}</span>}
         </div>
 
@@ -359,10 +360,10 @@ export default function TodayPage() {
             : saveStatus === 'saved' ? 'text-mint opacity-100'
             : 'opacity-0'
           }`}>
-            {saveStatus === 'saving' ? 'Saving...' : 'Saved ✓'}
+            {saveStatus === 'saving' ? t('today_saving') : t('today_saved')}
           </span>
           <Button size="sm" onClick={saveAndNew} disabled={!content.trim() || saveStatus === 'saving'}>
-            Save
+            {t('today_save')}
           </Button>
         </div>
 
@@ -370,8 +371,8 @@ export default function TodayPage() {
         {notes.length > 0 && (
           <div className={`mt-6 ${selectionMode ? 'pb-24' : ''}`}>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Past notes</h2>
-              {!selectionMode && <span className="text-xs text-muted-foreground/50">Hold to select</span>}
+              <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">{t('today_past_notes')}</h2>
+              {!selectionMode && <span className="text-xs text-muted-foreground/50">{t('today_hold_to_select')}</span>}
             </div>
             <ul className="flex flex-col gap-2">
               {notes.map((note) => {
@@ -398,8 +399,8 @@ export default function TodayPage() {
                     >
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-2 min-w-0">
-                          <span className="text-xs text-muted-foreground shrink-0">{formatDate(note.date)}</span>
-                          <span className="text-xs text-muted-foreground/50 shrink-0">{formatTime(note.created_at)}</span>
+                          <span className="text-xs text-muted-foreground shrink-0">{formatDate(note.date, language)}</span>
+                          <span className="text-xs text-muted-foreground/50 shrink-0">{formatTime(note.created_at, language)}</span>
                         </div>
                         {selectionMode && (
                           <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
@@ -426,7 +427,7 @@ export default function TodayPage() {
 
         {notes.length === 0 && (
           <p className="text-muted-foreground text-sm text-center py-4 mt-4">
-            Your past notes will appear here.
+            {t('today_no_notes')}
           </p>
         )}
       </div>

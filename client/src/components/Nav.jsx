@@ -2,7 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '../context/AuthContext';
-import { authFetch } from '../lib/api';
+import { useProfile } from '../context/ProfileContext';
+import { useTranslation } from '../hooks/useTranslation';
 
 function Avatar({ email, avatarUrl, onClick }) {
   const initials = email ? email[0].toUpperCase() : '?';
@@ -22,6 +23,7 @@ function Avatar({ email, avatarUrl, onClick }) {
 function DropdownMenu({ onClose }) {
   const { signOut } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const ref = useRef(null);
 
   // Close on outside tap
@@ -41,15 +43,15 @@ function DropdownMenu({ onClose }) {
       className="absolute top-11 right-0 w-48 bg-card border border-border/60 rounded-2xl shadow-lg overflow-hidden z-50"
     >
       <button className={item} onClick={() => { navigate('/settings'); onClose(); }}>
-        <SettingsIcon /> Settings
+        <SettingsIcon /> {t('nav_settings')}
       </button>
       <div className="h-px bg-border/40 mx-3" />
       <button className={item} onClick={() => { navigate('/edit-profile'); onClose(); }}>
-        <EditIcon /> Edit profile
+        <EditIcon /> {t('nav_edit_profile')}
       </button>
       <div className="h-px bg-border/40 mx-3" />
       <button className={cn(item, 'text-red-400')} onClick={() => { signOut(); onClose(); }}>
-        <SignOutIcon /> Sign out
+        <SignOutIcon /> {t('nav_sign_out')}
       </button>
     </div>
   );
@@ -57,16 +59,9 @@ function DropdownMenu({ onClose }) {
 
 export default function Nav() {
   const { user } = useAuth();
+  const { avatarUrl } = useProfile();
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
-  const [avatarUrl, setAvatarUrl] = useState(null);
-
-  useEffect(() => {
-    if (!user) return;
-    authFetch('/api/profile')
-      .then((r) => r.json())
-      .then((d) => { if (d.avatar_url) setAvatarUrl(d.avatar_url); })
-      .catch(() => {});
-  }, [user]);
 
   const linkClass = ({ isActive }) =>
     cn(
@@ -83,8 +78,8 @@ export default function Nav() {
           echo
         </span>
         <div className="flex items-center gap-1">
-          <NavLink to="/" end className={linkClass}>Today</NavLink>
-          <NavLink to="/chat" className={linkClass}>Echo</NavLink>
+          <NavLink to="/" end className={linkClass}>{t('nav_today')}</NavLink>
+          <NavLink to="/chat" className={linkClass}>{t('nav_echo')}</NavLink>
           <div className="relative ml-2">
             <Avatar email={user?.email} avatarUrl={avatarUrl} onClick={() => setOpen((o) => !o)} />
             {open && <DropdownMenu onClose={() => setOpen(false)} />}

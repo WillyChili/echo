@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { authFetch } from '../lib/api';
+import { useTranslation } from '../hooks/useTranslation';
 
 export default function SettingsPage() {
+  const { t } = useTranslation();
   const [apiKey, setApiKey]   = useState('');
   const [saved, setSaved]     = useState(false);
   const [loading, setLoading] = useState(false);
@@ -48,7 +50,7 @@ export default function SettingsPage() {
       setApiKey('');
       setSaved(false);
     } catch {
-      setError('Failed to remove key.');
+      setError(t('settings_failed_remove'));
     } finally {
       setLoading(false);
     }
@@ -56,23 +58,23 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-xl mx-auto px-4 py-10">
-      <h1 className="text-lg font-semibold text-foreground mb-1">Settings</h1>
-      <p className="text-sm text-muted-foreground mb-8">Manage your Echo preferences.</p>
+      <h1 className="text-lg font-semibold text-foreground mb-1">{t('settings_title')}</h1>
+      <p className="text-sm text-muted-foreground mb-8">{t('settings_subtitle')}</p>
 
       {/* BYOK */}
       <div className="bg-card border border-border/60 rounded-2xl p-5">
-        <h2 className="text-sm font-medium text-foreground mb-1">Your Anthropic API Key</h2>
+        <h2 className="text-sm font-medium text-foreground mb-1">{t('settings_api_key_title')}</h2>
         <p className="text-xs text-muted-foreground mb-4">
-          Bring your own key so Echo uses your Anthropic account directly. If left empty, Echo uses the shared server key.
+          {t('settings_api_key_desc')}
         </p>
 
         {fetching ? (
-          <p className="text-xs text-muted-foreground">Loading…</p>
+          <p className="text-xs text-muted-foreground">{t('settings_loading')}</p>
         ) : (
           <form onSubmit={handleSave} className="flex flex-col gap-3">
             <input
               type="text"
-              placeholder="sk-ant-api03-…"
+              placeholder={t('settings_placeholder')}
               value={apiKey}
               onFocus={() => { if (apiKey.startsWith('•')) setApiKey(''); }}
               onChange={(e) => { setSaved(false); setApiKey(e.target.value); }}
@@ -80,7 +82,7 @@ export default function SettingsPage() {
             />
 
             {error && <p className="text-xs text-red-400">{error}</p>}
-            {saved && <p className="text-xs text-green-400">API key saved ✓</p>}
+            {saved && <p className="text-xs text-green-400">{t('settings_saved')}</p>}
 
             <div className="flex gap-2">
               <button
@@ -88,7 +90,7 @@ export default function SettingsPage() {
                 disabled={loading || !apiKey || apiKey.startsWith('•')}
                 className="flex-1 bg-foreground text-background rounded-xl py-2.5 text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-40"
               >
-                {loading ? 'Saving…' : 'Save key'}
+                {loading ? t('settings_saving') : t('settings_save_key')}
               </button>
               <button
                 type="button"
@@ -96,7 +98,7 @@ export default function SettingsPage() {
                 disabled={loading}
                 className="px-4 bg-destructive/20 text-red-400 border border-destructive/40 rounded-xl text-sm hover:bg-destructive/30 transition-colors disabled:opacity-40"
               >
-                Remove
+                {t('settings_remove')}
               </button>
             </div>
           </form>

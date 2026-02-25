@@ -10,7 +10,7 @@ router.get('/', async (req, res) => {
   try {
     const { data } = await supabase
       .from('profiles')
-      .select('display_name, avatar_url, language')
+      .select('display_name, avatar_url, language, bio')
       .eq('id', req.user.id)
       .single();
     res.json(data || {});
@@ -22,11 +22,12 @@ router.get('/', async (req, res) => {
 // POST /api/profile
 router.post('/', async (req, res) => {
   try {
-    const { display_name, avatar_url, language } = req.body;
+    const { display_name, avatar_url, language, bio } = req.body;
     const update = { id: req.user.id };
     if (display_name !== undefined) update.display_name = display_name;
     if (avatar_url   !== undefined) update.avatar_url   = avatar_url;
     if (language     !== undefined) update.language     = language;
+    if (bio          !== undefined) update.bio          = bio;
 
     const { error } = await supabase
       .from('profiles')

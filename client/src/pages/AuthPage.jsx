@@ -70,95 +70,94 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-neutral-950 overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-neutral-950 px-4">
+      <div className="w-full max-w-sm">
 
-      {/* ── Hero ── */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 pb-6">
+        {/* ── Branding ── */}
+        <div className="text-center mb-8">
+          {/* Animated waveform */}
+          <div className="flex items-center justify-center gap-[3px] mb-5" style={{ height: '48px' }}>
+            {BARS.map((bar, i) => (
+              <div
+                key={i}
+                className="w-[3px] rounded-full bg-mint"
+                style={{
+                  height: `${bar.h}px`,
+                  transformOrigin: 'center',
+                  animation: `wave-bar 1.6s ease-in-out ${bar.d}s infinite`,
+                }}
+              />
+            ))}
+          </div>
+          <h1 className="text-2xl font-semibold text-foreground tracking-tight">echo</h1>
+          <p className="text-sm text-muted-foreground mt-1">Your personal AI reflection</p>
+        </div>
 
-        {/* Animated waveform */}
-        <div className="flex items-center gap-[3px] mb-10" style={{ height: '56px' }}>
-          {BARS.map((bar, i) => (
-            <div
-              key={i}
-              className="w-[3px] rounded-full bg-mint"
-              style={{
-                height: `${bar.h}px`,
-                transformOrigin: 'center',
-                animation: `wave-bar 1.6s ease-in-out ${bar.d}s infinite`,
-              }}
+        {/* ── Card ── */}
+        <div className="bg-card border border-border/60 rounded-2xl p-6">
+          <h2 className="text-base font-medium text-foreground mb-5">
+            {mode === 'login' ? 'Sign in' : 'Create account'}
+          </h2>
+
+          {/* Email / password */}
+          <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full bg-background border border-input rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             />
-          ))}
-        </div>
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={6}
+              className="w-full bg-background border border-input rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            />
 
-        {/* Branding */}
-        <h1 className="text-3xl font-semibold text-foreground tracking-tight">echo</h1>
-        <p className="text-sm text-muted-foreground mt-2">Your personal AI reflection</p>
-      </div>
+            {error   && <p className="text-xs text-red-400">{error}</p>}
+            {message && <p className="text-xs text-green-400">{message}</p>}
 
-      {/* ── Bottom sheet form ── */}
-      <div className="bg-card border-t border-border/40 rounded-t-3xl px-6 pt-7 pb-10">
-        <h2 className="text-base font-medium text-foreground mb-5">
-          {mode === 'login' ? 'Sign in' : 'Create account'}
-        </h2>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-foreground text-background rounded-xl py-2.5 text-sm font-medium active:opacity-70 transition-opacity disabled:opacity-50 mt-1"
+            >
+              {loading ? 'Loading…' : mode === 'login' ? 'Sign in' : 'Create account'}
+            </button>
+          </form>
 
-        {/* Email / password */}
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="w-full bg-background border border-input rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            minLength={6}
-            className="w-full bg-background border border-input rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-          />
+          {/* Divider */}
+          <div className="flex items-center gap-3 my-4">
+            <div className="flex-1 h-px bg-border/50" />
+            <span className="text-xs text-muted-foreground">or</span>
+            <div className="flex-1 h-px bg-border/50" />
+          </div>
 
-          {error   && <p className="text-xs text-red-400">{error}</p>}
-          {message && <p className="text-xs text-green-400">{message}</p>}
-
+          {/* Google */}
           <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-foreground text-background rounded-xl py-3 text-sm font-medium active:opacity-70 transition-opacity disabled:opacity-50 mt-1"
+            onClick={handleGoogle}
+            disabled={googleLoading}
+            className="w-full flex items-center justify-center gap-2.5 bg-background border border-input rounded-xl py-2.5 text-sm text-foreground font-medium active:opacity-70 transition-opacity disabled:opacity-50"
           >
-            {loading ? 'Loading…' : mode === 'login' ? 'Sign in' : 'Create account'}
+            <GoogleIcon />
+            {googleLoading ? 'Redirecting…' : 'Continue with Google'}
           </button>
-        </form>
 
-        {/* Divider */}
-        <div className="flex items-center gap-3 my-4">
-          <div className="flex-1 h-px bg-border/50" />
-          <span className="text-xs text-muted-foreground">or</span>
-          <div className="flex-1 h-px bg-border/50" />
+          <p className="text-xs text-muted-foreground text-center mt-4">
+            {mode === 'login' ? "Don't have an account? " : 'Already have an account? '}
+            <button
+              onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setError(null); setMessage(null); }}
+              className="text-foreground underline"
+            >
+              {mode === 'login' ? 'Sign up' : 'Sign in'}
+            </button>
+          </p>
         </div>
-
-        {/* Google */}
-        <button
-          onClick={handleGoogle}
-          disabled={googleLoading}
-          className="w-full flex items-center justify-center gap-2.5 bg-background border border-input rounded-xl py-3 text-sm text-foreground font-medium active:opacity-70 transition-opacity disabled:opacity-50"
-        >
-          <GoogleIcon />
-          {googleLoading ? 'Redirecting…' : 'Continue with Google'}
-        </button>
-
-        <p className="text-xs text-muted-foreground text-center mt-5">
-          {mode === 'login' ? "Don't have an account? " : 'Already have an account? '}
-          <button
-            onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setError(null); setMessage(null); }}
-            className="text-foreground underline"
-          >
-            {mode === 'login' ? 'Sign up' : 'Sign in'}
-          </button>
-        </p>
       </div>
     </div>
   );

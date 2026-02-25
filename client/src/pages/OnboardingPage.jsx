@@ -181,23 +181,15 @@ export default function OnboardingPage() {
             <div className="flex flex-col gap-3">
               <button
                 onClick={() => selectLang('en')}
-                className="w-full bg-card border border-border/60 rounded-2xl p-5 flex items-center gap-4 active:opacity-70 transition-opacity hover:border-mint/50"
+                className="w-full bg-card border border-border/60 rounded-2xl p-5 text-base font-medium text-foreground active:opacity-70 transition-opacity hover:border-mint/50"
               >
-                <span className="text-3xl">🇬🇧</span>
-                <div className="text-left">
-                  <p className="text-base font-medium text-foreground">English</p>
-                  <p className="text-xs text-muted-foreground">Continue in English</p>
-                </div>
+                English
               </button>
               <button
                 onClick={() => selectLang('es')}
-                className="w-full bg-card border border-border/60 rounded-2xl p-5 flex items-center gap-4 active:opacity-70 transition-opacity hover:border-mint/50"
+                className="w-full bg-card border border-border/60 rounded-2xl p-5 text-base font-medium text-foreground active:opacity-70 transition-opacity hover:border-mint/50"
               >
-                <span className="text-3xl">🇦🇷</span>
-                <div className="text-left">
-                  <p className="text-base font-medium text-foreground">Español</p>
-                  <p className="text-xs text-muted-foreground">Continuar en Español</p>
-                </div>
+                Español
               </button>
             </div>
             <div className="mt-8"><Stepper step={step} /></div>

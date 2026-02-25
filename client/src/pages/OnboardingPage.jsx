@@ -91,7 +91,7 @@ function ParticleBurst({ name, messages }) {
 function Stepper({ step }) {
   return (
     <div className="flex items-center justify-center gap-2 mb-8">
-      {[0, 1, 2].map((i) => (
+      {[0, 1].map((i) => (
         <div
           key={i}
           className={`rounded-full transition-all duration-300 ${
@@ -115,10 +115,8 @@ export default function OnboardingPage() {
   const [direction, setDirection] = useState('right');
   const [lang, setLang] = useState('en');
   const [name, setName] = useState('');
-  const [bio, setBio] = useState('');
   const [saving, setSaving] = useState(false);
   const nameRef = useRef(null);
-  const bioRef = useRef(''); // always holds latest bio value, avoids Android stale state
 
   const goForward = (nextStep) => { setDirection('right'); setStep(nextStep); };
   const goBack    = (nextStep) => { setDirection('left');  setStep(nextStep); };
@@ -134,35 +132,18 @@ export default function OnboardingPage() {
     goForward(1);
   };
 
-  const goToBio = () => {
-    if (!name.trim()) return;
-    goForward(2);
-  };
-
-  const finish = async (skipBio = false) => {
+  const finish = async () => {
     setSaving(true);
-    // Use ref to get latest bio value (avoids Android stale React state on button tap)
-    const finalBio = skipBio ? '' : bioRef.current;
-    // Save first, then show animation
     try {
-      const payload = {
-        display_name: name.trim(),
-        language: lang,
-        bio: finalBio,
-      };
-      const res = await authFetch('/api/profile', {
+      await authFetch('/api/profile', {
         method: 'POST',
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ display_name: name.trim(), language: lang }),
       });
-    } catch (err) {
-      // best effort - proceed to animation even on network error
-      console.error('[onboarding] save error:', err);
+    } catch (_) {
+      // best effort
     }
-    goForward(3);
-    // Wait for animation then refresh (gate in App.jsx shows main app once displayName is set)
-    setTimeout(async () => {
-      await refreshProfile();
-    }, 3500);
+    goForward(2);
+    setTimeout(async () => { await refreshProfile(); }, 3500);
   };
 
   // Loading messages with name interpolated
@@ -173,8 +154,8 @@ export default function OnboardingPage() {
     lang === 'es' ? 'Echo esta listo.' : 'Echo is ready.',
   ];
 
-  // Step 3: particle burst
-  if (step === 3) {
+  // Step 2: particle burst
+  if (step === 2) {
     return <ParticleBurst name={name} messages={loadingMessages} />;
   }
 
@@ -222,12 +203,12 @@ export default function OnboardingPage() {
               placeholder={t('onboarding_name_placeholder')}
               value={name}
               onChange={(e) => setName(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && goToBio()}
+              onKeyDown={(e) => e.key === 'Enter' && finish()}
               className="w-full bg-background border border-input rounded-2xl px-4 py-3 text-base text-foreground text-center placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring mb-5"
             />
             <button
-              onClick={goToBio}
-              disabled={!name.trim()}
+              onClick={finish}
+              disabled={!name.trim() || saving}
               className="w-full bg-foreground text-background rounded-2xl py-3 text-sm font-medium active:opacity-70 transition-opacity disabled:opacity-30"
             >
               {t('onboarding_continue')}
@@ -239,42 +220,6 @@ export default function OnboardingPage() {
               {lang === 'es' ? 'Volver' : 'Back'}
             </button>
             <div className="mt-8"><Stepper step={step} /></div>
-          </div>
-        )}
-
-        {/* Step 2: Bio */}
-        {step === 2 && (
-          <div key={2} style={slideStyle} className="text-center">
-            <h1 className="text-xl font-semibold text-foreground mb-1">{t('onboarding_bio_title')}</h1>
-            <p className="text-sm text-muted-foreground mb-6">{t('onboarding_bio_subtitle')}</p>
-            <textarea
-              placeholder={t('onboarding_bio_placeholder')}
-              value={bio}
-              onChange={(e) => { setBio(e.target.value); bioRef.current = e.target.value; }}
-              rows={4}
-              className="w-full bg-background border border-input rounded-2xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none mb-5"
-            />
-            <button
-              onClick={() => finish(false)}
-              disabled={saving}
-              className="w-full bg-foreground text-background rounded-2xl py-3 text-sm font-medium active:opacity-70 transition-opacity disabled:opacity-30"
-            >
-              {t('onboarding_continue')}
-            </button>
-            <button
-              onClick={() => goBack(1)}
-              className="mt-3 text-xs text-muted-foreground active:opacity-70"
-            >
-              {lang === 'es' ? 'Volver' : 'Back'}
-            </button>
-            <div className="mt-8"><Stepper step={step} /></div>
-            <button
-              onClick={() => finish(true)}
-              disabled={saving}
-              className="mt-4 block w-full text-xs text-muted-foreground active:opacity-70"
-            >
-              {t('onboarding_skip')}
-            </button>
           </div>
         )}
       </div>

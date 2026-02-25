@@ -23,15 +23,18 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const { display_name, avatar_url, language, bio } = req.body;
-    const update = { id: req.user.id };
-    if (display_name !== undefined) update.display_name = display_name;
-    if (avatar_url   !== undefined) update.avatar_url   = avatar_url;
-    if (language     !== undefined) update.language     = language;
-    if (bio          !== undefined) update.bio          = bio;
+    const fields = {};
+    if (display_name !== undefined) fields.display_name = display_name;
+    if (avatar_url   !== undefined) fields.avatar_url   = avatar_url;
+    if (language     !== undefined) fields.language     = language;
+    if (bio          !== undefined) fields.bio          = bio;
+
+    if (Object.keys(fields).length === 0) return res.json({ success: true });
 
     const { error } = await supabase
       .from('profiles')
-      .upsert(update);
+      .update(fields)
+      .eq('id', req.user.id);
     if (error) throw error;
     res.json({ success: true });
   } catch (err) {

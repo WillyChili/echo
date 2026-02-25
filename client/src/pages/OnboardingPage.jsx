@@ -257,13 +257,19 @@ export default function OnboardingPage() {
               {t('onboarding_continue')}
             </button>
             <button
+              onClick={() => goBack(1)}
+              className="mt-3 text-xs text-muted-foreground active:opacity-70"
+            >
+              {lang === 'es' ? 'Volver' : 'Back'}
+            </button>
+            <div className="mt-8"><Stepper step={step} /></div>
+            <button
               onClick={() => finish(true)}
               disabled={saving}
-              className="mt-3 block w-full text-xs text-muted-foreground active:opacity-70"
+              className="mt-4 block w-full text-xs text-muted-foreground active:opacity-70"
             >
               {t('onboarding_skip')}
             </button>
-            <div className="mt-8"><Stepper step={step} /></div>
           </div>
         )}
       </div>

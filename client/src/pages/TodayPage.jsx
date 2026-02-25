@@ -517,7 +517,16 @@ export default function TodayPage() {
                 </h2>
                 <CalendarIcon className="w-3.5 h-3.5 text-mint opacity-60 group-hover:opacity-100 transition-opacity" />
               </button>
-              {!selectionMode && <span className="text-xs text-muted-foreground/50">{t('today_hold_to_select')}</span>}
+              {selectedDate !== todayDate ? (
+                <button
+                  onClick={() => setSelectedDate(todayDate)}
+                  className="text-xs text-mint active:opacity-70 transition-opacity"
+                >
+                  {language === 'es' ? 'Volver a hoy' : 'Back to today'}
+                </button>
+              ) : (
+                !selectionMode && <span className="text-xs text-muted-foreground/50">{t('today_hold_to_select')}</span>
+              )}
             </div>
             {calendarOpen && (
               <MiniCalendar

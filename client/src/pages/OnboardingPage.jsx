@@ -118,6 +118,7 @@ export default function OnboardingPage() {
   const [bio, setBio] = useState('');
   const [saving, setSaving] = useState(false);
   const nameRef = useRef(null);
+  const bioRef = useRef(''); // always holds latest bio value, avoids Android stale state
 
   const goForward = (nextStep) => { setDirection('right'); setStep(nextStep); };
   const goBack    = (nextStep) => { setDirection('left');  setStep(nextStep); };
@@ -140,19 +141,22 @@ export default function OnboardingPage() {
 
   const finish = async (skipBio = false) => {
     setSaving(true);
-    const finalBio = skipBio ? '' : bio;
+    // Use ref to get latest bio value (avoids Android stale React state on button tap)
+    const finalBio = skipBio ? '' : bioRef.current;
     // Save first, then show animation
     try {
-      await authFetch('/api/profile', {
+      const payload = {
+        display_name: name.trim(),
+        language: lang,
+        bio: finalBio,
+      };
+      const res = await authFetch('/api/profile', {
         method: 'POST',
-        body: JSON.stringify({
-          display_name: name.trim(),
-          language: lang,
-          bio: finalBio,
-        }),
+        body: JSON.stringify(payload),
       });
-    } catch (_) {
+    } catch (err) {
       // best effort - proceed to animation even on network error
+      console.error('[onboarding] save error:', err);
     }
     goForward(3);
     // Wait for animation then refresh (gate in App.jsx shows main app once displayName is set)
@@ -246,7 +250,7 @@ export default function OnboardingPage() {
             <textarea
               placeholder={t('onboarding_bio_placeholder')}
               value={bio}
-              onChange={(e) => setBio(e.target.value)}
+              onChange={(e) => { setBio(e.target.value); bioRef.current = e.target.value; }}
               rows={4}
               className="w-full bg-background border border-input rounded-2xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none mb-5"
             />

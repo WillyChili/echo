@@ -181,13 +181,13 @@ export default function OnboardingPage() {
             <div className="flex flex-col gap-3">
               <button
                 onClick={() => selectLang('en')}
-                className="w-full bg-card border border-border/60 rounded-2xl p-5 text-base font-medium text-foreground active:opacity-70 transition-opacity hover:border-mint/50"
+                className="w-full bg-card border border-border/60 rounded-2xl p-5 text-base font-medium text-foreground active:opacity-70 transition-all hover:border-2 hover:border-mint"
               >
                 English
               </button>
               <button
                 onClick={() => selectLang('es')}
-                className="w-full bg-card border border-border/60 rounded-2xl p-5 text-base font-medium text-foreground active:opacity-70 transition-opacity hover:border-mint/50"
+                className="w-full bg-card border border-border/60 rounded-2xl p-5 text-base font-medium text-foreground active:opacity-70 transition-all hover:border-2 hover:border-mint"
               >
                 Español
               </button>

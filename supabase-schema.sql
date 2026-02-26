@@ -11,7 +11,6 @@ CREATE TABLE IF NOT EXISTS profiles (
   language     TEXT DEFAULT 'en',             -- UI language: 'en' | 'es'
   bio          TEXT,                          -- short user bio for Echo context
   echo_tone    TEXT DEFAULT 'warm',          -- Echo's conversational tone: warm | direct | curious
-  api_key      TEXT,                          -- user's own Anthropic API key (optional)
   llm_provider TEXT DEFAULT 'anthropic',      -- future: openai, gemini, etc.
   created_at   TIMESTAMPTZ DEFAULT NOW()
 );

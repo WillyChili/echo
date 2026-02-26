@@ -76,21 +76,12 @@ const translations = {
     onboarding_tone_curious: 'Curious',
     onboarding_tone_curious_desc: 'Asks questions and explores ideas',
 
-    // EditProfilePage echo tone
-    edit_profile_echo_tone: "Echo's personality",
-
     // SettingsPage
     settings_title: 'Settings',
     settings_subtitle: 'Manage your Echo preferences.',
-    settings_api_key_title: 'Your Anthropic API Key',
-    settings_api_key_desc: 'Bring your own key so Echo uses your Anthropic account directly. If left empty, Echo uses the shared server key.',
-    settings_loading: 'Loading…',
-    settings_placeholder: 'sk-ant-api03-…',
-    settings_save_key: 'Save key',
     settings_saving: 'Saving…',
-    settings_remove: 'Remove',
-    settings_saved: 'API key saved ✓',
-    settings_failed_remove: 'Failed to remove key.',
+    settings_echo_tone_title: "Echo's personality",
+    settings_echo_tone_saved: 'Saved ✓',
 
     // Digest settings
     settings_digest_title: 'Periodic Digest',
@@ -180,21 +171,12 @@ const translations = {
     onboarding_tone_curious: 'Curioso',
     onboarding_tone_curious_desc: 'Hace preguntas y explora ideas',
 
-    // EditProfilePage echo tone
-    edit_profile_echo_tone: 'Personalidad de Echo',
-
     // SettingsPage
     settings_title: 'Ajustes',
     settings_subtitle: 'Administra tus preferencias de Echo.',
-    settings_api_key_title: 'Tu clave API de Anthropic',
-    settings_api_key_desc: 'Usa tu propia clave para que Echo use tu cuenta de Anthropic directamente. Si se deja vacío, Echo usa la clave del servidor compartido.',
-    settings_loading: 'Cargando…',
-    settings_placeholder: 'sk-ant-api03-…',
-    settings_save_key: 'Guardar clave',
     settings_saving: 'Guardando…',
-    settings_remove: 'Eliminar',
-    settings_saved: 'Clave API guardada ✓',
-    settings_failed_remove: 'No se pudo eliminar la clave.',
+    settings_echo_tone_title: 'Personalidad de Echo',
+    settings_echo_tone_saved: 'Guardado ✓',
 
     // Digest settings
     settings_digest_title: 'Resumen periódico',

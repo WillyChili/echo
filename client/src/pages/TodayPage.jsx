@@ -205,9 +205,6 @@ export default function TodayPage() {
   const longPressTimer = useRef(null);
   const longPressFired = useRef(false);
 
-  const debounceTimer = useRef(null);
-  const lastSavedContent = useRef('');
-  const isInitialLoad = useRef(false);
 
   // ── Speech ────────────────────────────────────────────────────────────────
   const contentSnapshotRef = useRef('');
@@ -219,7 +216,7 @@ export default function TodayPage() {
   }, []);
 
   const { isRecording, isSupported, startRecording, stopRecording, error: speechError } =
-    useSpeech(handleTranscript);
+    useSpeech(handleTranscript, language);
 
   const barHeights = useAudioVisualizer(false, 9); // disabled - conflicts with SpeechRecognition on Android
 
@@ -278,53 +275,9 @@ export default function TodayPage() {
     );
   };
 
-  // ── EAI-16: Auto-save (POST new / PUT existing) ───────────────────────────
-  useEffect(() => {
-    if (isInitialLoad.current) return;
-    if (content === lastSavedContent.current) return;
-    if (!content.trim()) return;
-
-    setSaveStatus('saving');
-    clearTimeout(debounceTimer.current);
-    debounceTimer.current = setTimeout(async () => {
-      try {
-        let res;
-        if (currentNoteId) {
-          res = await authFetch(`/api/notes/${currentNoteId}`, {
-            method: 'PUT',
-            body: JSON.stringify({ content }),
-          });
-        } else {
-          res = await authFetch('/api/notes', {
-            method: 'POST',
-            body: JSON.stringify({ date: todayDate, content }),
-          });
-          if (res.ok) {
-            const note = await res.json();
-            setCurrentNoteId(note.id);
-            lastSavedContent.current = content;
-            setSaveStatus('saved');
-            fetchAllNotes();
-            setTimeout(() => setSaveStatus(''), 2000);
-            return;
-          }
-        }
-        if (res.ok) {
-          lastSavedContent.current = content;
-          setSaveStatus('saved');
-          fetchAllNotes();
-          setTimeout(() => setSaveStatus(''), 2000);
-        }
-      } catch { setSaveStatus(''); }
-    }, 1000);
-
-    return () => clearTimeout(debounceTimer.current);
-  }, [content, currentNoteId, todayDate, fetchAllNotes]);
-
-  // ── EAI-16: Save CTA → save + start fresh new entry ──────────────────────
+  // ── Save on demand (tap "Guardar") → archive note + fresh editor ─────────
   const saveAndNew = useCallback(async () => {
     if (!content.trim()) return;
-    clearTimeout(debounceTimer.current);
     setSaveStatus('saving');
     try {
       let res;
@@ -347,7 +300,6 @@ export default function TodayPage() {
           setContent('');
           setCurrentNoteId(null);
           setViewingDate(null);
-          lastSavedContent.current = '';
         }, 600);
       }
     } catch { setSaveStatus(''); }
@@ -355,22 +307,16 @@ export default function TodayPage() {
 
   // ── Open a past note into the editor ─────────────────────────────────────
   const openNote = useCallback((note) => {
-    clearTimeout(debounceTimer.current);
-    isInitialLoad.current = true;
     setContent(note.content);
     setCurrentNoteId(note.id);
     setViewingDate(note.date);
-    lastSavedContent.current = note.content;
     setSaveStatus('');
-    setTimeout(() => { isInitialLoad.current = false; }, 50);
   }, []);
 
   const startNewEntry = useCallback(() => {
-    clearTimeout(debounceTimer.current);
     setContent('');
     setCurrentNoteId(null);
     setViewingDate(null);
-    lastSavedContent.current = '';
     setSaveStatus('');
   }, []);
 
@@ -461,14 +407,31 @@ export default function TodayPage() {
           )}
         </div>
 
-        {/* Textarea */}
-        <Textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder={isNewEntry ? t('today_placeholder_new') : t('today_placeholder_edit')}
-          rows={8}
-          className="text-base"
-        />
+        {/* Textarea with Save button inside (EAI-38) */}
+        <div className="relative">
+          <Textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder={isNewEntry ? t('today_placeholder_new') : t('today_placeholder_edit')}
+            rows={8}
+            className="text-base pb-11"
+          />
+          <span className={`absolute bottom-[14px] left-5 text-xs transition-opacity duration-300 pointer-events-none ${
+            saveStatus === 'saving' ? 'text-muted-foreground opacity-100'
+            : saveStatus === 'saved'  ? 'text-mint opacity-100'
+            : 'opacity-0'
+          }`}>
+            {saveStatus === 'saving' ? t('today_saving') : t('today_saved')}
+          </span>
+          <Button
+            size="sm"
+            onClick={saveAndNew}
+            disabled={!content.trim() || saveStatus === 'saving'}
+            className="absolute bottom-2 right-2"
+          >
+            {t('today_save')}
+          </Button>
+        </div>
 
         {/* EAI-13: Big centered mic (w-28) + EAI-14: spinning ring + waves */}
         <div className="flex flex-col items-center gap-4 py-2">
@@ -488,20 +451,6 @@ export default function TodayPage() {
           </div>
           {isRecording && <span className="text-xs text-mint animate-pulse tracking-wide">{t('today_listening')}</span>}
           {micError && <span className="text-xs text-red-400">{micError}</span>}
-        </div>
-
-        {/* Save row */}
-        <div className="flex items-center justify-between">
-          <span className={`text-xs transition-opacity duration-300 ${
-            saveStatus === 'saving' ? 'text-muted-foreground opacity-100'
-            : saveStatus === 'saved' ? 'text-mint opacity-100'
-            : 'opacity-0'
-          }`}>
-            {saveStatus === 'saving' ? t('today_saving') : t('today_saved')}
-          </span>
-          <Button size="sm" onClick={saveAndNew} disabled={!content.trim() || saveStatus === 'saving'}>
-            {t('today_save')}
-          </Button>
         </div>
 
         {/* Notes section with calendar picker */}
@@ -563,7 +512,7 @@ export default function TodayPage() {
                       }}
                       className={`w-full text-left px-4 py-3 rounded-2xl border squircle cursor-pointer select-none ${
                         isSelected ? 'border-mint bg-mint/10'
-                        : isActive  ? 'border-mint/40 bg-mint/5'
+                        : isActive  ? 'border-mint bg-mint/5'
                         : 'border-border/50 bg-card/40'
                       }`}
                     >

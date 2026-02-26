@@ -10,16 +10,21 @@ CREATE TABLE IF NOT EXISTS profiles (
   avatar_url   TEXT,                          -- public URL of uploaded avatar
   language     TEXT DEFAULT 'en',             -- UI language: 'en' | 'es'
   bio          TEXT,                          -- short user bio for Echo context
+  echo_tone    TEXT DEFAULT 'warm',          -- Echo's conversational tone: warm | direct | curious
   api_key      TEXT,                          -- user's own Anthropic API key (optional)
   llm_provider TEXT DEFAULT 'anthropic',      -- future: openai, gemini, etc.
   created_at   TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Migration: add columns if the table already exists without them
-ALTER TABLE profiles ADD COLUMN IF NOT EXISTS display_name TEXT;
-ALTER TABLE profiles ADD COLUMN IF NOT EXISTS avatar_url   TEXT;
-ALTER TABLE profiles ADD COLUMN IF NOT EXISTS language     TEXT DEFAULT 'en';
-ALTER TABLE profiles ADD COLUMN IF NOT EXISTS bio          TEXT;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS display_name          TEXT;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS avatar_url            TEXT;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS language              TEXT DEFAULT 'en';
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS bio                   TEXT;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS echo_tone             TEXT DEFAULT 'warm';
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS digest_frequency_days INT  DEFAULT 7;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS digest_window_days    INT  DEFAULT 7;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS last_digest_at        TIMESTAMPTZ;
 
 -- 2. NOTES
 CREATE TABLE IF NOT EXISTS notes (
@@ -34,9 +39,22 @@ CREATE TABLE IF NOT EXISTS notes (
 -- 3. INDEX for fast note lookups by user + date
 CREATE INDEX IF NOT EXISTS notes_user_date_idx ON notes (user_id, date);
 
--- 4. ROW LEVEL SECURITY — users only see their own data
-ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE notes    ENABLE ROW LEVEL SECURITY;
+-- 4. CHAT MESSAGES (conversation history with Echo)
+CREATE TABLE IF NOT EXISTS chat_messages (
+  id         BIGSERIAL PRIMARY KEY,
+  user_id    UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  role       TEXT NOT NULL,            -- 'user' | 'echo'
+  content    TEXT NOT NULL,
+  date       DATE NOT NULL,            -- YYYY-MM-DD, for day-based history
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS chat_messages_user_date_idx ON chat_messages (user_id, date);
+
+-- 5. ROW LEVEL SECURITY — users only see their own data
+ALTER TABLE profiles      ENABLE ROW LEVEL SECURITY;
+ALTER TABLE notes         ENABLE ROW LEVEL SECURITY;
+ALTER TABLE chat_messages ENABLE ROW LEVEL SECURITY;
 
 -- Profiles policies
 CREATE POLICY "profiles: select own"  ON profiles FOR SELECT USING (auth.uid() = id);
@@ -48,6 +66,11 @@ CREATE POLICY "notes: select own"     ON notes FOR SELECT USING (auth.uid() = us
 CREATE POLICY "notes: insert own"     ON notes FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "notes: update own"     ON notes FOR UPDATE USING (auth.uid() = user_id);
 CREATE POLICY "notes: delete own"     ON notes FOR DELETE USING (auth.uid() = user_id);
+
+-- Chat messages policies
+CREATE POLICY "chat_messages: select own" ON chat_messages FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "chat_messages: insert own" ON chat_messages FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "chat_messages: delete own" ON chat_messages FOR DELETE USING (auth.uid() = user_id);
 
 -- 5. AUTO-CREATE profile when a new user signs up
 CREATE OR REPLACE FUNCTION handle_new_user()

@@ -4,55 +4,39 @@ import { useTranslation } from '../hooks/useTranslation';
 
 export default function SettingsPage() {
   const { t } = useTranslation();
-  const [apiKey, setApiKey]   = useState('');
-  const [saved, setSaved]     = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [fetching, setFetching] = useState(true);
-  const [error, setError]     = useState(null);
 
-  // Load existing key on mount (masked)
+  const [digestFreq,    setDigestFreq]    = useState(7);
+  const [digestWindow,  setDigestWindow]  = useState(7);
+  const [digestSaved,   setDigestSaved]   = useState(false);
+  const [digestLoading, setDigestLoading] = useState(false);
+
   useEffect(() => {
-    authFetch('/api/settings')
+    authFetch('/api/profile')
       .then((r) => r.json())
-      .then((d) => { if (d.hasApiKey) setApiKey('••••••••••••••••••••'); })
-      .catch(() => {})
-      .finally(() => setFetching(false));
+      .then((d) => {
+        if (d.digest_frequency_days != null) setDigestFreq(d.digest_frequency_days);
+        if (d.digest_window_days    != null) setDigestWindow(d.digest_window_days);
+      })
+      .catch(() => {});
   }, []);
 
-  const handleSave = async (e) => {
+  const handleDigestSave = async (e) => {
     e.preventDefault();
-    if (!apiKey || apiKey.startsWith('•')) return;
-    setLoading(true);
-    setError(null);
-    setSaved(false);
-
+    const freq   = Math.max(1, Math.min(365, Number(digestFreq)   || 7));
+    const window = Math.max(1, Math.min(365, Number(digestWindow) || 7));
+    setDigestLoading(true);
+    setDigestSaved(false);
     try {
-      const res = await authFetch('/api/settings', {
+      await authFetch('/api/profile', {
         method: 'POST',
-        body: JSON.stringify({ apiKey }),
+        body: JSON.stringify({ digest_frequency_days: freq, digest_window_days: window }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to save.');
-      setSaved(true);
-      setApiKey('••••••••••••••••••••');
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleClear = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      await authFetch('/api/settings', { method: 'DELETE' });
-      setApiKey('');
-      setSaved(false);
-    } catch {
-      setError(t('settings_failed_remove'));
-    } finally {
-      setLoading(false);
+      setDigestFreq(freq);
+      setDigestWindow(window);
+      setDigestSaved(true);
+      setTimeout(() => setDigestSaved(false), 2500);
+    } catch { /* silent */ } finally {
+      setDigestLoading(false);
     }
   };
 
@@ -61,48 +45,48 @@ export default function SettingsPage() {
       <h1 className="text-lg font-semibold text-foreground mb-1">{t('settings_title')}</h1>
       <p className="text-sm text-muted-foreground mb-8">{t('settings_subtitle')}</p>
 
-      {/* BYOK */}
+      {/* Digest settings */}
       <div className="bg-card border border-border/60 rounded-2xl p-5">
-        <h2 className="text-sm font-medium text-foreground mb-1">{t('settings_api_key_title')}</h2>
-        <p className="text-xs text-muted-foreground mb-4">
-          {t('settings_api_key_desc')}
-        </p>
+        <h2 className="text-sm font-medium text-foreground mb-1">{t('settings_digest_title')}</h2>
+        <p className="text-xs text-muted-foreground mb-4">{t('settings_digest_desc')}</p>
 
-        {fetching ? (
-          <p className="text-xs text-muted-foreground">{t('settings_loading')}</p>
-        ) : (
-          <form onSubmit={handleSave} className="flex flex-col gap-3">
+        <form onSubmit={handleDigestSave} className="flex flex-col gap-4">
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-foreground shrink-0">{t('settings_digest_frequency_label')}</span>
             <input
-              type="text"
-              placeholder={t('settings_placeholder')}
-              value={apiKey}
-              onFocus={() => { if (apiKey.startsWith('•')) setApiKey(''); }}
-              onChange={(e) => { setSaved(false); setApiKey(e.target.value); }}
-              className="w-full bg-background border border-input rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring font-mono"
+              type="number"
+              min="1"
+              max="365"
+              value={digestFreq}
+              onChange={(e) => { setDigestSaved(false); setDigestFreq(e.target.value); }}
+              className="w-16 bg-background border border-input rounded-xl px-3 py-2 text-sm text-foreground text-center focus:outline-none focus:ring-2 focus:ring-ring"
             />
+            <span className="text-sm text-muted-foreground">{t('settings_digest_frequency_unit')}</span>
+          </div>
 
-            {error && <p className="text-xs text-red-400">{error}</p>}
-            {saved && <p className="text-xs text-green-400">{t('settings_saved')}</p>}
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-foreground shrink-0">{t('settings_digest_window_label')}</span>
+            <input
+              type="number"
+              min="1"
+              max="365"
+              value={digestWindow}
+              onChange={(e) => { setDigestSaved(false); setDigestWindow(e.target.value); }}
+              className="w-16 bg-background border border-input rounded-xl px-3 py-2 text-sm text-foreground text-center focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+            <span className="text-sm text-muted-foreground">{t('settings_digest_window_unit')}</span>
+          </div>
 
-            <div className="flex gap-2">
-              <button
-                type="submit"
-                disabled={loading || !apiKey || apiKey.startsWith('•')}
-                className="flex-1 bg-foreground text-background rounded-xl py-2.5 text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-40"
-              >
-                {loading ? t('settings_saving') : t('settings_save_key')}
-              </button>
-              <button
-                type="button"
-                onClick={handleClear}
-                disabled={loading}
-                className="px-4 bg-destructive/20 text-red-400 border border-destructive/40 rounded-xl text-sm hover:bg-destructive/30 transition-colors disabled:opacity-40"
-              >
-                {t('settings_remove')}
-              </button>
-            </div>
-          </form>
-        )}
+          {digestSaved && <p className="text-xs text-green-400">{t('settings_digest_saved')}</p>}
+
+          <button
+            type="submit"
+            disabled={digestLoading}
+            className="self-start bg-foreground text-background rounded-xl px-5 py-2.5 text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-40"
+          >
+            {digestLoading ? t('settings_saving') : t('settings_digest_save')}
+          </button>
+        </form>
       </div>
     </div>
   );

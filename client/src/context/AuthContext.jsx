@@ -17,7 +17,8 @@ export function AuthProvider({ children }) {
     });
 
     // Listen for auth changes (login, logout, token refresh)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT') localStorage.removeItem('echo_display_name');
       setSession(session);
       setUser(session?.user ?? null);
     });

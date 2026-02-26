@@ -58,7 +58,7 @@ export default function ChatPage() {
   }, []);
 
   const { isRecording, isSupported, startRecording, stopRecording, error: speechError } =
-    useSpeech(handleTranscript);
+    useSpeech(handleTranscript, language);
 
   useEffect(() => {
     if (speechError) setMicError(speechError);
@@ -73,7 +73,7 @@ export default function ChatPage() {
     }
   };
 
-  // ── Load history on mount ─────────────────────────────────────────────────
+  // ── Load history on mount, then check for digest ──────────────────────────
   useEffect(() => {
     const load = async () => {
       try {
@@ -84,9 +84,18 @@ export default function ChatPage() {
         const dates = await datesRes.json();
         const msgs  = await msgsRes.json();
         setChatDates(Array.isArray(dates) ? dates : []);
-        if (Array.isArray(msgs)) {
-          setMessages(msgs.map((m) => ({ role: m.role, text: m.content })));
-        }
+        const loaded = Array.isArray(msgs) ? msgs.map((m) => ({ role: m.role, text: m.content })) : [];
+        setMessages(loaded);
+
+        // Check if a new digest is ready (non-blocking)
+        try {
+          const digestRes  = await authFetch('/api/digest');
+          const digestData = await digestRes.json();
+          if (digestData?.digest) {
+            setMessages((prev) => [...prev, { role: 'echo', text: digestData.digest }]);
+            setChatDates((prev) => prev.includes(today) ? prev : [today, ...prev]);
+          }
+        } catch { /* digest failure is always silent */ }
       } catch {
         // proceed with empty state
       } finally {
@@ -318,7 +327,7 @@ function MessageBubble({ msg }) {
   if (isUser) {
     return (
       <div className="flex justify-end">
-        <div className="max-w-[75%] bg-secondary text-foreground rounded-2xl rounded-tr-sm px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap squircle">
+        <div className="max-w-[75%] bg-mint/20 text-foreground rounded-2xl rounded-tr-sm px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap squircle">
           {msg.text}
         </div>
       </div>

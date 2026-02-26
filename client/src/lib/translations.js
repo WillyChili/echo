@@ -68,6 +68,16 @@ const translations = {
     onboarding_loading_2: 'Hi {name}!',
     onboarding_loading_3: 'Personalizing your experience...',
     onboarding_loading_4: 'Echo is ready.',
+    onboarding_tone_title: 'How should Echo talk to you?',
+    onboarding_tone_warm: 'Warm',
+    onboarding_tone_warm_desc: 'Friendly and empathetic',
+    onboarding_tone_direct: 'Direct',
+    onboarding_tone_direct_desc: 'Clear and to the point',
+    onboarding_tone_curious: 'Curious',
+    onboarding_tone_curious_desc: 'Asks questions and explores ideas',
+
+    // EditProfilePage echo tone
+    edit_profile_echo_tone: "Echo's personality",
 
     // SettingsPage
     settings_title: 'Settings',
@@ -81,6 +91,16 @@ const translations = {
     settings_remove: 'Remove',
     settings_saved: 'API key saved ✓',
     settings_failed_remove: 'Failed to remove key.',
+
+    // Digest settings
+    settings_digest_title: 'Periodic Digest',
+    settings_digest_desc: 'Echo will send you a summary of your notes as a chat message on a schedule you choose.',
+    settings_digest_frequency_label: 'Every',
+    settings_digest_frequency_unit: 'days',
+    settings_digest_window_label: 'Covering the last',
+    settings_digest_window_unit: 'days of notes',
+    settings_digest_save: 'Save',
+    settings_digest_saved: 'Saved ✓',
   },
 
   es: {
@@ -152,6 +172,16 @@ const translations = {
     onboarding_loading_2: 'Hola {name}!',
     onboarding_loading_3: 'Personalizando tu experiencia...',
     onboarding_loading_4: 'Echo esta listo.',
+    onboarding_tone_title: '¿Cómo querés que Echo te hable?',
+    onboarding_tone_warm: 'Cálido',
+    onboarding_tone_warm_desc: 'Amigable y empático',
+    onboarding_tone_direct: 'Directo',
+    onboarding_tone_direct_desc: 'Claro y sin vueltas',
+    onboarding_tone_curious: 'Curioso',
+    onboarding_tone_curious_desc: 'Hace preguntas y explora ideas',
+
+    // EditProfilePage echo tone
+    edit_profile_echo_tone: 'Personalidad de Echo',
 
     // SettingsPage
     settings_title: 'Ajustes',
@@ -165,6 +195,16 @@ const translations = {
     settings_remove: 'Eliminar',
     settings_saved: 'Clave API guardada ✓',
     settings_failed_remove: 'No se pudo eliminar la clave.',
+
+    // Digest settings
+    settings_digest_title: 'Resumen periódico',
+    settings_digest_desc: 'Echo te enviará un resumen de tus notas como mensaje, con la frecuencia que elijas.',
+    settings_digest_frequency_label: 'Cada',
+    settings_digest_frequency_unit: 'días',
+    settings_digest_window_label: 'Con las últimas',
+    settings_digest_window_unit: 'días de notas',
+    settings_digest_save: 'Guardar',
+    settings_digest_saved: 'Guardado ✓',
   },
 };
 

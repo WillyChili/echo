@@ -17,12 +17,13 @@ function Field({ label, children }) {
 
 export default function EditProfilePage() {
   const { user } = useAuth();
-  const { language, setLanguage, bio: profileBio, setBio: setProfileBio, setAvatarUrl: setProfileAvatarUrl, refreshProfile } = useProfile();
+  const { language, setLanguage, bio: profileBio, setBio: setProfileBio, echoTone: profileEchoTone, setEchoTone: setProfileEchoTone, setAvatarUrl: setProfileAvatarUrl, refreshProfile } = useProfile();
   const { t } = useTranslation();
   const fileRef = useRef(null);
 
   const [displayName, setDisplayName]     = useState('');
   const [bio, setBio]                     = useState('');
+  const [echoTone, setEchoTone]           = useState('warm');
   const [avatarUrl, setAvatarUrl]         = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
   const [fetching, setFetching]           = useState(true);
@@ -31,10 +32,14 @@ export default function EditProfilePage() {
   const [saved, setSaved]                 = useState(false);
   const [error, setError]                 = useState(null);
 
-  // Seed bio from ProfileContext immediately (avoids empty field flash)
+  // Seed bio and tone from ProfileContext immediately (avoids empty field flash)
   useEffect(() => {
     if (profileBio) setBio(profileBio);
   }, [profileBio]);
+
+  useEffect(() => {
+    if (profileEchoTone) setEchoTone(profileEchoTone);
+  }, [profileEchoTone]);
 
   useEffect(() => {
     authFetch('/api/profile')
@@ -43,6 +48,7 @@ export default function EditProfilePage() {
         if (d.display_name) setDisplayName(d.display_name);
         if (d.avatar_url)   setAvatarUrl(d.avatar_url);
         if (d.bio)          setBio(d.bio);
+        if (d.echo_tone)    setEchoTone(d.echo_tone);
         // language is managed in ProfileContext
       })
       .catch(() => {})
@@ -61,9 +67,11 @@ export default function EditProfilePage() {
     setError(null);
     try {
       const path = `${user.id}/avatar`;
+      const contentType = file.type || 'image/jpeg';
+      const arrayBuffer = await file.arrayBuffer();
       const { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(path, file, { upsert: true, contentType: file.type });
+        .upload(path, arrayBuffer, { upsert: true, contentType });
       if (uploadError) throw uploadError;
 
       const { data: { publicUrl } } = supabase.storage
@@ -98,12 +106,13 @@ export default function EditProfilePage() {
     try {
       const res = await authFetch('/api/profile', {
         method: 'POST',
-        body: JSON.stringify({ display_name: displayName, language, bio }),
+        body: JSON.stringify({ display_name: displayName, language, bio, echo_tone: echoTone }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to save.');
       setSaved(true);
       setProfileBio(bio); // sync bio to context
+      setProfileEchoTone(echoTone); // sync tone to context
       refreshProfile(); // sync Nav display name
       setTimeout(() => setSaved(false), 2500);
     } catch (err) {
@@ -211,6 +220,32 @@ export default function EditProfilePage() {
                   ))}
                 </div>
               </div>
+            </Field>
+
+            <Field label={t('edit_profile_echo_tone')}>
+              <div className="flex gap-2 mt-3">
+                {[
+                  { key: 'warm',    label: t('onboarding_tone_warm') },
+                  { key: 'direct',  label: t('onboarding_tone_direct') },
+                  { key: 'curious', label: t('onboarding_tone_curious') },
+                ].map((opt) => (
+                  <button
+                    key={opt.key}
+                    type="button"
+                    onClick={() => { setSaved(false); setEchoTone(opt.key); }}
+                    className={`flex-1 py-1.5 rounded-xl text-xs font-medium transition-colors select-none ${
+                      echoTone === opt.key
+                        ? 'bg-foreground text-background'
+                        : 'bg-secondary text-muted-foreground active:opacity-70'
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                {t(`onboarding_tone_${echoTone}_desc`)}
+              </p>
             </Field>
 
             <Field label={t('edit_profile_notifications')}>

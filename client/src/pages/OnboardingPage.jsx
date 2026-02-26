@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { authFetch } from '../lib/api';
 import { useProfile } from '../context/ProfileContext';
-import { useTranslation } from '../hooks/useTranslation';
+import translations from '../lib/translations';
 
 // 8 particles: 4 inner orbit + 4 outer orbit
 const PARTICLES = [
@@ -56,10 +56,6 @@ function ParticleBurst({ name, messages }) {
           />
         ))}
 
-        {/* Center name */}
-        <div className="text-center z-10">
-          <span className="text-2xl font-semibold text-foreground">{name}</span>
-        </div>
       </div>
 
       {/* Cycling message */}
@@ -91,7 +87,7 @@ function ParticleBurst({ name, messages }) {
 function Stepper({ step }) {
   return (
     <div className="flex items-center justify-center gap-2 mb-8">
-      {[0, 1].map((i) => (
+      {[0, 1, 2].map((i) => (
         <div
           key={i}
           className={`rounded-full transition-all duration-300 ${
@@ -108,15 +104,23 @@ function Stepper({ step }) {
 }
 
 export default function OnboardingPage() {
-  const { setLanguage, refreshProfile } = useProfile();
-  const { t } = useTranslation();
+  const { setLanguage, setDisplayName, setEchoTone: setContextEchoTone, refreshProfile } = useProfile();
 
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState('right');
   const [lang, setLang] = useState('en');
+
+  // t() uses the local lang state so translations are always in sync with the selection
+  const t = (key) => translations[lang]?.[key] ?? translations.en[key] ?? key;
   const [name, setName] = useState('');
   const [saving, setSaving] = useState(false);
+  const [selectedTone, setSelectedTone] = useState(null);
   const nameRef = useRef(null);
+  const TONES = [
+    { key: 'warm',    labelKey: 'onboarding_tone_warm',    descKey: 'onboarding_tone_warm_desc' },
+    { key: 'direct',  labelKey: 'onboarding_tone_direct',  descKey: 'onboarding_tone_direct_desc' },
+    { key: 'curious', labelKey: 'onboarding_tone_curious', descKey: 'onboarding_tone_curious_desc' },
+  ];
 
   const goForward = (nextStep) => { setDirection('right'); setStep(nextStep); };
   const goBack    = (nextStep) => { setDirection('left');  setStep(nextStep); };
@@ -132,18 +136,27 @@ export default function OnboardingPage() {
     goForward(1);
   };
 
-  const finish = async () => {
+  const finish = () => {
+    goForward(2);
+  };
+
+  const selectTone = async (tone) => {
+    if (saving) return;
     setSaving(true);
     try {
       await authFetch('/api/profile', {
         method: 'POST',
-        body: JSON.stringify({ display_name: name.trim(), language: lang }),
+        body: JSON.stringify({ display_name: name.trim(), language: lang, echo_tone: tone }),
       });
     } catch (_) {
       // best effort
     }
-    goForward(2);
-    setTimeout(async () => { await refreshProfile(); }, 3500);
+    goForward(3);
+    // After animation, update context to open the app gate
+    setTimeout(() => {
+      setDisplayName(name.trim());
+      setContextEchoTone(tone);
+    }, 3500);
   };
 
   // Loading messages with name interpolated
@@ -154,8 +167,8 @@ export default function OnboardingPage() {
     lang === 'es' ? 'Echo esta listo.' : 'Echo is ready.',
   ];
 
-  // Step 2: particle burst
-  if (step === 2) {
+  // Step 3: particle burst
+  if (step === 3) {
     return <ParticleBurst name={name} messages={loadingMessages} />;
   }
 
@@ -208,13 +221,54 @@ export default function OnboardingPage() {
             />
             <button
               onClick={finish}
-              disabled={!name.trim() || saving}
+              disabled={!name.trim()}
               className="w-full bg-foreground text-background rounded-2xl py-3 text-sm font-medium active:opacity-70 transition-opacity disabled:opacity-30"
             >
               {t('onboarding_continue')}
             </button>
             <button
               onClick={() => goBack(0)}
+              className="mt-3 text-xs text-muted-foreground active:opacity-70"
+            >
+              {lang === 'es' ? 'Volver' : 'Back'}
+            </button>
+            <div className="mt-8"><Stepper step={step} /></div>
+          </div>
+        )}
+
+        {/* Step 2: Echo tone */}
+        {step === 2 && (
+          <div key={2} style={slideStyle} className="text-center">
+            <h1 className="text-xl font-semibold text-foreground mb-2">{t('onboarding_tone_title')}</h1>
+            <p className="text-sm text-muted-foreground mb-8">
+              {lang === 'es' ? 'Podés cambiarlo después en tu perfil.' : 'You can change this later in your profile.'}
+            </p>
+            <div className="flex flex-col gap-3">
+              {TONES.map((tone) => (
+                <button
+                  key={tone.key}
+                  onClick={() => setSelectedTone(tone.key)}
+                  disabled={saving}
+                  className={`w-full rounded-2xl p-4 text-left transition-all disabled:opacity-50 ${
+                    selectedTone === tone.key
+                      ? 'bg-card border-2 border-mint'
+                      : 'bg-card border border-border/60 active:opacity-70 hover:border-mint/50'
+                  }`}
+                >
+                  <p className="text-sm font-semibold text-foreground">{t(tone.labelKey)}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{t(tone.descKey)}</p>
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => selectTone(selectedTone)}
+              disabled={!selectedTone || saving}
+              className="mt-5 w-full bg-foreground text-background rounded-2xl py-3 text-sm font-medium active:opacity-70 transition-opacity disabled:opacity-30"
+            >
+              {lang === 'es' ? 'Finalizar' : 'Finish'}
+            </button>
+            <button
+              onClick={() => goBack(1)}
               className="mt-3 text-xs text-muted-foreground active:opacity-70"
             >
               {lang === 'es' ? 'Volver' : 'Back'}

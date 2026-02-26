@@ -1,4 +1,5 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { useRef, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ProfileProvider, useProfile } from './context/ProfileContext';
 import Nav from './components/Nav.jsx';
@@ -21,6 +22,8 @@ function Spinner() {
 function ProtectedRoutes() {
   const { displayName, profileLoading } = useProfile();
   if (profileLoading) return <Spinner />;
+  // null = profile fetch failed; don't trigger onboarding, just wait
+  if (displayName === null) return <Spinner />;
   if (!displayName) return <OnboardingPage />;
   return (
     <div className="min-h-screen flex flex-col bg-neutral-950">
@@ -41,6 +44,18 @@ function ProtectedRoutes() {
 
 function AppRoutes() {
   const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  const prevUserRef = useRef(undefined);
+
+  // Redirect to notes on login (not on page refresh while already logged in)
+  useEffect(() => {
+    if (prevUserRef.current === null && user) {
+      navigate('/', { replace: true });
+    }
+    if (!loading) {
+      prevUserRef.current = user ?? null;
+    }
+  }, [user, loading, navigate]);
 
   if (loading) return <Spinner />;
   if (!user) return <AuthPage />;

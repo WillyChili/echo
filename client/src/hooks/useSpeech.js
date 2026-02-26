@@ -1,6 +1,8 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 
-export function useSpeech(onTranscript) {
+const SPEECH_LOCALE = { en: 'en-US', es: 'es-ES' };
+
+export function useSpeech(onTranscript, lang = 'es') {
   const [isRecording, setIsRecording] = useState(false);
   const [error, setError] = useState(null);
   const recognitionRef = useRef(null);
@@ -11,6 +13,9 @@ export function useSpeech(onTranscript) {
   const lastSessionTextRef = useRef('');
   // Stable ref to the SpeechRecognition class (set once on startRecording)
   const speechClassRef = useRef(null);
+  // Stable lang ref so startSession always uses the latest language
+  const langRef = useRef(lang);
+  useEffect(() => { langRef.current = lang; }, [lang]);
 
   const isSupported =
     typeof window !== 'undefined' &&
@@ -25,7 +30,8 @@ export function useSpeech(onTranscript) {
     const r = new SpeechRecognitionClass();
     r.continuous = false;    // one utterance at a time → clean result list each session
     r.interimResults = true; // show text while speaking
-    r.lang = 'es-ES';
+    r.lang = SPEECH_LOCALE[langRef.current] || 'es-ES';
+    r.maxAlternatives = 1;
 
     r.onresult = (event) => {
       let sessionText = '';
@@ -45,6 +51,7 @@ export function useSpeech(onTranscript) {
         setError('Micrófono bloqueado.');
         setIsRecording(false);
         recognitionRef.current = null;
+        return;
       }
       // no-speech / aborted / network → onend will handle restart
     };
@@ -59,8 +66,10 @@ export function useSpeech(onTranscript) {
             : finalText;
         }
         lastSessionTextRef.current = '';
-        // Start a brand-new instance (not r.start()) so event.results resets
-        startSession();
+        // Small delay before restarting to avoid rapid-fire loops on Android
+        setTimeout(() => {
+          if (recognitionRef.current === r) startSession();
+        }, 150);
       } else {
         setIsRecording(false);
       }

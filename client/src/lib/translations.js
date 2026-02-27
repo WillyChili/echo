@@ -5,6 +5,7 @@ const translations = {
     nav_echo: 'Echo',
     nav_settings: 'Settings',
     nav_edit_profile: 'Edit profile',
+    nav_subscription: 'Subscription',
     nav_sign_out: 'Sign out',
 
     // TodayPage
@@ -88,6 +89,7 @@ const translations = {
     nav_echo: 'Echo',
     nav_settings: 'Ajustes',
     nav_edit_profile: 'Editar perfil',
+    nav_subscription: 'Suscripción',
     nav_sign_out: 'Cerrar sesión',
 
     // TodayPage

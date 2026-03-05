@@ -1,11 +1,13 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import MicButton from '../components/MicButton.jsx';
+import UpgradeModal from '../components/UpgradeModal.jsx';
 import { useSpeech } from '../hooks/useSpeech.js';
 import { cn } from '@/lib/utils';
 import { authFetch } from '../lib/api.js';
 import { useTranslation } from '../hooks/useTranslation.js';
 import { useProfile } from '../context/ProfileContext.jsx';
 
+const FREE_CHAT_LIMIT = 10;
 const getToday = () => new Date().toISOString().slice(0, 10);
 
 function SendIcon() {
@@ -16,37 +18,24 @@ function SendIcon() {
   );
 }
 
-function ChevronLeftIcon() {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-    </svg>
-  );
-}
-
-function ChevronRightIcon() {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-    </svg>
-  );
-}
-
 export default function ChatPage() {
   const { t } = useTranslation();
-  const { language } = useProfile();
+  const { language, isSubscribed, chatsUsedToday, setChatsUsedToday } = useProfile();
   const today = getToday();
 
-  const [messages, setMessages]           = useState([]);
-  const [input, setInput]                 = useState('');
-  const [isLoading, setIsLoading]         = useState(false);
-  const [micError, setMicError]           = useState(null);
-  const [selectedDate, setSelectedDate]   = useState(today);
-  const [chatDates, setChatDates]         = useState([]);
-  const [loadingHistory, setLoadingHistory] = useState(true);
+  const [messages, setMessages]               = useState([]); // { role, text, date, created_at }
+  const [input, setInput]                     = useState('');
+  const [isLoading, setIsLoading]             = useState(false);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(true);
+  const [isLoadingMore, setIsLoadingMore]     = useState(false);
+  const [hasMore, setHasMore]                 = useState(false);
+  const [micError, setMicError]               = useState(null);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
-  const bottomRef = useRef(null);
-  const inputRef  = useRef(null);
+  const bottomRef    = useRef(null);
+  const inputRef     = useRef(null);
+  const scrollRef    = useRef(null);
+  const oldestTsRef  = useRef(null); // created_at of oldest loaded message
 
   // ── Speech ────────────────────────────────────────────────────────────────
   const inputSnapshotRef = useRef('');
@@ -73,72 +62,74 @@ export default function ChatPage() {
     }
   };
 
-  // ── Load history on mount, then check for digest ──────────────────────────
+  // ── Load initial history (last 50) + digest check ────────────────────────
   useEffect(() => {
     const load = async () => {
       try {
-        const [datesRes, msgsRes] = await Promise.all([
-          authFetch('/api/messages/dates'),
-          authFetch(`/api/messages?date=${today}`),
-        ]);
-        const dates = await datesRes.json();
-        const msgs  = await msgsRes.json();
-        setChatDates(Array.isArray(dates) ? dates : []);
-        const loaded = Array.isArray(msgs) ? msgs.map((m) => ({ role: m.role, text: m.content })) : [];
-        setMessages(loaded);
+        const res  = await authFetch('/api/messages');
+        const data = await res.json();
+        const msgs = (data.messages || []).map((m) => ({
+          role: m.role, text: m.content, date: m.date, created_at: m.created_at,
+        }));
+        setMessages(msgs);
+        setHasMore(data.hasMore || false);
+        if (msgs.length > 0) oldestTsRef.current = msgs[0].created_at;
 
         // Check if a new digest is ready (non-blocking)
         try {
           const digestRes  = await authFetch('/api/digest');
           const digestData = await digestRes.json();
           if (digestData?.digest) {
-            setMessages((prev) => [...prev, { role: 'echo', text: digestData.digest }]);
-            setChatDates((prev) => prev.includes(today) ? prev : [today, ...prev]);
+            setMessages((prev) => [...prev, { role: 'echo', text: digestData.digest, date: today }]);
           }
         } catch { /* digest failure is always silent */ }
       } catch {
         // proceed with empty state
       } finally {
-        setLoadingHistory(false);
+        setIsLoadingHistory(false);
       }
     };
     load();
   }, []);
 
-  // ── Load messages for a given date ───────────────────────────────────────
-  const loadMessagesForDate = async (date) => {
-    setMessages([]);
+  // ── Load older messages (infinite scroll up) ──────────────────────────────
+  const loadMore = useCallback(async () => {
+    if (isLoadingMore || !hasMore || !oldestTsRef.current) return;
+    setIsLoadingMore(true);
+    const container = scrollRef.current;
+    const prevScrollHeight = container?.scrollHeight || 0;
     try {
-      const res  = await authFetch(`/api/messages?date=${date}`);
+      const res  = await authFetch(`/api/messages?before=${encodeURIComponent(oldestTsRef.current)}`);
       const data = await res.json();
-      if (Array.isArray(data)) {
-        setMessages(data.map((m) => ({ role: m.role, text: m.content })));
+      const older = (data.messages || []).map((m) => ({
+        role: m.role, text: m.content, date: m.date, created_at: m.created_at,
+      }));
+      if (older.length > 0) {
+        oldestTsRef.current = older[0].created_at;
+        setMessages((prev) => [...older, ...prev]);
+        setHasMore(data.hasMore || false);
+        // Restore scroll position so user stays at same spot
+        requestAnimationFrame(() => {
+          if (container) container.scrollTop = container.scrollHeight - prevScrollHeight;
+        });
+      } else {
+        setHasMore(false);
       }
-    } catch {}
-  };
+    } catch { /* silent */ } finally {
+      setIsLoadingMore(false);
+    }
+  }, [isLoadingMore, hasMore]);
 
-  const handleDateChange = (newDate) => {
-    setSelectedDate(newDate);
-    loadMessagesForDate(newDate);
-  };
-
-  // ── Date navigator helpers ────────────────────────────────────────────────
-  const allDates = [...new Set([today, ...chatDates])].sort((a, b) => b.localeCompare(a));
-  const currentIndex = allDates.indexOf(selectedDate);
-  const prevDate = allDates[currentIndex + 1] || null; // older
-  const nextDate = allDates[currentIndex - 1] || null; // newer
-
-  const formatDate = (dateStr) => {
-    if (dateStr === today) return t('chat_today');
-    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
-    if (dateStr === yesterday) return t('chat_yesterday');
-    return new Date(dateStr + 'T12:00:00').toLocaleDateString(
-      language === 'es' ? 'es-AR' : 'en-US',
-      { month: 'short', day: 'numeric' }
-    );
-  };
-
-  const isViewingPast = selectedDate !== today;
+  // ── Scroll listener for infinite scroll up ────────────────────────────────
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (!container) return;
+    const onScroll = () => {
+      if (container.scrollTop < 80) loadMore();
+    };
+    container.addEventListener('scroll', onScroll);
+    return () => container.removeEventListener('scroll', onScroll);
+  }, [loadMore]);
 
   // ── Auto-scroll ───────────────────────────────────────────────────────────
   useEffect(() => {
@@ -152,7 +143,7 @@ export default function ChatPage() {
 
     if (isRecording) stopRecording();
     setInput('');
-    setMessages((prev) => [...prev, { role: 'user', text }]);
+    setMessages((prev) => [...prev, { role: 'user', text, date: today }]);
     setIsLoading(true);
 
     try {
@@ -169,20 +160,23 @@ export default function ChatPage() {
 
       const data = await res.json();
 
-      if (!res.ok || data.error) {
+      if (res.status === 429 && data.error === 'limit_reached') {
+        setMessages((prev) => prev.slice(0, -1)); // remove optimistic user message
+        setInput(text); // restore input
+        setShowUpgradeModal(true);
+      } else if (!res.ok || data.error) {
         setMessages((prev) => [
           ...prev,
-          { role: 'echo', text: data.error || 'Something went wrong. Try again in a moment.', isError: true },
+          { role: 'echo', text: data.error || 'Something went wrong. Try again in a moment.', isError: true, date: today },
         ]);
       } else {
-        setMessages((prev) => [...prev, { role: 'echo', text: data.reply }]);
-        // Make sure today is in chatDates
-        setChatDates((prev) => prev.includes(today) ? prev : [today, ...prev]);
+        setMessages((prev) => [...prev, { role: 'echo', text: data.reply, date: today }]);
+        setChatsUsedToday((prev) => prev + 1);
       }
     } catch {
       setMessages((prev) => [
         ...prev,
-        { role: 'echo', text: t('chat_error_server'), isError: true },
+        { role: 'echo', text: t('chat_error_server'), isError: true, date: today },
       ]);
     } finally {
       setIsLoading(false);
@@ -197,11 +191,34 @@ export default function ChatPage() {
     }
   };
 
-  const showWelcome = messages.length === 0 && !isLoading && !loadingHistory && !isViewingPast;
-  const showDateNav = chatDates.length > 0 || isViewingPast;
+  const showWelcome = messages.length === 0 && !isLoading && !isLoadingHistory;
+
+  const usageBadgeText = t('chat_usage_badge')
+    .replace('{used}', chatsUsedToday)
+    .replace('{limit}', FREE_CHAT_LIMIT);
+
+  // ── Render messages with date separators ─────────────────────────────────
+  const renderMessages = () => {
+    let lastDate = null;
+    const elements = [];
+    messages.forEach((msg, i) => {
+      if (msg.date && msg.date !== lastDate) {
+        elements.push(
+          <DateSeparator key={`sep-${msg.date}`} date={msg.date} today={today} language={language} t={t} />
+        );
+        lastDate = msg.date;
+      }
+      elements.push(<MessageBubble key={i} msg={msg} />);
+    });
+    return elements;
+  };
 
   return (
     <div className="flex flex-col h-[calc(100vh-3.5rem)]">
+
+      {showUpgradeModal && (
+        <UpgradeModal limit={FREE_CHAT_LIMIT} onClose={() => setShowUpgradeModal(false)} />
+      )}
 
       {/* Notice bar */}
       <div className="px-4 py-2.5 border-b border-border/60">
@@ -213,40 +230,21 @@ export default function ChatPage() {
         </p>
       </div>
 
-      {/* Date navigator */}
-      {showDateNav && (
-        <div className="flex items-center justify-center gap-4 px-4 py-2 border-b border-border/40">
-          <button
-            onClick={() => prevDate && handleDateChange(prevDate)}
-            disabled={!prevDate}
-            className="p-1 rounded-full text-muted-foreground transition-colors disabled:opacity-20 active:bg-secondary"
-          >
-            <ChevronLeftIcon />
-          </button>
-          <span className="text-xs font-medium text-muted-foreground min-w-[80px] text-center">
-            {formatDate(selectedDate)}
-          </span>
-          <button
-            onClick={() => nextDate && handleDateChange(nextDate)}
-            disabled={!nextDate}
-            className="p-1 rounded-full text-muted-foreground transition-colors disabled:opacity-20 active:bg-secondary"
-          >
-            <ChevronRightIcon />
-          </button>
-        </div>
-      )}
-
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-6">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-6">
         <div className="max-w-2xl mx-auto flex flex-col gap-4">
+
+          {isLoadingMore && (
+            <div className="flex justify-center py-2">
+              <span className="text-xs text-muted-foreground animate-pulse">Loading…</span>
+            </div>
+          )}
 
           {showWelcome && (
             <MessageBubble msg={{ role: 'echo', text: t('chat_initial_message') }} />
           )}
 
-          {messages.map((msg, i) => (
-            <MessageBubble key={i} msg={msg} />
-          ))}
+          {renderMessages()}
 
           {isLoading && (
             <div className="flex items-start gap-2">
@@ -261,62 +259,74 @@ export default function ChatPage() {
         </div>
       </div>
 
-      {/* Input area — hidden when viewing past */}
-      {!isViewingPast && (
-        <div className="border-t border-border/60 bg-background/80 backdrop-blur-sm px-4 py-4">
-          <div className="max-w-2xl mx-auto">
-            {micError && <p className="text-xs text-red-400 mb-2">{micError}</p>}
-            <div className="flex items-center gap-2">
-              <textarea
-                ref={inputRef}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder={t('chat_placeholder')}
-                rows={1}
-                className="flex-1 bg-card border border-input rounded-2xl px-4 py-[10px] text-sm text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-ring leading-relaxed h-11 transition-colors squircle"
-                style={{ overflowY: 'hidden' }}
-              />
-              <MicButton
-                isRecording={isRecording}
-                isSupported={isSupported}
-                onToggle={toggleMic}
-                size="md"
-              />
-              <button
-                type="button"
-                onClick={send}
-                disabled={!input.trim() || isLoading}
-                className={`rounded-full shrink-0 h-11 w-11 flex items-center justify-center transition-colors duration-150 focus:outline-none select-none ${
-                  input.trim() && !isLoading
-                    ? 'bg-mint text-background active:bg-mint/70'
-                    : 'bg-mint/20 text-mint/50 cursor-default'
-                }`}
-              >
-                <SendIcon />
-              </button>
-            </div>
-            {isRecording && (
-              <p className="text-xs text-mint mt-2 text-center animate-pulse">
-                {t('chat_listening')}
-              </p>
-            )}
+      {/* Usage separator — acts as the top border for free users */}
+      {!isSubscribed && (
+        <div className="flex items-center gap-3 px-4 py-1.5 border-t border-border/60 bg-background/80">
+          <div className="flex-1 h-px bg-border/60" />
+          <span className="text-xs text-muted-foreground tabular-nums shrink-0">{usageBadgeText}</span>
+          <div className="flex-1 h-px bg-border/60" />
+        </div>
+      )}
+
+      {/* Input area */}
+      <div className={`${isSubscribed ? 'border-t border-border/60' : ''} bg-background/80 backdrop-blur-sm px-4 py-4`}>
+        <div className="max-w-2xl mx-auto">
+          {micError && <p className="text-xs text-red-400 mb-2">{micError}</p>}
+          <div className="flex items-center gap-2">
+            <textarea
+              ref={inputRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={t('chat_placeholder')}
+              rows={1}
+              className="flex-1 bg-card border border-input rounded-2xl px-4 py-[10px] text-sm text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-ring leading-relaxed h-11 transition-colors squircle"
+              style={{ overflowY: 'hidden' }}
+            />
+            <MicButton
+              isRecording={isRecording}
+              isSupported={isSupported}
+              onToggle={toggleMic}
+              size="md"
+            />
+            <button
+              type="button"
+              onClick={send}
+              disabled={!input.trim() || isLoading}
+              className={`rounded-full shrink-0 h-11 w-11 flex items-center justify-center transition-colors duration-150 focus:outline-none select-none ${
+                input.trim() && !isLoading
+                  ? 'bg-mint text-background active:bg-mint/70'
+                  : 'bg-mint/20 text-mint/50 cursor-default'
+              }`}
+            >
+              <SendIcon />
+            </button>
           </div>
+          {isRecording && (
+            <p className="text-xs text-mint mt-2 text-center animate-pulse">{t('chat_listening')}</p>
+          )}
         </div>
-      )}
+      </div>
 
-      {/* Viewing past indicator */}
-      {isViewingPast && (
-        <div className="border-t border-border/60 px-4 py-3 text-center">
-          <button
-            onClick={() => handleDateChange(today)}
-            className="text-xs text-mint font-medium active:opacity-70 transition-opacity"
-          >
-            {t('chat_today')} →
-          </button>
-        </div>
-      )}
+    </div>
+  );
+}
 
+function DateSeparator({ date, today, language, t }) {
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  let label;
+  if (date === today) label = t('chat_today');
+  else if (date === yesterday) label = t('chat_yesterday');
+  else label = new Date(date + 'T12:00:00').toLocaleDateString(
+    language === 'es' ? 'es-AR' : 'en-US',
+    { month: 'short', day: 'numeric' }
+  );
+
+  return (
+    <div className="flex items-center gap-3 my-1">
+      <div className="flex-1 h-px bg-border/30" />
+      <span className="text-xs text-muted-foreground/50 font-medium shrink-0">{label}</span>
+      <div className="flex-1 h-px bg-border/30" />
     </div>
   );
 }

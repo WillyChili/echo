@@ -2,19 +2,22 @@ import { useState, useEffect } from 'react';
 import { authFetch } from '../lib/api';
 import { useProfile } from '../context/ProfileContext';
 import { useTranslation } from '../hooks/useTranslation';
+import UpgradeModal from '../components/UpgradeModal';
 
 export default function SettingsPage() {
   const { t } = useTranslation();
-  const { echoTone: profileEchoTone, setEchoTone: setProfileEchoTone } = useProfile();
+  const { echoTone: profileEchoTone, setEchoTone: setProfileEchoTone, isSubscribed } = useProfile();
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   const [echoTone,      setEchoTone]      = useState('warm');
   const [toneSaved,     setToneSaved]     = useState(false);
   const [toneLoading,   setToneLoading]   = useState(false);
 
-  const [digestFreq,    setDigestFreq]    = useState(7);
-  const [digestWindow,  setDigestWindow]  = useState(7);
-  const [digestSaved,   setDigestSaved]   = useState(false);
-  const [digestLoading, setDigestLoading] = useState(false);
+  const [digestFreq,         setDigestFreq]         = useState(7);
+  const [digestWindow,       setDigestWindow]       = useState(7);
+  const [digestEmailEnabled, setDigestEmailEnabled] = useState(false);
+  const [digestSaved,        setDigestSaved]        = useState(false);
+  const [digestLoading,      setDigestLoading]      = useState(false);
 
   // Seed echoTone from ProfileContext immediately
   useEffect(() => {
@@ -25,14 +28,16 @@ export default function SettingsPage() {
     authFetch('/api/profile')
       .then((r) => r.json())
       .then((d) => {
-        if (d.echo_tone)                setEchoTone(d.echo_tone);
+        if (d.echo_tone)                     setEchoTone(d.echo_tone);
         if (d.digest_frequency_days != null) setDigestFreq(d.digest_frequency_days);
         if (d.digest_window_days    != null) setDigestWindow(d.digest_window_days);
+        if (d.digest_email_enabled  != null) setDigestEmailEnabled(d.digest_email_enabled);
       })
       .catch(() => {});
   }, []);
 
   const handleToneSelect = async (tone) => {
+    if (!isSubscribed) { setShowUpgradeModal(true); return; }
     if (toneLoading || tone === echoTone) return;
     setEchoTone(tone);
     setToneLoading(true);
@@ -52,6 +57,7 @@ export default function SettingsPage() {
 
   const handleDigestSave = async (e) => {
     e.preventDefault();
+    if (!isSubscribed) { setShowUpgradeModal(true); return; }
     const freq   = Math.max(1, Math.min(365, Number(digestFreq)   || 7));
     const window = Math.max(1, Math.min(365, Number(digestWindow) || 7));
     setDigestLoading(true);
@@ -59,7 +65,7 @@ export default function SettingsPage() {
     try {
       await authFetch('/api/profile', {
         method: 'POST',
-        body: JSON.stringify({ digest_frequency_days: freq, digest_window_days: window }),
+        body: JSON.stringify({ digest_frequency_days: freq, digest_window_days: window, digest_email_enabled: digestEmailEnabled }),
       });
       setDigestFreq(freq);
       setDigestWindow(window);
@@ -77,6 +83,7 @@ export default function SettingsPage() {
   ];
 
   return (
+    <>
     <div className="max-w-xl mx-auto px-4 py-10">
       <h1 className="text-lg font-semibold text-foreground mb-1">{t('settings_title')}</h1>
       <p className="text-sm text-muted-foreground mb-8">{t('settings_subtitle')}</p>
@@ -96,8 +103,8 @@ export default function SettingsPage() {
               onClick={() => handleToneSelect(opt.key)}
               disabled={toneLoading}
               className={`flex-1 py-2 rounded-xl text-xs font-medium transition-colors select-none disabled:opacity-50 ${
-                echoTone === opt.key
-                  ? 'bg-foreground text-background'
+                isSubscribed && echoTone === opt.key
+                  ? 'border border-mint bg-mint/15 text-mint'
                   : 'bg-secondary text-muted-foreground active:opacity-70'
               }`}
             >
@@ -120,8 +127,11 @@ export default function SettingsPage() {
               min="1"
               max="365"
               value={digestFreq}
+              readOnly={!isSubscribed}
+              onClick={!isSubscribed ? () => setShowUpgradeModal(true) : undefined}
               onChange={(e) => { setDigestSaved(false); setDigestFreq(e.target.value); }}
               className="w-16 bg-background border border-input rounded-xl px-3 py-2 text-sm text-foreground text-center focus:outline-none focus:ring-2 focus:ring-ring"
+              style={!isSubscribed ? { cursor: 'pointer' } : undefined}
             />
             <span className="text-sm text-muted-foreground">{t('settings_digest_frequency_unit')}</span>
           </div>
@@ -133,10 +143,27 @@ export default function SettingsPage() {
               min="1"
               max="365"
               value={digestWindow}
+              readOnly={!isSubscribed}
+              onClick={!isSubscribed ? () => setShowUpgradeModal(true) : undefined}
               onChange={(e) => { setDigestSaved(false); setDigestWindow(e.target.value); }}
               className="w-16 bg-background border border-input rounded-xl px-3 py-2 text-sm text-foreground text-center focus:outline-none focus:ring-2 focus:ring-ring"
+              style={!isSubscribed ? { cursor: 'pointer' } : undefined}
             />
             <span className="text-sm text-muted-foreground">{t('settings_digest_window_unit')}</span>
+          </div>
+
+          {/* Email toggle */}
+          <div
+            className="flex items-center justify-between cursor-pointer select-none"
+            onClick={() => { if (isSubscribed) setDigestEmailEnabled((v) => !v); else setShowUpgradeModal(true); }}
+          >
+            <div>
+              <p className="text-sm text-foreground">{t('settings_digest_email_label')}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{t('settings_digest_email_desc')}</p>
+            </div>
+            <div className={`ml-4 shrink-0 w-10 h-6 rounded-full flex items-center px-0.5 transition-colors ${isSubscribed && digestEmailEnabled ? 'bg-mint' : 'bg-border/50'} ${!isSubscribed ? 'opacity-40' : ''}`}>
+              <div className={`w-5 h-5 rounded-full bg-white shadow transition-transform ${isSubscribed && digestEmailEnabled ? 'translate-x-4' : 'translate-x-0'}`} />
+            </div>
           </div>
 
           {digestSaved && <p className="text-xs text-green-400">{t('settings_digest_saved')}</p>}
@@ -151,5 +178,8 @@ export default function SettingsPage() {
         </form>
       </div>
     </div>
+
+    {showUpgradeModal && <UpgradeModal onClose={() => setShowUpgradeModal(false)} />}
+    </>
   );
 }

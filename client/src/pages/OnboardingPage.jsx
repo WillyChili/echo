@@ -1,9 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
+import Lottie from 'lottie-react';
+import { cn } from '@/lib/utils';
 import { authFetch } from '../lib/api';
 import { useProfile } from '../context/ProfileContext';
 import translations from '../lib/translations';
+import notesAnim from '../animations/notes.json';
+import echoAnim  from '../animations/echo.json';
 
-// 8 particles: 4 inner orbit + 4 outer orbit
+// Particle orbit animation — loading screen
 const PARTICLES = [
   { angle: '0deg',    r: '52px', duration: '2.2s', size: 5, opacity: 1.0 },
   { angle: '90deg',   r: '52px', duration: '2.2s', size: 7, opacity: 0.7 },
@@ -15,19 +19,15 @@ const PARTICLES = [
   { angle: '315deg',  r: '84px', duration: '3.8s', size: 4, opacity: 0.8 },
 ];
 
-function ParticleBurst({ name, messages }) {
+function ParticleBurst({ messages }) {
   const [msgIndex, setMsgIndex] = useState(0);
   const [progress, setProgress] = useState(0);
 
-  // Cycle through messages every 875ms
   useEffect(() => {
-    const iv = setInterval(() => {
-      setMsgIndex((i) => (i + 1) % messages.length);
-    }, 875);
+    const iv = setInterval(() => setMsgIndex((i) => (i + 1) % messages.length), 875);
     return () => clearInterval(iv);
   }, [messages.length]);
 
-  // Progress bar: trigger CSS transition after 50ms
   useEffect(() => {
     const t = setTimeout(() => setProgress(100), 50);
     return () => clearTimeout(t);
@@ -35,30 +35,22 @@ function ParticleBurst({ name, messages }) {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-950 px-6">
-      {/* Particle orbit container */}
       <div className="relative flex items-center justify-center" style={{ width: 200, height: 200 }}>
         {PARTICLES.map((p, i) => (
           <div
             key={i}
             className="absolute rounded-full bg-mint"
             style={{
-              width: p.size,
-              height: p.size,
+              width: p.size, height: p.size,
               opacity: p.opacity,
-              top: '50%',
-              left: '50%',
-              marginTop: -(p.size / 2),
-              marginLeft: -(p.size / 2),
-              '--angle': p.angle,
-              '--r': p.r,
+              top: '50%', left: '50%',
+              marginTop: -(p.size / 2), marginLeft: -(p.size / 2),
+              '--angle': p.angle, '--r': p.r,
               animation: `orbit-particle ${p.duration} linear infinite`,
             }}
           />
         ))}
-
       </div>
-
-      {/* Cycling message */}
       <div className="mt-10 h-6 flex items-center justify-center">
         <p
           key={msgIndex}
@@ -68,214 +60,203 @@ function ParticleBurst({ name, messages }) {
           {messages[msgIndex]}
         </p>
       </div>
-
-      {/* Progress bar */}
       <div className="mt-6 w-48 h-0.5 bg-border rounded-full overflow-hidden">
         <div
           className="h-full bg-mint rounded-full"
-          style={{
-            width: `${progress}%`,
-            transition: 'width 3200ms ease-out',
-          }}
+          style={{ width: `${progress}%`, transition: 'width 3200ms ease-out' }}
         />
       </div>
     </div>
   );
 }
 
-// Step dots stepper
-function Stepper({ step }) {
+// Step indicator dots
+function Stepper({ step, total = 3 }) {
   return (
-    <div className="flex items-center justify-center gap-2 mb-8">
-      {[0, 1, 2].map((i) => (
+    <div className="flex items-center justify-center gap-2">
+      {Array.from({ length: total }).map((_, i) => (
         <div
           key={i}
-          className={`rounded-full transition-all duration-300 ${
-            i === step
-              ? 'w-5 h-1.5 bg-mint'
-              : i < step
-              ? 'w-1.5 h-1.5 bg-mint opacity-70'
-              : 'w-1.5 h-1.5 bg-border'
-          }`}
+          className={cn(
+            'rounded-full transition-all duration-300',
+            i === step  ? 'w-5 h-1.5 bg-mint'
+            : i < step  ? 'w-1.5 h-1.5 bg-mint opacity-60'
+            :              'w-1.5 h-1.5 bg-border'
+          )}
         />
       ))}
     </div>
   );
 }
 
+// Language toggle
+function LangToggle({ lang, onChange }) {
+  return (
+    <div className="flex items-center justify-center gap-1 mb-10">
+      {['en', 'es'].map((l) => (
+        <button
+          key={l}
+          onClick={() => onChange(l)}
+          className={cn(
+            'px-3 py-1 rounded-full text-xs font-semibold transition-colors',
+            lang === l ? 'bg-mint text-background' : 'text-muted-foreground hover:text-foreground'
+          )}
+        >
+          {l.toUpperCase()}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// ─── Illustrations ────────────────────────────────────────────────────────────
+
+function NotesIllustration() {
+  return (
+    <div className="flex justify-center mb-6">
+      <Lottie animationData={notesAnim} loop style={{ width: 240, height: 240 }} />
+    </div>
+  );
+}
+
+function EchoIllustration() {
+  return (
+    <div className="flex justify-center mb-6">
+      <Lottie animationData={echoAnim} loop style={{ width: 240, height: 240 }} />
+    </div>
+  );
+}
+
+// ─── Main component ───────────────────────────────────────────────────────────
+
 export default function OnboardingPage() {
-  const { setLanguage, setDisplayName, setEchoTone: setContextEchoTone, refreshProfile } = useProfile();
+  const { setLanguage, setDisplayName } = useProfile();
 
-  const [step, setStep] = useState(0);
+  const [step, setStep]           = useState(0);
   const [direction, setDirection] = useState('right');
-  const [lang, setLang] = useState('en');
+  const [lang, setLang]           = useState('en');
+  const [name, setName]           = useState('');
+  const [saving, setSaving]       = useState(false);
+  const nameRef                   = useRef(null);
 
-  // t() uses the local lang state so translations are always in sync with the selection
   const t = (key) => translations[lang]?.[key] ?? translations.en[key] ?? key;
-  const [name, setName] = useState('');
-  const [saving, setSaving] = useState(false);
-  const [selectedTone, setSelectedTone] = useState(null);
-  const nameRef = useRef(null);
-  const TONES = [
-    { key: 'warm',    labelKey: 'onboarding_tone_warm',    descKey: 'onboarding_tone_warm_desc' },
-    { key: 'direct',  labelKey: 'onboarding_tone_direct',  descKey: 'onboarding_tone_direct_desc' },
-    { key: 'curious', labelKey: 'onboarding_tone_curious', descKey: 'onboarding_tone_curious_desc' },
-  ];
 
-  const goForward = (nextStep) => { setDirection('right'); setStep(nextStep); };
-  const goBack    = (nextStep) => { setDirection('left');  setStep(nextStep); };
+  const goForward = (n) => { setDirection('right'); setStep(n); };
+  const goBack    = (n) => { setDirection('left');  setStep(n); };
 
-  // Focus name input when step changes to 1
+  // Auto-focus name input on step 0
   useEffect(() => {
-    if (step === 1) setTimeout(() => nameRef.current?.focus(), 100);
+    if (step === 0) setTimeout(() => nameRef.current?.focus(), 120);
   }, [step]);
 
-  const selectLang = (l) => {
+  const changeLang = (l) => {
     setLang(l);
-    setLanguage(l); // update context so t() reflects choice immediately
-    goForward(1);
+    setLanguage(l);
   };
 
-  const finish = () => {
-    goForward(2);
+  const submitName = () => {
+    if (name.trim()) goForward(1);
   };
 
-  const selectTone = async (tone) => {
+  const finish = async () => {
     if (saving) return;
     setSaving(true);
+    goForward(3);
     try {
       await authFetch('/api/profile', {
         method: 'POST',
-        body: JSON.stringify({ display_name: name.trim(), language: lang, echo_tone: tone }),
+        body: JSON.stringify({ display_name: name.trim(), language: lang, echo_tone: 'warm' }),
       });
-    } catch (_) {
-      // best effort
-    }
-    goForward(3);
-    // After animation, update context to open the app gate
-    setTimeout(() => {
-      setDisplayName(name.trim());
-      setContextEchoTone(tone);
-    }, 3500);
+    } catch (_) { /* best effort */ }
+    setTimeout(() => setDisplayName(name.trim()), 3500);
   };
 
-  // Loading messages with name interpolated
-  const loadingMessages = [
-    lang === 'es' ? 'Configurando el idioma...' : 'Setting language to English...',
-    lang === 'es' ? `Hola ${name}!` : `Hi ${name}!`,
-    lang === 'es' ? 'Personalizando tu experiencia...' : 'Personalizing your experience...',
-    lang === 'es' ? 'Echo esta listo.' : 'Echo is ready.',
-  ];
+  const loadingMessages = lang === 'es'
+    ? [`¡Hola ${name}!`, 'Personalizando tu experiencia...', 'Echo está listo.', '¡Todo listo!']
+    : [`Hi ${name}!`, 'Personalizing your experience...', 'Echo is ready.', 'All set!'];
 
-  // Step 3: particle burst
-  if (step === 3) {
-    return <ParticleBurst name={name} messages={loadingMessages} />;
-  }
+  // ── Loading screen ──────────────────────────────────────────────────────────
+  if (step === 3) return <ParticleBurst messages={loadingMessages} />;
 
   const slideStyle = {
     animation: `${direction === 'right' ? 'slide-in-right' : 'slide-in-left'} 0.28s ease-out both`,
   };
 
+  const btnPrimary = 'w-full bg-foreground text-background rounded-2xl py-3 text-sm font-medium active:opacity-70 transition-opacity disabled:opacity-30';
+  const btnBack    = 'mt-3 text-xs text-muted-foreground active:opacity-70 transition-opacity';
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-neutral-950 px-6 overflow-hidden">
       <div className="w-full max-w-sm">
 
-        {/* Step 0: Language */}
+        {/* ── Step 0: Name ─────────────────────────────────────────────────── */}
         {step === 0 && (
-          <div key={0} style={slideStyle} className="text-center">
-            <h1 className="text-xl font-semibold text-foreground mb-2">Choose your language</h1>
-            <p className="text-sm text-muted-foreground mb-8">Elegi tu idioma</p>
-            <div className="flex flex-col gap-3">
-              <button
-                onClick={() => selectLang('en')}
-                className="w-full bg-card border border-border/60 rounded-2xl p-5 text-base font-medium text-foreground active:opacity-70 transition-all hover:border-2 hover:border-mint"
-              >
-                English
-              </button>
-              <button
-                onClick={() => selectLang('es')}
-                className="w-full bg-card border border-border/60 rounded-2xl p-5 text-base font-medium text-foreground active:opacity-70 transition-all hover:border-2 hover:border-mint"
-              >
-                Español
+          <div key={0} style={slideStyle}>
+            <LangToggle lang={lang} onChange={changeLang} />
+            <div className="text-center">
+              <h1 className="text-xl font-semibold text-foreground mb-2">
+                {t('onboarding_name_title')}
+              </h1>
+              <p className="text-sm text-muted-foreground mb-8">
+                {lang === 'es' ? 'Echo te va a llamar por este nombre.' : 'Echo will use this to address you.'}
+              </p>
+              <input
+                ref={nameRef}
+                type="text"
+                placeholder={t('onboarding_name_placeholder')}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && submitName()}
+                className="w-full bg-background border border-input rounded-2xl px-4 py-3 text-base text-foreground text-center placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring mb-5"
+              />
+              <button onClick={submitName} disabled={!name.trim()} className={btnPrimary}>
+                {t('onboarding_continue')}
               </button>
             </div>
-            <div className="mt-8"><Stepper step={step} /></div>
+            <div className="mt-10"><Stepper step={0} /></div>
           </div>
         )}
 
-        {/* Step 1: Name */}
+        {/* ── Step 1: Notes ─────────────────────────────────────────────────── */}
         {step === 1 && (
           <div key={1} style={slideStyle} className="text-center">
-            <h1 className="text-xl font-semibold text-foreground mb-2">{t('onboarding_name_title')}</h1>
-            <p className="text-sm text-muted-foreground mb-8">
-              {lang === 'es' ? 'Echo te va a llamar por este nombre.' : 'Echo will use this to address you.'}
+            <NotesIllustration />
+            <h1 className="text-xl font-semibold text-foreground mb-3">
+              {t('onboarding_notes_title')}
+            </h1>
+            <p className="text-sm text-muted-foreground leading-relaxed mb-8">
+              {t('onboarding_notes_body').replace('{name}', name)}
             </p>
-            <input
-              ref={nameRef}
-              type="text"
-              placeholder={t('onboarding_name_placeholder')}
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && finish()}
-              className="w-full bg-background border border-input rounded-2xl px-4 py-3 text-base text-foreground text-center placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring mb-5"
-            />
-            <button
-              onClick={finish}
-              disabled={!name.trim()}
-              className="w-full bg-foreground text-background rounded-2xl py-3 text-sm font-medium active:opacity-70 transition-opacity disabled:opacity-30"
-            >
+            <button onClick={() => goForward(2)} className={btnPrimary}>
               {t('onboarding_continue')}
             </button>
-            <button
-              onClick={() => goBack(0)}
-              className="mt-3 text-xs text-muted-foreground active:opacity-70"
-            >
-              {lang === 'es' ? 'Volver' : 'Back'}
+            <button onClick={() => goBack(0)} className={btnBack}>
+              {t('onboarding_back')}
             </button>
-            <div className="mt-8"><Stepper step={step} /></div>
+            <div className="mt-10"><Stepper step={1} /></div>
           </div>
         )}
 
-        {/* Step 2: Echo tone */}
+        {/* ── Step 2: Echo ──────────────────────────────────────────────────── */}
         {step === 2 && (
           <div key={2} style={slideStyle} className="text-center">
-            <h1 className="text-xl font-semibold text-foreground mb-2">{t('onboarding_tone_title')}</h1>
-            <p className="text-sm text-muted-foreground mb-8">
-              {lang === 'es' ? 'Podés cambiarlo después en tu perfil.' : 'You can change this later in your profile.'}
+            <EchoIllustration />
+            <h1 className="text-xl font-semibold text-foreground mb-3">
+              {t('onboarding_echo_title')}
+            </h1>
+            <p className="text-sm text-muted-foreground leading-relaxed mb-8">
+              {t('onboarding_echo_body')}
             </p>
-            <div className="flex flex-col gap-3">
-              {TONES.map((tone) => (
-                <button
-                  key={tone.key}
-                  onClick={() => setSelectedTone(tone.key)}
-                  disabled={saving}
-                  className={`w-full rounded-2xl p-4 text-left transition-all disabled:opacity-50 ${
-                    selectedTone === tone.key
-                      ? 'bg-card border-2 border-mint'
-                      : 'bg-card border border-border/60 active:opacity-70 hover:border-mint/50'
-                  }`}
-                >
-                  <p className="text-sm font-semibold text-foreground">{t(tone.labelKey)}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{t(tone.descKey)}</p>
-                </button>
-              ))}
-            </div>
-            <button
-              onClick={() => selectTone(selectedTone)}
-              disabled={!selectedTone || saving}
-              className="mt-5 w-full bg-foreground text-background rounded-2xl py-3 text-sm font-medium active:opacity-70 transition-opacity disabled:opacity-30"
-            >
-              {lang === 'es' ? 'Finalizar' : 'Finish'}
+            <button onClick={finish} disabled={saving} className={btnPrimary}>
+              {t('onboarding_finish')}
             </button>
-            <button
-              onClick={() => goBack(1)}
-              className="mt-3 text-xs text-muted-foreground active:opacity-70"
-            >
-              {lang === 'es' ? 'Volver' : 'Back'}
+            <button onClick={() => goBack(1)} className={btnBack}>
+              {t('onboarding_back')}
             </button>
-            <div className="mt-8"><Stepper step={step} /></div>
+            <div className="mt-10"><Stepper step={2} /></div>
           </div>
         )}
+
       </div>
     </div>
   );

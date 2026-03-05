@@ -1,71 +1,51 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
+const freemium = require('../middleware/freemium');
 const supabase = require('../supabase');
 
 const CLAUDE_API_URL = 'https://api.anthropic.com/v1/messages';
 const DEFAULT_MODEL = 'claude-haiku-4-5-20251001';
 
-const LOW_NOTES_HINTS = [
-  'There are only a few notes so far. Ask a thoughtful question about their day and suggest they keep adding notes or try a voice note to capture quick thoughts.',
-  'Not many notes yet. Guide them by asking what is on their mind and encourage them to add more. Mention voice notes are a fast way to get started.',
-  'Still early. Ask them something thoughtful and let them know that writing more notes, or even recording voice notes, helps you give better guidance.',
-  'Only a couple of notes to work with. Ask a question to learn more about them and suggest they keep writing or recording whenever something comes to mind.',
-];
-
-function buildSystemPrompt(notes, language, bio) {
+function buildSystemPrompt(notes, language, bio, displayName) {
   const lang = language === 'es' ? 'Spanish' : 'English';
+  const name = displayName || 'the user';
 
-  const rules = [
-    `You MUST write your ENTIRE response in ${lang} only. Do NOT include any word from another language. This is mandatory.`,
-    'You MUST NOT use the em dash character anywhere. No long dashes between words. Use commas, periods, or colons to separate ideas.',
-    'Keep your response to 2 or 3 short sentences maximum.',
-  ].join('\n');
+  const today = new Date().toLocaleDateString(language === 'es' ? 'es-AR' : 'en-US', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+  });
 
-  const bioSection = bio && bio.trim()
-    ? `\nAbout this person:\n${bio.trim()}\n`
+  // Personal context block
+  const contextLines = [];
+  if (displayName) contextLines.push(`Name: ${displayName}`);
+  if (bio && bio.trim()) contextLines.push(`About them: ${bio.trim()}`);
+  const personalContext = contextLines.length > 0
+    ? `\nPersonal context about ${name}:\n${contextLines.join('\n')}\n`
     : '';
 
-  if (!notes || notes.length === 0) {
-    return `${rules}
+  const notesSection = notes && notes.length > 0
+    ? `\nTheir notes (${notes.length} total):\n\n` + notes
+        .slice()
+        .sort((a, b) => (a.date < b.date ? -1 : 1))
+        .map((n) => `[${n.date}]\n${n.content}`)
+        .join('\n\n---\n\n')
+    : '';
 
-You are Echo, a personal guide that learns from the user's notes over time. You have no notes yet.
-${bioSection}
-Welcome them briefly and suggest things they could write about: a recipe, a reminder, an idea, a goal, how their day went. Be warm but brief.
+  return `You are Echo, a personal AI assistant for ${name}. Today is ${today}.
 
-Do not identify yourself as an AI unless directly asked.`;
-  }
-
-  const noteCount = notes.length;
-  const notesText = notes
-    .slice()
-    .sort((a, b) => (a.date < b.date ? -1 : 1))
-    .map((n) => `[${n.date}]\n${n.content}`)
-    .join('\n\n---\n\n');
-
-  const lowNotesHint = LOW_NOTES_HINTS[Math.floor(Math.random() * LOW_NOTES_HINTS.length)];
-
-  return `${rules}
-
-You are Echo, a personal guide built from the user's notes. You have read everything they wrote and you use it to give them thoughtful, grounded guidance. You are not their buddy. You are a calm, clear guide who listens and offers direction.
-${bioSection}
-Their notes:
-
-${notesText}
-
-How to respond:
-- Tone: Calm, warm, and clear. Like a mentor, not a friend. No slang, no jokes, no overly casual language.
-- If they mention a problem, offer a clear suggestion. If they share a goal, point them in a direction. If they ask something simple, answer directly.
-- Reference their notes only when it genuinely adds value.
-- ${noteCount < 3 ? lowNotesHint : 'You know them well. Use their notes to give specific, personal guidance.'}
-- Do not identify yourself as an AI unless directly asked.`;
+You MUST write your ENTIRE response in ${lang} only. Do NOT use any other language.
+You MUST NOT use the em dash character. Use commas, periods, or colons instead.
+Keep responses concise: 2 to 4 sentences unless a longer answer is clearly needed.
+Do not identify yourself as an AI unless directly asked.
+${personalContext}${notesSection}
+Answer any question the user has, using your full knowledge. When their personal context or notes are relevant to the question, naturally weave that in. Otherwise just answer directly.`;
 }
 
 // All chat routes require authentication
 router.use(auth);
 
 // POST /api/chat
-router.post('/', async (req, res) => {
+router.post('/', freemium, async (req, res) => {
   try {
     const { userMessage, notes, language } = req.body;
 
@@ -73,34 +53,27 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'userMessage is required.' });
     }
 
-    // Use user's own API key if they have one, otherwise fallback to server key
-    let apiKey = process.env.ANTHROPIC_API_KEY;
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+
+    if (!apiKey) {
+      return res.status(500).json({ error: 'Server API key not configured.' });
+    }
 
     const { data: profile } = await supabase
       .from('profiles')
-      .select('api_key, bio')
+      .select('bio, display_name')
       .eq('id', req.user.id)
       .single();
 
-    if (profile?.api_key) {
-      apiKey = profile.api_key;
-    }
+    const systemPrompt = buildSystemPrompt(notes || [], language || 'en', profile?.bio || '', profile?.display_name || '');
 
-    if (!apiKey || apiKey === 'your_api_key_here') {
-      return res.status(500).json({
-        error: 'No API key configured. Add your Anthropic key in Settings.',
-      });
-    }
-
-    const systemPrompt = buildSystemPrompt(notes || [], language || 'en', profile?.bio || '');
-
-    // Fetch last 10 messages for conversational context
+    // Fetch last 20 messages for conversational context
     const { data: history } = await supabase
       .from('chat_messages')
       .select('role, content')
       .eq('user_id', req.user.id)
       .order('created_at', { ascending: false })
-      .limit(10);
+      .limit(20);
 
     const contextMessages = (history || [])
       .reverse()

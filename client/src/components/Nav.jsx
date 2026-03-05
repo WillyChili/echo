@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '../context/AuthContext';
 import { useProfile } from '../context/ProfileContext';
 import { useTranslation } from '../hooks/useTranslation';
+import UpgradeModal from './UpgradeModal';
 
 function Avatar({ email, avatarUrl, onClick }) {
   const initials = email ? email[0].toUpperCase() : '?';
@@ -20,8 +21,9 @@ function Avatar({ email, avatarUrl, onClick }) {
   );
 }
 
-function DropdownMenu({ onClose }) {
+function DropdownMenu({ onClose, onSubscribe }) {
   const { signOut } = useAuth();
+  const { isSubscribed } = useProfile();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const ref = useRef(null);
@@ -40,8 +42,19 @@ function DropdownMenu({ onClose }) {
   return (
     <div
       ref={ref}
-      className="absolute top-11 right-0 w-48 bg-card border border-border/60 rounded-2xl shadow-lg overflow-hidden z-50"
+      className="absolute top-11 right-0 w-52 bg-card border border-border/60 rounded-2xl shadow-lg overflow-hidden z-50"
     >
+      {!isSubscribed && (
+        <>
+          <button
+            className={cn(item, 'text-mint font-medium')}
+            onClick={() => { onSubscribe(); onClose(); }}
+          >
+            <SparkleIcon /> {t('nav_subscribe')}
+          </button>
+          <div className="h-px bg-border/40 mx-3" />
+        </>
+      )}
       <button className={item} onClick={() => { navigate('/settings'); onClose(); }}>
         <SettingsIcon /> {t('nav_settings')}
       </button>
@@ -66,6 +79,7 @@ export default function Nav() {
   const { avatarUrl } = useProfile();
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   const linkClass = ({ isActive }) =>
     cn(
@@ -76,21 +90,39 @@ export default function Nav() {
     );
 
   return (
-    <nav className="sticky top-0 z-10 border-b border-border/60 bg-background/90 backdrop-blur-sm">
-      <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
-        <span className="text-foreground font-semibold tracking-wide select-none text-base">
-          echo
-        </span>
-        <div className="flex items-center gap-1">
-          <NavLink to="/" end className={linkClass}>{t('nav_today')}</NavLink>
-          <NavLink to="/chat" className={linkClass}>{t('nav_echo')}</NavLink>
-          <div className="relative ml-2">
-            <Avatar email={user?.email} avatarUrl={avatarUrl} onClick={() => setOpen((o) => !o)} />
-            {open && <DropdownMenu onClose={() => setOpen(false)} />}
+    <>
+      <nav className="sticky top-0 z-10 border-b border-border/60 bg-background/90 backdrop-blur-sm">
+        <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
+          <span className="text-foreground font-semibold tracking-wide select-none text-base">
+            echo
+          </span>
+          <div className="flex items-center gap-1">
+            <NavLink to="/" end className={linkClass}>{t('nav_today')}</NavLink>
+            <NavLink to="/chat" className={linkClass}>{t('nav_echo')}</NavLink>
+            <div className="relative ml-2">
+              <Avatar email={user?.email} avatarUrl={avatarUrl} onClick={() => setOpen((o) => !o)} />
+              {open && (
+                <DropdownMenu
+                  onClose={() => setOpen(false)}
+                  onSubscribe={() => setShowUpgradeModal(true)}
+                />
+              )}
+            </div>
           </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+      {showUpgradeModal && (
+        <UpgradeModal onClose={() => setShowUpgradeModal(false)} />
+      )}
+    </>
+  );
+}
+
+function SparkleIcon() {
+  return (
+    <svg className="w-4 h-4 text-mint" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
+    </svg>
   );
 }
 

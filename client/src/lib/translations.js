@@ -7,6 +7,7 @@ const translations = {
     nav_edit_profile: 'Edit profile',
     nav_subscription: 'Subscription',
     nav_sign_out: 'Sign out',
+    nav_subscribe: 'Upgrade to Pro',
 
     // TodayPage
     today_greeting_hey: 'Hey',
@@ -36,6 +37,22 @@ const translations = {
     chat_error_server: "Can't reach the server right now. Make sure it's running.",
     chat_today: 'Today',
     chat_yesterday: 'Yesterday',
+    chat_usage_badge: '{used}/{limit} chats today',
+
+    // Pricing modal
+    pricing_title: 'Choose your plan',
+    pricing_limit_note: "You've used all {limit} chats today",
+    pricing_free_name: 'Free',
+    pricing_free_price: 'Free',
+    pricing_pro_name: 'Pro',
+    pricing_current_plan: 'Current plan',
+    pricing_upgrade: 'Subscribe',
+    pricing_feat_chats_free: '10 chats / day',
+    pricing_feat_chats_pro: 'Unlimited chats',
+    pricing_feat_notes: 'Unlimited notes',
+    pricing_feat_tone: 'Echo personality',
+    pricing_feat_digest_free: '1 weekly digest',
+    pricing_feat_digest_pro: 'Unlimited digests',
 
     // EditProfilePage
     edit_profile_title: 'Edit profile',
@@ -56,25 +73,15 @@ const translations = {
     edit_profile_photo_error: 'Could not upload photo. Make sure the "avatars" bucket exists in Supabase Storage.',
 
     // OnboardingPage
-    onboarding_lang_title: 'Choose your language',
     onboarding_name_title: 'What should Echo call you?',
     onboarding_name_placeholder: 'Your name',
-    onboarding_bio_title: 'Tell Echo about yourself',
-    onboarding_bio_subtitle: 'This helps Echo understand you better.',
-    onboarding_bio_placeholder: 'A little about you...',
-    onboarding_skip: 'Skip for now',
     onboarding_continue: 'Continue',
-    onboarding_loading_1: 'Setting language to English...',
-    onboarding_loading_2: 'Hi {name}!',
-    onboarding_loading_3: 'Personalizing your experience...',
-    onboarding_loading_4: 'Echo is ready.',
-    onboarding_tone_title: 'How should Echo talk to you?',
-    onboarding_tone_warm: 'Warm',
-    onboarding_tone_warm_desc: 'Friendly and empathetic',
-    onboarding_tone_direct: 'Direct',
-    onboarding_tone_direct_desc: 'Clear and to the point',
-    onboarding_tone_curious: 'Curious',
-    onboarding_tone_curious_desc: 'Asks questions and explores ideas',
+    onboarding_back: 'Back',
+    onboarding_finish: "Let's go!",
+    onboarding_notes_title: 'Capture anything',
+    onboarding_notes_body: 'Your notes are your space, {name}. Ideas, reminders, goals, how your day went. Type it or say it out loud. The more you share, the better Echo knows you.',
+    onboarding_echo_title: 'Meet Echo',
+    onboarding_echo_body: 'Echo reads your notes and learns about you over time. Ask it anything. It\'ll always respond based on what you\'ve shared.',
 
     // SettingsPage
     settings_title: 'Settings',
@@ -82,6 +89,12 @@ const translations = {
     settings_saving: 'Saving…',
     settings_echo_tone_title: "Echo's personality",
     settings_echo_tone_saved: 'Saved ✓',
+    onboarding_tone_warm: 'Warm',
+    onboarding_tone_warm_desc: 'Empathetic and encouraging. Echo meets you with care.',
+    onboarding_tone_direct: 'Direct',
+    onboarding_tone_direct_desc: 'Clear and to the point. Echo skips the fluff.',
+    onboarding_tone_curious: 'Curious',
+    onboarding_tone_curious_desc: 'Thoughtful and exploratory. Echo asks questions.',
 
     // Digest settings
     settings_digest_title: 'Periodic Digest',
@@ -92,6 +105,8 @@ const translations = {
     settings_digest_window_unit: 'days of notes',
     settings_digest_save: 'Save',
     settings_digest_saved: 'Saved ✓',
+    settings_digest_email_label: 'Send digest by email',
+    settings_digest_email_desc: 'Receive your digest in your inbox in addition to the chat.',
   },
 
   es: {
@@ -102,6 +117,7 @@ const translations = {
     nav_edit_profile: 'Editar perfil',
     nav_subscription: 'Suscripción',
     nav_sign_out: 'Cerrar sesión',
+    nav_subscribe: 'Hacerse Pro',
 
     // TodayPage
     today_greeting_hey: 'Hola',
@@ -131,6 +147,22 @@ const translations = {
     chat_error_server: 'No se puede conectar con el servidor. Asegúrate de que está en funcionamiento.',
     chat_today: 'Hoy',
     chat_yesterday: 'Ayer',
+    chat_usage_badge: '{used}/{limit} chats hoy',
+
+    // Pricing modal
+    pricing_title: 'Elegí tu plan',
+    pricing_limit_note: 'Usaste los {limit} chats de hoy',
+    pricing_free_name: 'Gratis',
+    pricing_free_price: 'Gratis',
+    pricing_pro_name: 'Pro',
+    pricing_current_plan: 'Plan actual',
+    pricing_upgrade: 'Suscribirme',
+    pricing_feat_chats_free: '10 chats / día',
+    pricing_feat_chats_pro: 'Chats ilimitados',
+    pricing_feat_notes: 'Notas ilimitadas',
+    pricing_feat_tone: 'Personalidad de Echo',
+    pricing_feat_digest_free: '1 resumen semanal',
+    pricing_feat_digest_pro: 'Resúmenes ilimitados',
 
     // EditProfilePage
     edit_profile_title: 'Editar perfil',
@@ -151,25 +183,15 @@ const translations = {
     edit_profile_photo_error: 'No se pudo subir la foto. Asegúrate de que el bucket "avatars" existe en Supabase Storage.',
 
     // OnboardingPage
-    onboarding_lang_title: 'Elegi tu idioma',
-    onboarding_name_title: 'Como queres que Echo te llame?',
+    onboarding_name_title: '¿Cómo querés que Echo te llame?',
     onboarding_name_placeholder: 'Tu nombre',
-    onboarding_bio_title: 'Contale algo a Echo sobre vos',
-    onboarding_bio_subtitle: 'Esto ayuda a Echo a entenderte mejor.',
-    onboarding_bio_placeholder: 'Un poco sobre ti...',
-    onboarding_skip: 'Omitir por ahora',
     onboarding_continue: 'Continuar',
-    onboarding_loading_1: 'Configurando el idioma...',
-    onboarding_loading_2: 'Hola {name}!',
-    onboarding_loading_3: 'Personalizando tu experiencia...',
-    onboarding_loading_4: 'Echo esta listo.',
-    onboarding_tone_title: '¿Cómo querés que Echo te hable?',
-    onboarding_tone_warm: 'Cálido',
-    onboarding_tone_warm_desc: 'Amigable y empático',
-    onboarding_tone_direct: 'Directo',
-    onboarding_tone_direct_desc: 'Claro y sin vueltas',
-    onboarding_tone_curious: 'Curioso',
-    onboarding_tone_curious_desc: 'Hace preguntas y explora ideas',
+    onboarding_back: 'Volver',
+    onboarding_finish: '¡Vamos!',
+    onboarding_notes_title: 'Capturá todo',
+    onboarding_notes_body: 'Tus notas son tu espacio, {name}. Ideas, recordatorios, metas, cómo te fue. Escribí o dictalo. Cuanto más compartís, mejor te conoce Echo.',
+    onboarding_echo_title: 'Conocé a Echo',
+    onboarding_echo_body: 'Echo lee tus notas y te va conociendo con el tiempo. Preguntale lo que quieras. Siempre va a responder basándose en lo que compartiste.',
 
     // SettingsPage
     settings_title: 'Ajustes',
@@ -177,6 +199,12 @@ const translations = {
     settings_saving: 'Guardando…',
     settings_echo_tone_title: 'Personalidad de Echo',
     settings_echo_tone_saved: 'Guardado ✓',
+    onboarding_tone_warm: 'Cálido',
+    onboarding_tone_warm_desc: 'Empático y alentador. Echo te acompaña con cuidado.',
+    onboarding_tone_direct: 'Directo',
+    onboarding_tone_direct_desc: 'Claro y al punto. Echo va sin rodeos.',
+    onboarding_tone_curious: 'Curioso',
+    onboarding_tone_curious_desc: 'Reflexivo y exploratorio. Echo hace preguntas.',
 
     // Digest settings
     settings_digest_title: 'Resumen periódico',
@@ -187,6 +215,8 @@ const translations = {
     settings_digest_window_unit: 'días de notas',
     settings_digest_save: 'Guardar',
     settings_digest_saved: 'Guardado ✓',
+    settings_digest_email_label: 'Recibir digest por email',
+    settings_digest_email_desc: 'Recibí el resumen en tu bandeja además del chat.',
   },
 };
 

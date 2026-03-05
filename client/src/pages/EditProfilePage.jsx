@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { useProfile } from '../context/ProfileContext';
 import { useTranslation } from '../hooks/useTranslation';
+import { usePushNotifications } from '../hooks/usePushNotifications';
 
 // ── Individual field card (Instagram-style) ──────────────────────────────────
 function Field({ label, children }) {
@@ -20,6 +21,7 @@ export default function EditProfilePage() {
   const { language, setLanguage, bio: profileBio, setBio: setProfileBio, setAvatarUrl: setProfileAvatarUrl, refreshProfile } = useProfile();
   const { t } = useTranslation();
   const fileRef = useRef(null);
+  const { enabled: notificationsEnabled, loading: notifLoading, error: notifError, toggle: toggleNotifications, isSupported: notifSupported } = usePushNotifications();
 
   const [displayName, setDisplayName]     = useState('');
   const [bio, setBio]                     = useState('');
@@ -216,13 +218,23 @@ export default function EditProfilePage() {
             </Field>
 
             <Field label={t('edit_profile_notifications')}>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground/50">{t('edit_profile_coming_soon')}</span>
-                {/* disabled toggle */}
-                <div className="w-10 h-6 rounded-full bg-border/40 flex items-center px-0.5 opacity-40 cursor-not-allowed">
-                  <div className="w-5 h-5 rounded-full bg-muted-foreground" />
+              <div className="flex items-center justify-between" onClick={notifSupported ? toggleNotifications : undefined}>
+                <span className={`text-sm ${notifSupported ? 'text-foreground cursor-pointer' : 'text-muted-foreground/50'}`}>
+                  {notifSupported
+                    ? (notificationsEnabled ? 'On' : 'Off')
+                    : t('edit_profile_coming_soon')}
+                </span>
+                <div
+                  className={`w-10 h-6 rounded-full flex items-center px-0.5 transition-colors select-none ${
+                    notifSupported
+                      ? (notificationsEnabled ? 'bg-mint cursor-pointer' : 'bg-border/50 cursor-pointer')
+                      : 'bg-border/40 opacity-40 cursor-not-allowed'
+                  } ${notifLoading ? 'opacity-60' : ''}`}
+                >
+                  <div className={`w-5 h-5 rounded-full bg-white shadow transition-transform ${notificationsEnabled ? 'translate-x-4' : 'translate-x-0'}`} />
                 </div>
               </div>
+              {notifError && <p className="text-xs text-red-400 mt-1">{notifError}</p>}
             </Field>
 
           </div>

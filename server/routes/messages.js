@@ -9,35 +9,53 @@ router.use(auth);
 router.get('/dates', async (req, res) => {
   try {
     const { data, error } = await supabase
-      .from('chat_messages')
-      .select('date')
-      .eq('user_id', req.user.id)
-      .order('date', { ascending: false });
+      .rpc('get_distinct_message_dates', { p_user_id: req.user.id });
 
     if (error) throw error;
 
-    const unique = [...new Set((data || []).map((r) => r.date))];
-    res.json(unique);
+    res.json((data || []).map((r) => r.date));
   } catch (err) {
     res.status(500).json({ error: 'Failed to load chat dates.' });
   }
 });
 
-// GET /api/messages?date=YYYY-MM-DD  —  messages for a specific day
+// GET /api/messages              —  last 50 messages
+// GET /api/messages?before=<ts>  —  50 messages before that timestamp (pagination)
+// GET /api/messages?date=…       —  messages for a specific day (kept for compatibility)
 router.get('/', async (req, res) => {
   try {
-    const date = req.query.date || new Date().toISOString().slice(0, 10);
+    const PAGE_SIZE = 50;
 
-    const { data, error } = await supabase
+    // Legacy date filter — return all for that date, no pagination
+    if (req.query.date) {
+      const { data, error } = await supabase
+        .from('chat_messages')
+        .select('role, content, created_at, date')
+        .eq('user_id', req.user.id)
+        .eq('date', req.query.date)
+        .order('created_at', { ascending: true });
+      if (error) throw error;
+      return res.json({ messages: data || [], hasMore: false });
+    }
+
+    let query = supabase
       .from('chat_messages')
-      .select('role, content, created_at')
+      .select('role, content, created_at, date')
       .eq('user_id', req.user.id)
-      .eq('date', date)
-      .order('created_at', { ascending: true });
+      .order('created_at', { ascending: false })
+      .limit(PAGE_SIZE);
 
+    if (req.query.before) {
+      query = query.lt('created_at', req.query.before);
+    }
+
+    const { data, error } = await query;
     if (error) throw error;
 
-    res.json(data || []);
+    res.json({
+      messages: (data || []).reverse(),
+      hasMore: (data || []).length === PAGE_SIZE,
+    });
   } catch (err) {
     res.status(500).json({ error: 'Failed to load messages.' });
   }

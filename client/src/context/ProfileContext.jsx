@@ -14,6 +14,9 @@ export function ProfileProvider({ children }) {
   const [bio, setBio] = useState('');
   const [echoTone, setEchoTone] = useState('warm');
   const [profileLoading, setProfileLoading] = useState(true);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [chatsUsedToday, setChatsUsedToday] = useState(0);
+  const [dailyChatsResetDate, setDailyChatsResetDate] = useState(null);
 
   const refreshProfile = useCallback(() => {
     if (!user) { setProfileLoading(false); return; }
@@ -34,6 +37,14 @@ export function ProfileProvider({ children }) {
         if ('language' in d) setLanguage(d.language || 'en');
         if ('bio' in d) setBio(d.bio || '');
         if ('echo_tone' in d) setEchoTone(d.echo_tone || 'warm');
+        if ('is_subscribed' in d) setIsSubscribed(!!d.is_subscribed);
+        if ('daily_chats_used' in d) {
+          const today = new Date().toISOString().slice(0, 10);
+          // Reset local counter if the DB date is stale
+          const resetDate = d.daily_chats_reset_date;
+          setChatsUsedToday(resetDate && resetDate >= today ? (d.daily_chats_used ?? 0) : 0);
+          setDailyChatsResetDate(resetDate || today);
+        }
       })
       .catch(() => {}) // network/server error — preserve existing state (displayName stays null)
       .finally(() => setProfileLoading(false));
@@ -51,7 +62,7 @@ export function ProfileProvider({ children }) {
   }, []);
 
   return (
-    <ProfileContext.Provider value={{ avatarUrl, setAvatarUrl, displayName, setDisplayName: setDisplayNameCached, language, setLanguage, bio, setBio, echoTone, setEchoTone, refreshProfile, profileLoading }}>
+    <ProfileContext.Provider value={{ avatarUrl, setAvatarUrl, displayName, setDisplayName: setDisplayNameCached, language, setLanguage, bio, setBio, echoTone, setEchoTone, refreshProfile, profileLoading, isSubscribed, chatsUsedToday, setChatsUsedToday, dailyChatsResetDate }}>
       {children}
     </ProfileContext.Provider>
   );

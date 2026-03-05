@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Echo — personal journaling and AI companion",
   "scripts": {
+    "start": "node server.js",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "server": "node server.js",
     "client": "npm --prefix client run dev",

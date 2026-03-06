@@ -175,7 +175,7 @@ export default function EditProfilePage() {
                 placeholder={t('edit_profile_name_placeholder')}
                 value={displayName}
                 onChange={(e) => { setSaved(false); setDisplayName(e.target.value); }}
-                className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none"
+                className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
               />
             </Field>
 
@@ -185,7 +185,7 @@ export default function EditProfilePage() {
                 value={bio}
                 onChange={(e) => { setSaved(false); setBio(e.target.value); }}
                 rows={3}
-                className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none resize-none leading-relaxed"
+                className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none resize-none leading-relaxed"
               />
             </Field>
 
@@ -219,7 +219,7 @@ export default function EditProfilePage() {
 
             <Field label={t('edit_profile_notifications')}>
               <div className="flex items-center justify-between" onClick={notifSupported ? toggleNotifications : undefined}>
-                <span className={`text-sm ${notifSupported ? 'text-foreground cursor-pointer' : 'text-muted-foreground/50'}`}>
+                <span className={`text-sm ${notifSupported ? 'text-foreground cursor-pointer' : 'text-muted-foreground/60'}`}>
                   {notifSupported
                     ? (notificationsEnabled ? t('edit_profile_notif_on') : t('edit_profile_notif_off'))
                     : t('edit_profile_coming_soon')}

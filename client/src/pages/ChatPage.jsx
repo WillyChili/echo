@@ -268,7 +268,7 @@ export default function ChatPage() {
             <div className="flex-1 h-px bg-border/60" />
           </div>
           {chatsUsedToday >= FREE_CHAT_LIMIT && (
-            <span className="text-xs text-muted-foreground/60">{t('chat_limit_reset')}</span>
+            <span className="text-xs text-muted-foreground/80">{t('chat_limit_reset')}</span>
           )}
         </div>
       )}
@@ -330,7 +330,7 @@ function DateSeparator({ date, today, language, t }) {
   return (
     <div className="flex items-center gap-3 my-1">
       <div className="flex-1 h-px bg-border/30" />
-      <span className="text-xs text-muted-foreground/50 font-medium shrink-0">{label}</span>
+      <span className="text-xs text-muted-foreground/80 font-medium shrink-0">{label}</span>
       <div className="flex-1 h-px bg-border/30" />
     </div>
   );

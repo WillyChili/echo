@@ -137,7 +137,7 @@ function MiniCalendar({ year, month, today, selectedDate, noteDates, onSelectDat
 
         <div className="grid grid-cols-7 mb-2">
           {['M','T','W','T','F','S','S'].map((d, i) => (
-            <span key={i} className="text-center text-[10px] text-muted-foreground/50 font-medium">{d}</span>
+            <span key={i} className="text-center text-[10px] text-muted-foreground font-medium">{d}</span>
           ))}
         </div>
 
@@ -498,7 +498,7 @@ export default function TodayPage() {
                   {t('today_back_to_today')}
                 </button>
               ) : (
-                !selectionMode && <span className="text-xs text-muted-foreground/50">{t('today_hold_to_select')}</span>
+                !selectionMode && <span className="text-xs text-muted-foreground/80">{t('today_hold_to_select')}</span>
               )}
             </div>
             {calendarOpen && (

@@ -113,8 +113,8 @@ const translations = {
     onboarding_continue: 'Continue',
     onboarding_back: 'Back',
     onboarding_finish: "Let's go!",
-    onboarding_notes_title: 'Write. Echo listens. Then ask.',
-    onboarding_notes_body: 'Write anything. Echo reads it, learns from it, and answers based on what you share.',
+    onboarding_notes_title: 'Share. Echo listens. Then ask.',
+    onboarding_notes_body: 'Share anything. Echo reads it, learns from it, and answers based on what you shared.',
     onboarding_echo_title: 'Meet Echo',
     onboarding_echo_body: "Echo reads your notes and learns about you over time. Ask it anything. It'll always respond based on what you've shared.",
 
@@ -277,8 +277,8 @@ const translations = {
     onboarding_continue: 'Continuar',
     onboarding_back: 'Volver',
     onboarding_finish: '¡Vamos!',
-    onboarding_notes_title: 'Escribí. Echo escucha. Después preguntá.',
-    onboarding_notes_body: 'Escribí lo que quieras. Echo lo lee, aprende y responde basándose en lo que compartiste.',
+    onboarding_notes_title: 'Compartí. Echo escucha. Después preguntá.',
+    onboarding_notes_body: 'Compartí lo que quieras. Echo lo lee, aprende y responde basándose en lo que compartiste.',
     onboarding_echo_title: 'Conocé a Echo',
     onboarding_echo_body: 'Echo lee tus notas y te va conociendo con el tiempo. Preguntale lo que quieras. Siempre va a responder basándose en lo que compartiste.',
 

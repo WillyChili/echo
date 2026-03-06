@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useProfile } from '../context/ProfileContext';
 import { useTranslation } from '../hooks/useTranslation';
 import UpgradeModal from './UpgradeModal';
+import echoLogo from '../assets/echo-logo.svg';
 
 function Avatar({ email, avatarUrl, isSubscribed, onClick }) {
   const initials = email ? email[0].toUpperCase() : '?';
@@ -89,7 +90,7 @@ export default function Nav() {
     <>
       <nav className="sticky top-0 z-10 border-b border-border/60 bg-background/90 backdrop-blur-sm">
         <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
-          <EchoLogoIcon isSubscribed={isSubscribed} />
+          <img src={echoLogo} className="w-7 h-7 select-none" alt="echo" />
           <div className="flex items-center gap-1">
             <NavLink to="/" end className={linkClass}>{t('nav_today')}</NavLink>
             <NavLink to="/chat" className={linkClass}>{t('nav_echo')}</NavLink>
@@ -141,33 +142,6 @@ function SignOutIcon() {
   return (
     <svg className="w-4 h-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
-    </svg>
-  );
-}
-
-function EchoLogoIcon({ isSubscribed }) {
-  const radii = [8, 14, 20, 26, 32, 38];
-  return (
-    <svg
-      className={`w-7 h-7 transition-colors select-none ${isSubscribed ? 'text-mint' : 'text-foreground'}`}
-      viewBox="0 0 100 100"
-      fill="none"
-    >
-      <circle cx="50" cy="50" r="5" fill="currentColor" />
-      {radii.map((r) => {
-        const C = 2 * Math.PI * r;
-        return (
-          <circle
-            key={r}
-            cx="50" cy="50" r={r}
-            stroke="currentColor"
-            strokeWidth={r <= 14 ? 4 : r <= 26 ? 3.5 : 3}
-            strokeLinecap="round"
-            strokeDasharray={`${C * 0.1875} ${C * 0.0625}`}
-            transform="rotate(-45 50 50)"
-          />
-        );
-      })}
     </svg>
   );
 }

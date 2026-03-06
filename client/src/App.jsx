@@ -8,7 +8,6 @@ import ChatPage from './pages/ChatPage.jsx';
 import AuthPage from './pages/AuthPage.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
 import EditProfilePage from './pages/EditProfilePage.jsx';
-import SubscriptionPage from './pages/SubscriptionPage.jsx';
 import OnboardingPage from './pages/OnboardingPage.jsx';
 
 function Spinner() {
@@ -34,7 +33,6 @@ function ProtectedRoutes() {
           <Route path="/chat"     element={<ChatPage />} />
           <Route path="/settings"      element={<SettingsPage />} />
           <Route path="/edit-profile"  element={<EditProfilePage />} />
-          <Route path="/subscription"  element={<SubscriptionPage />} />
           <Route path="*"             element={<Navigate to="/" replace />} />
         </Routes>
       </main>

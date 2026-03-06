@@ -167,7 +167,7 @@ export default function ChatPage() {
       } else if (!res.ok || data.error) {
         setMessages((prev) => [
           ...prev,
-          { role: 'echo', text: data.error || 'Something went wrong. Try again in a moment.', isError: true, date: today },
+          { role: 'echo', text: data.error || t('chat_error_generic'), isError: true, date: today },
         ]);
       } else {
         setMessages((prev) => [...prev, { role: 'echo', text: data.reply, date: today }]);
@@ -236,7 +236,7 @@ export default function ChatPage() {
 
           {isLoadingMore && (
             <div className="flex justify-center py-2">
-              <span className="text-xs text-muted-foreground animate-pulse">Loading…</span>
+              <span className="text-xs text-muted-foreground animate-pulse">{t('chat_loading_more')}</span>
             </div>
           )}
 
@@ -261,10 +261,15 @@ export default function ChatPage() {
 
       {/* Usage separator — acts as the top border for free users */}
       {!isSubscribed && (
-        <div className="flex items-center gap-3 px-4 py-1.5 border-t border-border/60 bg-background/80">
-          <div className="flex-1 h-px bg-border/60" />
-          <span className="text-xs text-muted-foreground tabular-nums shrink-0">{usageBadgeText}</span>
-          <div className="flex-1 h-px bg-border/60" />
+        <div className="flex flex-col items-center px-4 py-1.5 border-t border-border/60 bg-background/80 gap-0.5">
+          <div className="flex items-center gap-3 w-full">
+            <div className="flex-1 h-px bg-border/60" />
+            <span className="text-xs text-muted-foreground tabular-nums shrink-0">{usageBadgeText}</span>
+            <div className="flex-1 h-px bg-border/60" />
+          </div>
+          {chatsUsedToday >= FREE_CHAT_LIMIT && (
+            <span className="text-xs text-muted-foreground/60">{t('chat_limit_reset')}</span>
+          )}
         </div>
       )}
 

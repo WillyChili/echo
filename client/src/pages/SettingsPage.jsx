@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { authFetch } from '../lib/api';
+import { supabase } from '../lib/supabase';
 import { useProfile } from '../context/ProfileContext';
 import { useTranslation } from '../hooks/useTranslation';
 import UpgradeModal from '../components/UpgradeModal';
@@ -9,6 +10,10 @@ export default function SettingsPage() {
   const { t } = useTranslation();
   const { echoTone: profileEchoTone, setEchoTone: setProfileEchoTone, isSubscribed } = useProfile();
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal]   = useState(false);
+  const [deleting, setDeleting]                 = useState(false);
+  const [deleteError, setDeleteError]           = useState(null);
+  const [exporting, setExporting]               = useState(false);
 
   const [echoTone,      setEchoTone]      = useState('warm');
   const [toneSaved,     setToneSaved]     = useState(false);
@@ -77,6 +82,54 @@ export default function SettingsPage() {
     }
   };
 
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      const [profileRes, notesRes] = await Promise.all([
+        authFetch('/api/profile'),
+        authFetch('/api/notes'),
+      ]);
+      const profile = await profileRes.json();
+      const notes   = await notesRes.json();
+
+      const payload = {
+        exported_at: new Date().toISOString(),
+        profile: {
+          display_name: profile.display_name,
+          bio:          profile.bio,
+          language:     profile.language,
+          echo_tone:    profile.echo_tone,
+        },
+        notes,
+      };
+
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = `echo-export-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch { /* silent */ } finally {
+      setExporting(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      const res = await authFetch('/api/account', { method: 'DELETE' });
+      if (!res.ok) throw new Error('failed');
+      await supabase.auth.signOut();
+    } catch {
+      setDeleteError(t('settings_delete_error'));
+      setDeleting(false);
+    }
+  };
+
   const TONES = [
     { key: 'warm',    labelKey: 'onboarding_tone_warm',    descKey: 'onboarding_tone_warm_desc' },
     { key: 'direct',  labelKey: 'onboarding_tone_direct',  descKey: 'onboarding_tone_direct_desc' },
@@ -90,7 +143,7 @@ export default function SettingsPage() {
       <p className="text-sm text-muted-foreground mb-8">{t('settings_subtitle')}</p>
 
       {/* Subscription plan */}
-      <div className={`bg-card rounded-2xl p-5 mb-4 ${isSubscribed ? 'border-2 border-mint/40' : 'border border-border/60'}`}>
+      <div className={`bg-card rounded-2xl p-6 mb-4 ${isSubscribed ? 'border-2 border-mint/40' : 'border border-border/60'}`}>
         <h2 className="text-sm font-medium text-foreground mb-1">{t('settings_plan_title')}</h2>
         <p className="text-xs text-muted-foreground mb-4">{t('settings_plan_desc')}</p>
         <div className="flex items-center justify-between">
@@ -130,7 +183,7 @@ export default function SettingsPage() {
       </div>
 
       {/* Echo personality */}
-      <div className="bg-card border border-border/60 rounded-2xl p-5 mb-4">
+      <div className="bg-card border border-border/60 rounded-2xl p-6 mb-4">
         <div className="flex items-center justify-between mb-1">
           <h2 className="text-sm font-medium text-foreground">{t('settings_echo_tone_title')}</h2>
           {toneSaved && <span className="text-xs text-mint">{t('settings_echo_tone_saved')}</span>}
@@ -156,7 +209,7 @@ export default function SettingsPage() {
       </div>
 
       {/* Digest settings */}
-      <div className="bg-card border border-border/60 rounded-2xl p-5">
+      <div className="bg-card border border-border/60 rounded-2xl p-6">
         <h2 className="text-sm font-medium text-foreground mb-1">{t('settings_digest_title')}</h2>
         <p className="text-xs text-muted-foreground mb-4">{t('settings_digest_desc')}</p>
 
@@ -218,9 +271,60 @@ export default function SettingsPage() {
           </button>
         </form>
       </div>
+      {/* Export data */}
+      <div className="bg-card border border-border/60 rounded-2xl p-6 mt-4">
+        <h2 className="text-sm font-medium text-foreground mb-1">{t('settings_export_title')}</h2>
+        <p className="text-xs text-muted-foreground mb-4">{t('settings_export_desc')}</p>
+        <button
+          onClick={handleExport}
+          disabled={exporting}
+          className="text-sm font-medium text-mint active:opacity-70 transition-opacity disabled:opacity-50"
+        >
+          {exporting ? t('settings_export_loading') : t('settings_export_btn')}
+        </button>
+      </div>
+
+      {/* Delete account */}
+      <div className="bg-card border border-border/60 rounded-2xl p-6 mt-4">
+        <h2 className="text-sm font-medium text-foreground mb-1">{t('settings_delete_title')}</h2>
+        <p className="text-xs text-muted-foreground mb-4">{t('settings_delete_desc')}</p>
+        <button
+          onClick={() => setShowDeleteModal(true)}
+          className="text-sm font-medium text-red-400 active:opacity-70 transition-opacity"
+        >
+          {t('settings_delete_btn')}
+        </button>
+      </div>
     </div>
 
     {showUpgradeModal && <UpgradeModal onClose={() => setShowUpgradeModal(false)} />}
+
+    {showDeleteModal && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => !deleting && setShowDeleteModal(false)} />
+        <div className="relative w-full max-w-sm bg-card border border-border rounded-2xl p-6 flex flex-col gap-4 shadow-xl">
+          <h2 className="text-base font-semibold text-foreground">{t('settings_delete_modal_title')}</h2>
+          <p className="text-sm text-muted-foreground leading-relaxed">{t('settings_delete_modal_desc')}</p>
+          {deleteError && <p className="text-xs text-red-400">{deleteError}</p>}
+          <div className="flex flex-col gap-2 mt-1">
+            <button
+              onClick={handleDeleteAccount}
+              disabled={deleting}
+              className="w-full py-2.5 rounded-xl bg-red-500/15 border border-red-500/30 text-sm font-medium text-red-400 active:opacity-70 transition-opacity disabled:opacity-50"
+            >
+              {deleting ? '…' : t('settings_delete_modal_confirm')}
+            </button>
+            <button
+              onClick={() => { setShowDeleteModal(false); setDeleteError(null); }}
+              disabled={deleting}
+              className="w-full py-2.5 rounded-xl bg-secondary text-sm font-medium text-foreground active:opacity-70 transition-opacity disabled:opacity-50"
+            >
+              {t('settings_delete_modal_cancel')}
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
     </>
   );
 }

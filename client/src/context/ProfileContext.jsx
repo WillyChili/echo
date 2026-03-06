@@ -12,7 +12,7 @@ export function ProfileProvider({ children }) {
   // null = not yet loaded / fetch failed; '' = loaded but empty (needs onboarding)
   // seed from localStorage so returning users never see onboarding on slow/failed fetches
   const [displayName, setDisplayName] = useState(localStorage.getItem('echo_display_name') || null);
-  const [language, setLanguage] = useState('en');
+  const [language, setLanguage] = useState(localStorage.getItem('echo_lang') || 'en');
   const [bio, setBio] = useState('');
   const [echoTone, setEchoTone] = useState('warm');
   const [profileLoading, setProfileLoading] = useState(true);
@@ -36,7 +36,11 @@ export function ProfileProvider({ children }) {
         if (name) localStorage.setItem('echo_display_name', name);
         setDisplayName(name || localStorage.getItem('echo_display_name') || '');
         setAvatarUrl(d.avatar_url || null);
-        if ('language' in d) setLanguage(d.language || 'en');
+        if ('language' in d) {
+          const lang = d.language || 'en';
+          localStorage.setItem('echo_lang', lang);
+          setLanguage(lang);
+        }
         if ('bio' in d) setBio(d.bio || '');
         if ('echo_tone' in d) setEchoTone(d.echo_tone || 'warm');
         if ('is_subscribed' in d) setIsSubscribed(!!d.is_subscribed);
@@ -71,8 +75,14 @@ export function ProfileProvider({ children }) {
     setDisplayName(name);
   }, []);
 
+  // Wrap setLanguage so it always persists to localStorage
+  const setLanguageCached = useCallback((lang) => {
+    localStorage.setItem('echo_lang', lang);
+    setLanguage(lang);
+  }, []);
+
   return (
-    <ProfileContext.Provider value={{ avatarUrl, setAvatarUrl, displayName, setDisplayName: setDisplayNameCached, language, setLanguage, bio, setBio, echoTone, setEchoTone, refreshProfile, profileLoading, isSubscribed, chatsUsedToday, setChatsUsedToday, dailyChatsResetDate }}>
+    <ProfileContext.Provider value={{ avatarUrl, setAvatarUrl, displayName, setDisplayName: setDisplayNameCached, language, setLanguage: setLanguageCached, bio, setBio, echoTone, setEchoTone, refreshProfile, profileLoading, isSubscribed, chatsUsedToday, setChatsUsedToday, dailyChatsResetDate }}>
       {children}
     </ProfileContext.Provider>
   );

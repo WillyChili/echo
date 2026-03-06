@@ -28,6 +28,7 @@ const translations = {
     today_selected: 'selected',
     today_cancel: 'Cancel',
     today_delete: 'Delete',
+    today_back_to_today: 'Back to today',
 
     // ChatPage
     chat_initial_message: "Hey! I'm Echo 👋 I learn from your notes and get to know you over time. Write about anything you want: a recipe you love, a reminder, an idea, a goal, how your day went. The more you share, the more I get to know you!",
@@ -35,9 +36,12 @@ const translations = {
     chat_listening: 'Listening... speak naturally',
     chat_placeholder: 'Say something...',
     chat_error_server: "Can't reach the server right now. Make sure it's running.",
+    chat_error_generic: 'Something went wrong. Try again in a moment.',
+    chat_loading_more: 'Loading…',
     chat_today: 'Today',
     chat_yesterday: 'Yesterday',
     chat_usage_badge: '{used}/{limit} chats today',
+    chat_limit_reset: 'Resets at midnight',
 
     // Pricing modal
     pricing_title: 'Choose your plan',
@@ -53,6 +57,27 @@ const translations = {
     pricing_feat_tone: 'Echo personality',
     pricing_feat_digest_free: '1 weekly digest',
     pricing_feat_digest_pro: 'Unlimited digests',
+    pricing_android_only: 'Subscriptions are only available in the Android app.',
+
+    // AuthPage
+    auth_tagline: 'Your personal AI reflection',
+    auth_sign_in: 'Sign in',
+    auth_create_account: 'Create account',
+    auth_email: 'Email',
+    auth_password: 'Password',
+    auth_loading: 'Loading…',
+    auth_redirecting: 'Redirecting…',
+    auth_or: 'or',
+    auth_google: 'Continue with Google',
+    auth_confirm_email: 'Check your email to confirm your account.',
+    auth_no_account: "Don't have an account?",
+    auth_have_account: 'Already have an account?',
+    auth_sign_up: 'Sign up',
+    auth_forgot_password_link: 'Forgot password?',
+    auth_forgot_title: 'Reset password',
+    auth_send_reset: 'Send reset link',
+    auth_reset_sent: 'Check your email for a reset link.',
+    auth_back_to_login: 'Back to sign in',
 
     // EditProfilePage
     edit_profile_title: 'Edit profile',
@@ -61,7 +86,11 @@ const translations = {
     edit_profile_name_placeholder: 'Your name',
     edit_profile_email: 'Email',
     edit_profile_language: 'Language',
+    edit_profile_lang_en: 'English',
+    edit_profile_lang_es: 'Español',
     edit_profile_notifications: 'Notifications',
+    edit_profile_notif_on: 'On',
+    edit_profile_notif_off: 'Off',
     edit_profile_coming_soon: 'Coming soon',
     edit_profile_uploading: 'Uploading…',
     edit_profile_edit_photo: 'Edit photo',
@@ -81,7 +110,7 @@ const translations = {
     onboarding_notes_title: 'Capture anything',
     onboarding_notes_body: 'Your notes are your space, {name}. Ideas, reminders, goals, how your day went. Type it or say it out loud. The more you share, the better Echo knows you.',
     onboarding_echo_title: 'Meet Echo',
-    onboarding_echo_body: 'Echo reads your notes and learns about you over time. Ask it anything. It\'ll always respond based on what you\'ve shared.',
+    onboarding_echo_body: "Echo reads your notes and learns about you over time. Ask it anything. It'll always respond based on what you've shared.",
 
     // SettingsPage
     settings_title: 'Settings',
@@ -110,6 +139,22 @@ const translations = {
     settings_digest_saved: 'Saved ✓',
     settings_digest_email_label: 'Send digest by email',
     settings_digest_email_desc: 'Receive your digest in your inbox in addition to the chat.',
+
+    // Export data
+    settings_export_title: 'Export your data',
+    settings_export_desc: 'Download all your notes and profile as a JSON file.',
+    settings_export_btn: 'Export my data',
+    settings_export_loading: 'Exporting…',
+
+    // Delete account
+    settings_delete_title: 'Danger zone',
+    settings_delete_desc: 'Permanently delete your account and all data.',
+    settings_delete_btn: 'Delete account',
+    settings_delete_modal_title: 'Delete your account?',
+    settings_delete_modal_desc: 'This will permanently delete your account, all your notes, and chat history. This action cannot be undone.',
+    settings_delete_modal_confirm: 'Yes, delete my account',
+    settings_delete_modal_cancel: 'Cancel',
+    settings_delete_error: 'Could not delete your account. Please try again.',
   },
 
   es: {
@@ -141,6 +186,7 @@ const translations = {
     today_selected: 'seleccionados',
     today_cancel: 'Cancelar',
     today_delete: 'Eliminar',
+    today_back_to_today: 'Volver a hoy',
 
     // ChatPage
     chat_initial_message: '¡Hola! Soy Echo 👋 Aprendo de tus notas y te voy conociendo con el tiempo. Podés escribir lo que quieras: una receta que te gusta, un recordatorio, una idea, un objetivo, cómo te fue hoy. ¡Cuanto más compartís, mejor te conozco!',
@@ -148,9 +194,12 @@ const translations = {
     chat_listening: 'Escuchando... habla con naturalidad',
     chat_placeholder: 'Di algo...',
     chat_error_server: 'No se puede conectar con el servidor. Asegúrate de que está en funcionamiento.',
+    chat_error_generic: 'Algo salió mal. Intentá de nuevo en un momento.',
+    chat_loading_more: 'Cargando…',
     chat_today: 'Hoy',
     chat_yesterday: 'Ayer',
     chat_usage_badge: '{used}/{limit} chats hoy',
+    chat_limit_reset: 'Se resetea a las 00:00',
 
     // Pricing modal
     pricing_title: 'Elegí tu plan',
@@ -166,6 +215,27 @@ const translations = {
     pricing_feat_tone: 'Personalidad de Echo',
     pricing_feat_digest_free: '1 resumen semanal',
     pricing_feat_digest_pro: 'Resúmenes ilimitados',
+    pricing_android_only: 'Las suscripciones solo están disponibles en la app de Android.',
+
+    // AuthPage
+    auth_tagline: 'Tu reflexión personal con IA',
+    auth_sign_in: 'Iniciar sesión',
+    auth_create_account: 'Crear cuenta',
+    auth_email: 'Email',
+    auth_password: 'Contraseña',
+    auth_loading: 'Cargando…',
+    auth_redirecting: 'Redirigiendo…',
+    auth_or: 'o',
+    auth_google: 'Continuar con Google',
+    auth_confirm_email: 'Revisá tu email para confirmar tu cuenta.',
+    auth_no_account: '¿No tenés cuenta?',
+    auth_have_account: '¿Ya tenés cuenta?',
+    auth_sign_up: 'Registrarse',
+    auth_forgot_password_link: '¿Olvidaste tu contraseña?',
+    auth_forgot_title: 'Resetear contraseña',
+    auth_send_reset: 'Enviar link',
+    auth_reset_sent: 'Revisá tu email para el link de reseteo.',
+    auth_back_to_login: 'Volver al inicio de sesión',
 
     // EditProfilePage
     edit_profile_title: 'Editar perfil',
@@ -174,7 +244,11 @@ const translations = {
     edit_profile_name_placeholder: 'Tu nombre',
     edit_profile_email: 'Email',
     edit_profile_language: 'Idioma',
+    edit_profile_lang_en: 'English',
+    edit_profile_lang_es: 'Español',
     edit_profile_notifications: 'Notificaciones',
+    edit_profile_notif_on: 'Activadas',
+    edit_profile_notif_off: 'Desactivadas',
     edit_profile_coming_soon: 'Próximamente',
     edit_profile_uploading: 'Subiendo…',
     edit_profile_edit_photo: 'Editar foto',
@@ -223,6 +297,22 @@ const translations = {
     settings_digest_saved: 'Guardado ✓',
     settings_digest_email_label: 'Recibir digest por email',
     settings_digest_email_desc: 'Recibí el resumen en tu bandeja además del chat.',
+
+    // Export data
+    settings_export_title: 'Exportar tus datos',
+    settings_export_desc: 'Descargá todas tus notas y perfil como un archivo JSON.',
+    settings_export_btn: 'Exportar mis datos',
+    settings_export_loading: 'Exportando…',
+
+    // Delete account
+    settings_delete_title: 'Zona de peligro',
+    settings_delete_desc: 'Eliminá tu cuenta y todos tus datos permanentemente.',
+    settings_delete_btn: 'Eliminar cuenta',
+    settings_delete_modal_title: '¿Eliminar tu cuenta?',
+    settings_delete_modal_desc: 'Esto eliminará permanentemente tu cuenta, todas tus notas y el historial de chat. Esta acción no se puede deshacer.',
+    settings_delete_modal_confirm: 'Sí, eliminar mi cuenta',
+    settings_delete_modal_cancel: 'Cancelar',
+    settings_delete_error: 'No se pudo eliminar tu cuenta. Intentá de nuevo.',
   },
 };
 

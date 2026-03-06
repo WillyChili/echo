@@ -86,7 +86,7 @@ export default function UpgradeModal({ limit, onClose }) {
               className="w-full h-9 rounded-lg bg-mint text-background text-xs font-semibold transition-opacity active:opacity-70"
               onClick={async () => {
                 if (!Capacitor.isNativePlatform()) {
-                  alert('Subscriptions are only available in the Android app.');
+                  alert(t('pricing_android_only'));
                   onClose();
                   return;
                 }

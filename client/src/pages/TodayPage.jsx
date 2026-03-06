@@ -177,6 +177,8 @@ export default function TodayPage() {
   const { user } = useAuth();
   const { t, language } = useTranslation();
   const { displayName: profileDisplayName } = useProfile();
+  const [refreshing, setRefreshing] = useState(false);
+  const touchStartY = useRef(0);
 
   // EAI-19: personalized greeting — use ProfileContext, fallback to email prefix
   const displayName = profileDisplayName || user?.email?.split('@')[0] || '';
@@ -368,6 +370,19 @@ export default function TodayPage() {
 
   const isNewEntry = !currentNoteId && !viewingDate;
 
+  const handleTouchStart = (e) => {
+    touchStartY.current = e.touches[0].clientY;
+  };
+
+  const handleTouchEnd = async (e) => {
+    const deltaY = e.changedTouches[0].clientY - touchStartY.current;
+    if (window.scrollY === 0 && deltaY > 70 && !refreshing) {
+      setRefreshing(true);
+      await fetchAllNotes();
+      setRefreshing(false);
+    }
+  };
+
   return (
     <>
       {/* Selection toolbar */}
@@ -383,7 +398,16 @@ export default function TodayPage() {
         </div>
       )}
 
-      <div className="max-w-2xl mx-auto w-full px-4 py-8 flex flex-col gap-6">
+      <div
+        className="max-w-2xl mx-auto w-full px-4 py-8 flex flex-col gap-6"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        {refreshing && (
+          <div className="flex justify-center -mt-4 mb-0">
+            <span className="text-xs text-mint animate-pulse">↓</span>
+          </div>
+        )}
 
         {/* Header — EAI-19: personalized greeting */}
         <div className="flex items-start justify-between gap-4">
@@ -471,7 +495,7 @@ export default function TodayPage() {
                   onClick={() => setSelectedDate(todayDate)}
                   className="text-xs text-mint active:opacity-70 transition-opacity"
                 >
-                  {language === 'es' ? 'Volver a hoy' : 'Back to today'}
+                  {t('today_back_to_today')}
                 </button>
               ) : (
                 !selectionMode && <span className="text-xs text-muted-foreground/50">{t('today_hold_to_select')}</span>

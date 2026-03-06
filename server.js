@@ -8,6 +8,7 @@ const messagesRouter = require('./server/routes/messages');
 const profileRouter  = require('./server/routes/profile');
 const digestRouter   = require('./server/routes/digest');
 const pushRouter     = require('./server/routes/push');
+const accountRouter  = require('./server/routes/account');
 
 const app  = express();
 const PORT = process.env.PORT || 3001;
@@ -22,6 +23,7 @@ app.use('/api/messages', messagesRouter);
 app.use('/api/profile',  profileRouter);
 app.use('/api/digest',   digestRouter);
 app.use('/api/push',     pushRouter);
+app.use('/api/account',  accountRouter);
 
 // Health check
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));

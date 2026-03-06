@@ -196,7 +196,7 @@ export default function EditProfilePage() {
             <Field label={t('edit_profile_language')}>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-foreground">
-                  {language === 'en' ? 'English' : 'Español'}
+                  {language === 'en' ? t('edit_profile_lang_en') : t('edit_profile_lang_es')}
                 </span>
                 <div className="flex rounded-lg overflow-hidden border border-border/50">
                   {['en', 'es'].map((lang) => (
@@ -221,7 +221,7 @@ export default function EditProfilePage() {
               <div className="flex items-center justify-between" onClick={notifSupported ? toggleNotifications : undefined}>
                 <span className={`text-sm ${notifSupported ? 'text-foreground cursor-pointer' : 'text-muted-foreground/50'}`}>
                   {notifSupported
-                    ? (notificationsEnabled ? 'On' : 'Off')
+                    ? (notificationsEnabled ? t('edit_profile_notif_on') : t('edit_profile_notif_off'))
                     : t('edit_profile_coming_soon')}
                 </span>
                 <div

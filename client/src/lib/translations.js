@@ -105,13 +105,16 @@ const translations = {
     edit_profile_photo_error: 'Could not upload photo. Make sure the "avatars" bucket exists in Supabase Storage.',
 
     // OnboardingPage
-    onboarding_name_title: 'What should Echo call you?',
+    onboarding_intro_title: 'Echo is a mirror for your mind.',
+    onboarding_intro_body: 'You write your thoughts — ideas, goals, how your day went. Echo reads them, learns from them, and reflects them back. The more you share, the more it feels like talking to someone who truly gets you.',
+    onboarding_name_title: 'Now, let Echo know you.',
+    onboarding_name_sub: 'What should I call you?',
     onboarding_name_placeholder: 'Your name',
     onboarding_continue: 'Continue',
     onboarding_back: 'Back',
     onboarding_finish: "Let's go!",
-    onboarding_notes_title: 'Capture anything',
-    onboarding_notes_body: 'Your notes are your space, {name}. Ideas, reminders, goals, how your day went. Type it or say it out loud. The more you share, the better Echo knows you.',
+    onboarding_notes_title: 'Write. Echo listens. Then ask.',
+    onboarding_notes_body: 'Share anything — an idea, a goal, how you\'re feeling. Echo reads it all and uses it to answer. Try: "How have I been feeling?" or "What are my goals right now?"',
     onboarding_echo_title: 'Meet Echo',
     onboarding_echo_body: "Echo reads your notes and learns about you over time. Ask it anything. It'll always respond based on what you've shared.",
 
@@ -266,13 +269,16 @@ const translations = {
     edit_profile_photo_error: 'No se pudo subir la foto. Asegúrate de que el bucket "avatars" existe en Supabase Storage.',
 
     // OnboardingPage
-    onboarding_name_title: '¿Cómo querés que Echo te llame?',
+    onboarding_intro_title: 'Echo es un espejo de tu mente.',
+    onboarding_intro_body: 'Escribís tus pensamientos — ideas, metas, cómo te fue. Echo los lee, aprende de ellos, y te los devuelve. Cuanto más compartís, más se siente como hablar con alguien que realmente te entiende.',
+    onboarding_name_title: 'Ahora, dejá que Echo te conozca.',
+    onboarding_name_sub: '¿Cómo querés que te llame?',
     onboarding_name_placeholder: 'Tu nombre',
     onboarding_continue: 'Continuar',
     onboarding_back: 'Volver',
     onboarding_finish: '¡Vamos!',
-    onboarding_notes_title: 'Capturá todo',
-    onboarding_notes_body: 'Tus notas son tu espacio, {name}. Ideas, recordatorios, metas, cómo te fue. Escribí o dictalo. Cuanto más compartís, mejor te conoce Echo.',
+    onboarding_notes_title: 'Escribí. Echo escucha. Después preguntá.',
+    onboarding_notes_body: 'Compartí lo que sea — una idea, una meta, cómo te sentís. Echo lo lee todo y lo usa para responderte. Probá: "¿Cómo estoy últimamente?" o "¿Cuáles son mis metas?"',
     onboarding_echo_title: 'Conocé a Echo',
     onboarding_echo_body: 'Echo lee tus notas y te va conociendo con el tiempo. Preguntale lo que quieras. Siempre va a responder basándose en lo que compartiste.',
 

@@ -144,9 +144,9 @@ export default function OnboardingPage() {
   const goForward = (n) => { setDirection('right'); setStep(n); };
   const goBack    = (n) => { setDirection('left');  setStep(n); };
 
-  // Auto-focus name input on step 0
+  // Auto-focus name input on step 1
   useEffect(() => {
-    if (step === 0) setTimeout(() => nameRef.current?.focus(), 120);
+    if (step === 1) setTimeout(() => nameRef.current?.focus(), 120);
   }, [step]);
 
   const changeLang = (l) => {
@@ -155,7 +155,7 @@ export default function OnboardingPage() {
   };
 
   const submitName = () => {
-    if (name.trim()) goForward(1);
+    if (name.trim()) goForward(2);
   };
 
   const finish = async () => {
@@ -189,45 +189,43 @@ export default function OnboardingPage() {
     <div className="min-h-screen flex items-center justify-center bg-neutral-950 px-6 overflow-hidden">
       <div className="w-full max-w-sm">
 
-        {/* ── Step 0: Name ─────────────────────────────────────────────────── */}
+        {/* ── Step 0: Echo intro ───────────────────────────────────────────── */}
         {step === 0 && (
-          <div key={0} style={slideStyle}>
+          <div key={0} style={slideStyle} className="text-center">
             <LangToggle lang={lang} onChange={changeLang} />
-            <div className="text-center">
-              <h1 className="text-xl font-semibold text-foreground mb-2">
-                {t('onboarding_name_title')}
-              </h1>
-              <p className="text-sm text-muted-foreground mb-8">
-                {lang === 'es' ? 'Echo te va a llamar por este nombre.' : 'Echo will use this to address you.'}
-              </p>
-              <input
-                ref={nameRef}
-                type="text"
-                placeholder={t('onboarding_name_placeholder')}
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && submitName()}
-                className="w-full bg-background border border-input rounded-2xl px-4 py-3 text-base text-foreground text-center placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring mb-5"
-              />
-              <button onClick={submitName} disabled={!name.trim()} className={btnPrimary}>
-                {t('onboarding_continue')}
-              </button>
-            </div>
+            <EchoIllustration />
+            <h1 className="text-xl font-semibold text-foreground mb-3">
+              {t('onboarding_intro_title')}
+            </h1>
+            <p className="text-sm text-muted-foreground leading-relaxed mb-8">
+              {t('onboarding_intro_body')}
+            </p>
+            <button onClick={() => goForward(1)} className={btnPrimary}>
+              {t('onboarding_continue')}
+            </button>
             <div className="mt-10"><Stepper step={0} /></div>
           </div>
         )}
 
-        {/* ── Step 1: Notes ─────────────────────────────────────────────────── */}
+        {/* ── Step 1: Name ─────────────────────────────────────────────────── */}
         {step === 1 && (
           <div key={1} style={slideStyle} className="text-center">
-            <NotesIllustration />
-            <h1 className="text-xl font-semibold text-foreground mb-3">
-              {t('onboarding_notes_title')}
+            <h1 className="text-xl font-semibold text-foreground mb-2">
+              {t('onboarding_name_title')}
             </h1>
-            <p className="text-sm text-muted-foreground leading-relaxed mb-8">
-              {t('onboarding_notes_body').replace('{name}', name)}
+            <p className="text-sm text-muted-foreground mb-8">
+              {t('onboarding_name_sub')}
             </p>
-            <button onClick={() => goForward(2)} className={btnPrimary}>
+            <input
+              ref={nameRef}
+              type="text"
+              placeholder={t('onboarding_name_placeholder')}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && submitName()}
+              className="w-full bg-background border border-input rounded-2xl px-4 py-3 text-base text-foreground text-center placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring mb-5"
+            />
+            <button onClick={submitName} disabled={!name.trim()} className={btnPrimary}>
               {t('onboarding_continue')}
             </button>
             <button onClick={() => goBack(0)} className={btnBack}>
@@ -237,15 +235,15 @@ export default function OnboardingPage() {
           </div>
         )}
 
-        {/* ── Step 2: Echo ──────────────────────────────────────────────────── */}
+        {/* ── Step 2: How it works ──────────────────────────────────────────── */}
         {step === 2 && (
           <div key={2} style={slideStyle} className="text-center">
-            <EchoIllustration />
+            <NotesIllustration />
             <h1 className="text-xl font-semibold text-foreground mb-3">
-              {t('onboarding_echo_title')}
+              {t('onboarding_notes_title')}
             </h1>
             <p className="text-sm text-muted-foreground leading-relaxed mb-8">
-              {t('onboarding_echo_body')}
+              {t('onboarding_notes_body')}
             </p>
             <button onClick={finish} disabled={saving} className={btnPrimary}>
               {t('onboarding_finish')}

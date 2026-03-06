@@ -63,10 +63,6 @@ function DropdownMenu({ onClose, onSubscribe }) {
         <EditIcon /> {t('nav_edit_profile')}
       </button>
       <div className="h-px bg-border/40 mx-3" />
-      <button className={item} onClick={() => { navigate('/subscription'); onClose(); }}>
-        <SubscriptionIcon /> {t('nav_subscription')}
-      </button>
-      <div className="h-px bg-border/40 mx-3" />
       <button className={cn(item, 'text-red-400')} onClick={() => { signOut(); onClose(); }}>
         <SignOutIcon /> {t('nav_sign_out')}
       </button>

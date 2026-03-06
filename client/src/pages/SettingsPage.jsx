@@ -90,7 +90,7 @@ export default function SettingsPage() {
       <p className="text-sm text-muted-foreground mb-8">{t('settings_subtitle')}</p>
 
       {/* Subscription plan */}
-      <div className={`bg-card border rounded-2xl p-5 mb-4 ${isSubscribed ? 'border-mint/40' : 'border-border/60'}`}>
+      <div className={`bg-card rounded-2xl p-5 mb-4 ${isSubscribed ? 'border-2 border-mint/40' : 'border border-border/60'}`}>
         <h2 className="text-sm font-medium text-foreground mb-1">{t('settings_plan_title')}</h2>
         <p className="text-xs text-muted-foreground mb-4">{t('settings_plan_desc')}</p>
         <div className="flex items-center justify-between">

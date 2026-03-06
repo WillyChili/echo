@@ -107,10 +107,26 @@ export default function AuthPage() {
         });
         if (error) throw error;
         if (data?.url) {
+          // Clear any previous diagnostic so we get fresh info
+          localStorage.removeItem('echo_last_oauth_url');
+
+          // Diagnostic: after browser closes, check if appUrlOpen fired
+          const finishedListener = await Browser.addListener('browserFinished', async () => {
+            await finishedListener.remove();
+            // Wait 1.5 s for appUrlOpen to fire first
+            await new Promise(r => setTimeout(r, 1500));
+            const gotUrl = localStorage.getItem('echo_last_oauth_url');
+            if (!gotUrl) {
+              // appUrlOpen never fired — show diagnostic
+              setError('DEBUG: browser closed but no deep link received (appUrlOpen did not fire). Did you see the "Signing in to Echo" page?');
+            }
+            setGoogleLoading(false);
+          });
+
           await Browser.open({ url: data.url });
+        } else {
+          setGoogleLoading(false);
         }
-        // Reset loading — actual login happens via appUrlOpen in AuthContext
-        setGoogleLoading(false);
       } else {
         // Web: normal redirect flow
         const { error } = await supabase.auth.signInWithOAuth({

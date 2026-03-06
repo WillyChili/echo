@@ -1,6 +1,8 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { authFetch } from '../lib/api';
 import { useAuth } from './AuthContext';
+import { Purchases } from '@revenuecat/purchases-capacitor';
+import { Capacitor } from '@capacitor/core';
 
 const ProfileContext = createContext(null);
 
@@ -26,7 +28,7 @@ export function ProfileProvider({ children }) {
         if (!r.ok) throw new Error('profile_fetch_failed');
         return r.json();
       })
-      .then((d) => {
+      .then(async (d) => {
         // Server-side error — preserve existing state, don't trigger onboarding
         if (d.error) return;
         // Always set displayName so null→'' for new users, null→'Name' for existing
@@ -38,6 +40,14 @@ export function ProfileProvider({ children }) {
         if ('bio' in d) setBio(d.bio || '');
         if ('echo_tone' in d) setEchoTone(d.echo_tone || 'warm');
         if ('is_subscribed' in d) setIsSubscribed(!!d.is_subscribed);
+        // Sync with RevenueCat on native
+        if (Capacitor.isNativePlatform()) {
+          try {
+            const { customerInfo } = await Purchases.getCustomerInfo();
+            const hasPro = !!customerInfo.entitlements.active['Echo Pro'];
+            setIsSubscribed(hasPro);
+          } catch (e) { /* fallback to DB value */ }
+        }
         if ('daily_chats_used' in d) {
           const today = new Date().toISOString().slice(0, 10);
           // Reset local counter if the DB date is stale

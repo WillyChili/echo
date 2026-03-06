@@ -1,8 +1,12 @@
 import { cn } from '@/lib/utils';
 import { useTranslation } from '../hooks/useTranslation.js';
+import { useProfile } from '../context/ProfileContext';
+import { Purchases } from '@revenuecat/purchases-capacitor';
+import { Capacitor } from '@capacitor/core';
 
 export default function UpgradeModal({ limit, onClose }) {
   const { t } = useTranslation();
+  const { refreshProfile } = useProfile();
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
@@ -80,8 +84,22 @@ export default function UpgradeModal({ limit, onClose }) {
             </ul>
             <button
               className="w-full h-9 rounded-lg bg-mint text-background text-xs font-semibold transition-opacity active:opacity-70"
-              onClick={() => {
-                // Stripe integration goes here
+              onClick={async () => {
+                if (!Capacitor.isNativePlatform()) {
+                  alert('Subscriptions are only available in the Android app.');
+                  onClose();
+                  return;
+                }
+                try {
+                  const offerings = await Purchases.getOfferings();
+                  const pkg = offerings.current?.availablePackages?.[0];
+                  if (pkg) {
+                    await Purchases.purchasePackage({ aPackage: pkg });
+                    await refreshProfile();
+                  }
+                } catch (e) {
+                  if (!e.userCancelled) console.error('Purchase failed', e);
+                }
                 onClose();
               }}
             >

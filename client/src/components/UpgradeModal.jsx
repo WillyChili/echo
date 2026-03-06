@@ -1,4 +1,3 @@
-import { cn } from '@/lib/utils';
 import { useTranslation } from '../hooks/useTranslation.js';
 import { useProfile } from '../context/ProfileContext';
 import { Purchases } from '@revenuecat/purchases-capacitor';
@@ -8,137 +7,126 @@ export default function UpgradeModal({ limit, onClose }) {
   const { t } = useTranslation();
   const { refreshProfile } = useProfile();
 
+  const handleSubscribe = async () => {
+    if (!Capacitor.isNativePlatform()) {
+      alert(t('pricing_android_only'));
+      onClose();
+      return;
+    }
+    try {
+      const offerings = await Purchases.getOfferings();
+      const pkg = offerings.current?.availablePackages?.[0];
+      if (pkg) {
+        await Purchases.purchasePackage({ aPackage: pkg });
+        await refreshProfile();
+      }
+    } catch (e) {
+      if (!e.userCancelled) console.error('Purchase failed', e);
+    }
+    onClose();
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+    <div className="fixed inset-0 z-50 flex items-end justify-center">
       {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
 
-      {/* Card */}
-      <div className="relative w-full max-w-md bg-card border border-border rounded-2xl p-6 flex flex-col gap-5 shadow-xl">
+      {/* Sheet */}
+      <div className="relative w-full max-w-lg bg-[#0c0e11] border border-white/[0.07] rounded-t-3xl overflow-hidden shadow-2xl">
 
-        {/* Header */}
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex flex-col gap-0.5">
-            <h2 className="text-base font-semibold text-foreground">
-              {t('pricing_title')}
-            </h2>
-            {limit != null && (
-              <p className="text-xs text-muted-foreground">
-                {t('pricing_limit_note').replace('{limit}', limit)}
-              </p>
-            )}
-          </div>
-          <button
-            onClick={onClose}
-            className="shrink-0 p-1 -mr-1 -mt-1 text-muted-foreground active:opacity-70 transition-opacity"
-          >
-            <XIcon />
-          </button>
+        {/* Mint glow blob */}
+        <div
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-72 h-32 rounded-full pointer-events-none"
+          style={{ background: 'radial-gradient(ellipse, rgba(44,213,156,0.18) 0%, transparent 70%)', filter: 'blur(12px)' }}
+        />
+
+        {/* Close pill */}
+        <div className="flex justify-center pt-3 pb-1">
+          <button onClick={onClose} className="w-10 h-1 rounded-full bg-white/20 active:bg-white/30 transition-colors" />
         </div>
 
-        {/* Plans */}
-        <div className="grid grid-cols-2 gap-3">
+        {/* Content */}
+        <div className="px-6 pt-4 pb-8">
 
-          {/* Free */}
-          <div className="rounded-xl border border-border/50 bg-secondary/20 p-4 flex flex-col gap-4">
-            <div>
-              <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                {t('pricing_free_name')}
-              </span>
-              <p className="text-xl font-bold text-foreground mt-1.5">
-                {t('pricing_free_price')}
-              </p>
-            </div>
-            <ul className="flex flex-col gap-2.5 flex-1">
-              <Feature label={t('pricing_feat_chats_free')} />
-              <Feature label={t('pricing_feat_notes')} />
-              <Feature label={t('pricing_feat_digest_free')} />
-            </ul>
-            <button
-              disabled
-              className="w-full h-9 rounded-lg bg-secondary/60 text-muted-foreground text-xs font-medium cursor-default"
-            >
-              {t('pricing_current_plan')}
-            </button>
+          {/* Pro badge */}
+          <div className="flex items-center gap-2 mb-4">
+            <span className="inline-flex items-center gap-1.5 bg-mint/15 border border-mint/25 text-mint text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">
+              <SparkleIcon />
+              {t('pricing_pro_name')}
+            </span>
           </div>
 
-          {/* Pro */}
-          <div className="rounded-xl border border-mint/40 bg-mint/[0.06] p-4 flex flex-col gap-4">
-            <div>
-              <span className="text-xs font-semibold uppercase tracking-widest text-mint">
-                {t('pricing_pro_name')}
-              </span>
-              <p className="text-xl font-bold text-foreground mt-1.5">
-                $5
-                <span className="text-xs font-normal text-muted-foreground"> /mo</span>
-              </p>
-            </div>
-            <ul className="flex flex-col gap-2.5 flex-1">
-              <Feature label={t('pricing_feat_chats_pro')} mint bold />
-              <Feature label={t('pricing_feat_notes')} mint />
-              <Feature label={t('pricing_feat_tone')} mint bold />
-              <Feature label={t('pricing_feat_digest_pro')} mint bold />
-            </ul>
-            <button
-              className="w-full h-9 rounded-lg bg-mint text-background text-xs font-semibold transition-opacity active:opacity-70"
-              onClick={async () => {
-                if (!Capacitor.isNativePlatform()) {
-                  alert(t('pricing_android_only'));
-                  onClose();
-                  return;
-                }
-                try {
-                  const offerings = await Purchases.getOfferings();
-                  const pkg = offerings.current?.availablePackages?.[0];
-                  if (pkg) {
-                    await Purchases.purchasePackage({ aPackage: pkg });
-                    await refreshProfile();
-                  }
-                } catch (e) {
-                  if (!e.userCancelled) console.error('Purchase failed', e);
-                }
-                onClose();
-              }}
-            >
-              {t('pricing_upgrade')}
-            </button>
+          {/* Headline + limit note */}
+          <h2 className="text-2xl font-bold text-foreground leading-tight mb-1">
+            {t('pricing_headline')}
+          </h2>
+          {limit != null && (
+            <p className="text-sm text-muted-foreground mb-5">
+              {t('pricing_limit_note').replace('{limit}', limit)}
+            </p>
+          )}
+
+          {/* Price */}
+          <div className="flex items-end gap-1.5 mb-6">
+            <span className="text-5xl font-extrabold text-foreground tracking-tight">$5</span>
+            <span className="text-sm text-muted-foreground mb-2">{t('pricing_per_month')}</span>
           </div>
 
+          {/* Divider */}
+          <div className="h-px bg-gradient-to-r from-transparent via-mint/20 to-transparent mb-5" />
+
+          {/* Features */}
+          <ul className="flex flex-col gap-3 mb-7">
+            <Feature label={t('pricing_feat_chats_pro')} />
+            <Feature label={t('pricing_feat_tone')} />
+            <Feature label={t('pricing_feat_digest_pro')} />
+            <Feature label={t('pricing_feat_notes')} />
+          </ul>
+
+          {/* CTA */}
+          <button
+            onClick={handleSubscribe}
+            className="w-full h-13 py-3.5 rounded-2xl bg-mint text-background text-base font-bold tracking-wide transition-opacity active:opacity-75 shadow-lg"
+            style={{ boxShadow: '0 4px 24px rgba(44,213,156,0.30)' }}
+          >
+            {t('pricing_upgrade')} — $5/mo
+          </button>
+
+          {/* Maybe later */}
+          <button
+            onClick={onClose}
+            className="w-full mt-3 py-2.5 text-sm text-muted-foreground active:opacity-70 transition-opacity"
+          >
+            {t('pricing_maybe_later')}
+          </button>
         </div>
       </div>
     </div>
   );
 }
 
-function Feature({ label, mint, bold }) {
+function Feature({ label }) {
   return (
-    <li className={cn(
-      'flex items-start gap-2 text-xs leading-snug',
-      bold ? 'text-foreground font-medium' : 'text-muted-foreground'
-    )}>
-      <CheckIcon mint={mint} />
+    <li className="flex items-center gap-3 text-sm text-foreground/90">
+      <span className="w-5 h-5 rounded-full bg-mint/15 border border-mint/30 flex items-center justify-center shrink-0">
+        <CheckIcon />
+      </span>
       {label}
     </li>
   );
 }
 
-function XIcon() {
+function SparkleIcon() {
   return (
-    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+    <svg className="w-2.5 h-2.5" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" />
     </svg>
   );
 }
 
-function CheckIcon({ mint }) {
+function CheckIcon() {
   return (
-    <svg
-      className={cn('w-3.5 h-3.5 shrink-0 mt-[1px]', mint ? 'text-mint' : 'text-muted-foreground/50')}
-      fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}
-    >
+    <svg className="w-3 h-3 text-mint" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
       <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
     </svg>
   );

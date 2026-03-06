@@ -45,7 +45,10 @@ const translations = {
 
     // Pricing modal
     pricing_title: 'Choose your plan',
+    pricing_headline: 'Unlock the full Echo',
     pricing_limit_note: "You've used all {limit} chats today",
+    pricing_per_month: '/ month',
+    pricing_maybe_later: 'Maybe later',
     pricing_free_name: 'Free',
     pricing_free_price: 'Free',
     pricing_pro_name: 'Pro',
@@ -54,7 +57,7 @@ const translations = {
     pricing_feat_chats_free: '10 chats / day',
     pricing_feat_chats_pro: 'Unlimited chats',
     pricing_feat_notes: 'Unlimited notes',
-    pricing_feat_tone: 'Echo personality',
+    pricing_feat_tone: 'Custom Echo personality',
     pricing_feat_digest_free: '1 weekly digest',
     pricing_feat_digest_pro: 'Unlimited digests',
     pricing_android_only: 'Subscriptions are only available in the Android app.',
@@ -203,7 +206,10 @@ const translations = {
 
     // Pricing modal
     pricing_title: 'Elegí tu plan',
+    pricing_headline: 'Desbloqueá el Echo completo',
     pricing_limit_note: 'Usaste los {limit} chats de hoy',
+    pricing_per_month: '/ mes',
+    pricing_maybe_later: 'Quizás después',
     pricing_free_name: 'Gratis',
     pricing_free_price: 'Gratis',
     pricing_pro_name: 'Pro',
@@ -212,7 +218,7 @@ const translations = {
     pricing_feat_chats_free: '10 chats / día',
     pricing_feat_chats_pro: 'Chats ilimitados',
     pricing_feat_notes: 'Notas ilimitadas',
-    pricing_feat_tone: 'Personalidad de Echo',
+    pricing_feat_tone: 'Personalidad de Echo personalizada',
     pricing_feat_digest_free: '1 resumen semanal',
     pricing_feat_digest_pro: 'Resúmenes ilimitados',
     pricing_android_only: 'Las suscripciones solo están disponibles en la app de Android.',

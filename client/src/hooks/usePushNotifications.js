@@ -1,9 +1,10 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { Capacitor } from '@capacitor/core';
+import { PushNotifications } from '@capacitor/push-notifications';
 import { authFetch } from '../lib/api';
 
-// Only load the plugin when running natively (Android/iOS)
-const isNative = Capacitor.isNativePlatform();
+// Echo is a native-only app — always show the notifications toggle.
+const isNative = true;
 
 export function usePushNotifications() {
   const [enabled, setEnabled]   = useState(false);
@@ -24,15 +25,22 @@ export function usePushNotifications() {
 
   // Request permission and register
   const enable = useCallback(async () => {
-    if (!isNative) {
-      setError('Push notifications require the native app.');
-      return;
-    }
     setLoading(true);
     setError(null);
-    try {
-      const { PushNotifications } = await import('@capacitor/push-notifications');
 
+    // Diagnostic — visible in logcat and Chrome remote debugger
+    const platform = Capacitor.getPlatform();
+    const pluginAvailable = Capacitor.isPluginAvailable('PushNotifications');
+    console.log('[Echo] Capacitor platform:', platform);
+    console.log('[Echo] PushNotifications available:', pluginAvailable);
+
+    if (!Capacitor.isNativePlatform()) {
+      setError(`Native bridge not ready (platform: ${platform}). Rebuild with: npm run build:android`);
+      setLoading(false);
+      return;
+    }
+
+    try {
       const permResult = await PushNotifications.requestPermissions();
       if (permResult.receive !== 'granted') {
         setError('Permission denied.');
@@ -56,13 +64,14 @@ export function usePushNotifications() {
       });
 
       // Handle foreground notifications
-      await PushNotifications.addListener('pushNotificationReceived', (notification) => {
-        console.log('Push received in foreground:', notification);
+      PushNotifications.addListener('pushNotificationReceived', (notification) => {
+        console.log('[Echo] Push received in foreground:', notification);
       });
 
     } catch (err) {
-      setError('Could not enable notifications.');
-      console.error(err);
+      const msg = err?.message || err?.toString() || 'Unknown error';
+      setError(`Error: ${msg}`);
+      console.error('[Echo] Push enable error:', err);
     } finally {
       setLoading(false);
     }
@@ -72,14 +81,13 @@ export function usePushNotifications() {
   const disable = useCallback(async () => {
     setLoading(true);
     try {
-      if (isNative) {
-        const { PushNotifications } = await import('@capacitor/push-notifications');
+      if (Capacitor.isNativePlatform()) {
         await PushNotifications.removeAllListeners();
       }
       await saveToken(null); // clear token in DB
       setEnabled(false);
     } catch (err) {
-      console.error('Failed to disable notifications:', err);
+      console.error('[Echo] Failed to disable notifications:', err);
     } finally {
       setLoading(false);
     }

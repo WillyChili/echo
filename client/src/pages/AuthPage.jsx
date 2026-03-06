@@ -1,6 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import translations from '../lib/translations';
+import { Capacitor } from '@capacitor/core';
+import { Browser } from '@capacitor/browser';
+import { useAuth } from '../context/AuthContext';
 
 // Waveform bar pattern: height (px) + animation delay (s)
 const BARS = [
@@ -26,6 +29,7 @@ function GoogleIcon() {
 }
 
 export default function AuthPage() {
+  const { oauthError, clearOauthError } = useAuth();
   const [lang, setLang] = useState(() => localStorage.getItem('echo_lang') || 'en');
   const t = (key) => translations[lang]?.[key] ?? translations.en[key] ?? key;
 
@@ -42,6 +46,11 @@ export default function AuthPage() {
   const [message, setMessage]   = useState(null);
   const [loading, setLoading]   = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+
+  // Show OAuth errors from AuthContext (deep link callback failures)
+  useEffect(() => {
+    if (oauthError) { setError(oauthError); clearOauthError(); }
+  }, [oauthError]);
 
   const resetForm = () => { setError(null); setMessage(null); };
 
@@ -86,11 +95,30 @@ export default function AuthPage() {
     setGoogleLoading(true);
     resetForm();
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: { redirectTo: window.location.origin },
-      });
-      if (error) throw error;
+      if (Capacitor.isNativePlatform()) {
+        // Native: open system browser so the app WebView stays alive,
+        // then receive the callback via the com.willychili.echo:// deep link.
+        const { data, error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: 'com.willychili.echo://login',
+            skipBrowserRedirect: true,
+          },
+        });
+        if (error) throw error;
+        if (data?.url) {
+          await Browser.open({ url: data.url });
+        }
+        // Reset loading — actual login happens via appUrlOpen in AuthContext
+        setGoogleLoading(false);
+      } else {
+        // Web: normal redirect flow
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: { redirectTo: window.location.origin },
+        });
+        if (error) throw error;
+      }
     } catch (err) {
       setError(err.message);
       setGoogleLoading(false);

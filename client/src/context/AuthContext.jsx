@@ -78,17 +78,18 @@ export function AuthProvider({ children }) {
     const setup = async () => {
       const { App: CapApp } = await import('@capacitor/app');
 
+      const isOAuthCallback = (u) =>
+        u?.startsWith('com.willychili.echo://') ||
+        u?.includes('echo-production-c241.up.railway.app/auth/callback');
+
       // Handle case where app was launched fresh via deep link
       const { url } = await CapApp.getLaunchUrl();
-      if (url?.startsWith('com.willychili.echo://')) {
-        await handleOAuthUrl(url);
-      }
+      if (isOAuthCallback(url)) await handleOAuthUrl(url);
 
       // Handle case where app was already running and deep link fires
+      // (fires for both custom scheme and verified HTTPS App Links)
       appUrlListener = await CapApp.addListener('appUrlOpen', ({ url }) => {
-        if (url?.startsWith('com.willychili.echo://')) {
-          handleOAuthUrl(url);
-        }
+        if (isOAuthCallback(url)) handleOAuthUrl(url);
       });
     };
 

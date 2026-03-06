@@ -18,6 +18,23 @@ const PORT = process.env.PORT || 3001;
 // Serve static pages (privacy policy, terms of service)
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Android App Links verification (express.static skips dotfile dirs by default)
+app.get('/.well-known/assetlinks.json', (req, res) => {
+  res.json([{
+    relation: ['delegate_permission/common.handle_all_urls'],
+    target: {
+      namespace: 'android_app',
+      package_name: 'com.willychili.echo',
+      sha256_cert_fingerprints: [
+        // Debug key (Android Studio wireless debug)
+        '06:1B:1C:D8:30:11:88:0C:37:E3:34:B0:6B:D5:FA:D3:D4:64:A6:84:65:27:66:1E:72:2F:96:0F:CE:31:85:ED',
+        // Release key (echo-release-v2.keystore)
+        '92:0C:67:6A:EF:F3:97:8B:DD:CE:19:81:FF:FB:0F:FE:90:38:97:55:22:5B:5C:6B:15:25:07:27:EF:7E:0B:73'
+      ]
+    }
+  }]);
+});
+
 // OAuth callback bridge for Android (Chrome Custom Tab → intent:// → appUrlOpen)
 app.get('/auth/callback', (req, res) => {
   res.setHeader('Content-Type', 'text/html');

@@ -10,8 +10,13 @@ const digestRouter   = require('./server/routes/digest');
 const pushRouter     = require('./server/routes/push');
 const accountRouter  = require('./server/routes/account');
 
+const path = require('path');
+
 const app  = express();
 const PORT = process.env.PORT || 3001;
+
+// Serve static pages (privacy policy, terms of service)
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Allow any origin in dev (phone, tablet, etc.)
 app.use(cors({ origin: true }));

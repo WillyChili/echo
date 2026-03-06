@@ -6,12 +6,12 @@ import { useProfile } from '../context/ProfileContext';
 import { useTranslation } from '../hooks/useTranslation';
 import UpgradeModal from './UpgradeModal';
 
-function Avatar({ email, avatarUrl, onClick }) {
+function Avatar({ email, avatarUrl, isSubscribed, onClick }) {
   const initials = email ? email[0].toUpperCase() : '?';
   return (
     <button
       onClick={onClick}
-      className="w-8 h-8 rounded-full bg-gradient-to-br from-secondary to-muted border border-border/60 flex items-center justify-center text-sm font-semibold text-foreground select-none active:opacity-70 transition-opacity overflow-hidden"
+      className={`w-8 h-8 rounded-full bg-gradient-to-br from-secondary to-muted flex items-center justify-center text-sm font-semibold text-foreground select-none active:opacity-70 transition-all overflow-hidden ${isSubscribed ? 'border-2 border-mint/60' : 'border border-border/60'}`}
     >
       {avatarUrl
         ? <img src={avatarUrl} alt="avatar" className="w-full h-full object-cover" />
@@ -96,7 +96,7 @@ export default function Nav() {
             <NavLink to="/" end className={linkClass}>{t('nav_today')}</NavLink>
             <NavLink to="/chat" className={linkClass}>{t('nav_echo')}</NavLink>
             <div className="relative ml-2">
-              <Avatar email={user?.email} avatarUrl={avatarUrl} onClick={() => setOpen((o) => !o)} />
+              <Avatar email={user?.email} avatarUrl={avatarUrl} isSubscribed={isSubscribed} onClick={() => setOpen((o) => !o)} />
               {open && (
                 <DropdownMenu
                   onClose={() => setOpen(false)}

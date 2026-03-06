@@ -96,16 +96,7 @@ export default function Nav() {
             <NavLink to="/" end className={linkClass}>{t('nav_today')}</NavLink>
             <NavLink to="/chat" className={linkClass}>{t('nav_echo')}</NavLink>
             <div className="relative ml-2">
-              <div className="relative">
-                <Avatar email={user?.email} avatarUrl={avatarUrl} onClick={() => setOpen((o) => !o)} />
-                {isSubscribed && (
-                  <span className="absolute -bottom-1 -right-1 pointer-events-none z-10">
-                    <span className="flex items-center bg-mint text-background text-[7px] font-bold leading-none px-1 py-0.5 rounded-full uppercase tracking-wide ring-1 ring-background">
-                      PRO
-                    </span>
-                  </span>
-                )}
-              </div>
+              <Avatar email={user?.email} avatarUrl={avatarUrl} onClick={() => setOpen((o) => !o)} />
               {open && (
                 <DropdownMenu
                   onClose={() => setOpen(false)}

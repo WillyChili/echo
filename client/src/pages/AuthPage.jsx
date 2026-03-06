@@ -101,7 +101,7 @@ export default function AuthPage() {
         const { data, error } = await supabase.auth.signInWithOAuth({
           provider: 'google',
           options: {
-            redirectTo: 'com.willychili.echo://login',
+            redirectTo: 'https://echo-production-c241.up.railway.app/auth/callback',
             skipBrowserRedirect: true,
           },
         });

@@ -3,6 +3,7 @@ import { authFetch } from '../lib/api';
 import { useProfile } from '../context/ProfileContext';
 import { useTranslation } from '../hooks/useTranslation';
 import UpgradeModal from '../components/UpgradeModal';
+import { Capacitor } from '@capacitor/core';
 
 export default function SettingsPage() {
   const { t } = useTranslation();
@@ -87,6 +88,46 @@ export default function SettingsPage() {
     <div className="max-w-xl mx-auto px-4 py-10">
       <h1 className="text-lg font-semibold text-foreground mb-1">{t('settings_title')}</h1>
       <p className="text-sm text-muted-foreground mb-8">{t('settings_subtitle')}</p>
+
+      {/* Subscription plan */}
+      <div className="bg-card border border-border/60 rounded-2xl p-5 mb-4">
+        <h2 className="text-sm font-medium text-foreground mb-1">{t('settings_plan_title')}</h2>
+        <p className="text-xs text-muted-foreground mb-4">{t('settings_plan_desc')}</p>
+        <div className="flex items-center justify-between">
+          {/* Badge */}
+          <div className="flex items-center gap-1.5">
+            {isSubscribed ? (
+              <>
+                <span className="text-xs font-semibold uppercase tracking-widest text-mint">{t('pricing_pro_name')}</span>
+                <span className="text-xs text-mint">✓</span>
+              </>
+            ) : (
+              <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">{t('pricing_free_name')}</span>
+            )}
+          </div>
+          {/* Action */}
+          {isSubscribed ? (
+            <button
+              onClick={() => {
+                const url = Capacitor.isNativePlatform()
+                  ? 'market://subscriptions?package=com.willychili.echo'
+                  : 'https://play.google.com/store/account/subscriptions';
+                window.open(url, '_system');
+              }}
+              className="text-xs text-muted-foreground underline active:opacity-70 transition-opacity"
+            >
+              {t('settings_plan_manage')}
+            </button>
+          ) : (
+            <button
+              onClick={() => setShowUpgradeModal(true)}
+              className="text-xs font-semibold text-mint active:opacity-70 transition-opacity"
+            >
+              {t('nav_subscribe')}
+            </button>
+          )}
+        </div>
+      </div>
 
       {/* Echo personality */}
       <div className="bg-card border border-border/60 rounded-2xl p-5 mb-4">

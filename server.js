@@ -22,32 +22,45 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.get('/auth/callback', (req, res) => {
   res.setHeader('Content-Type', 'text/html');
   res.send(`<!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>Redirecting…</title></head>
-<body>
+<html><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Echo – Sign in</title>
+<style>
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    background:#0a0a0a;color:#fff;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;min-height:100vh;padding:24px;text-align:center}
+  h1{font-size:22px;font-weight:600;margin-bottom:8px}
+  p{color:#888;font-size:14px;margin-bottom:32px}
+  a#btn{display:none;background:#2dd4a0;color:#0a0a0a;text-decoration:none;
+    padding:14px 36px;border-radius:14px;font-weight:600;font-size:16px}
+  a#btn.show{display:inline-block}
+</style>
+</head><body>
+<h1>Signing in to Echo…</h1>
+<p id="sub">This window should close automatically.</p>
+<a id="btn">Open Echo</a>
 <script>
 (function () {
-  var search = window.location.search; // e.g. ?code=abc&state=xyz
-  var hash   = window.location.hash;  // e.g. #access_token=… (implicit flow)
-  if (/android/i.test(navigator.userAgent)) {
-    if (search) {
-      // PKCE flow: code in query string → use intent:// (Chrome always dispatches these)
-      window.location.replace(
-        'intent://login' + search +
-        '#Intent;scheme=com.willychili.echo;package=com.willychili.echo;end'
-      );
-    } else if (hash) {
-      // Implicit flow: tokens in fragment → fall back to direct custom scheme
-      window.location.replace('com.willychili.echo://login' + hash);
-    } else {
-      document.body.innerText = 'No auth params received.';
-    }
-  } else {
-    // Non-Android (should not reach here in normal flow)
-    window.location.replace('com.willychili.echo://login' + search + hash);
-  }
+  var s = window.location.search;
+  var h = window.location.hash;
+  var android = /android/i.test(navigator.userAgent);
+  var url = (android && s)
+    ? 'intent://login' + s + '#Intent;scheme=com.willychili.echo;package=com.willychili.echo;end'
+    : 'com.willychili.echo://login' + s + h;
+
+  document.getElementById('btn').href = url;
+
+  // Try automatic redirect first (works on some Chrome versions)
+  try { window.location.replace(url); } catch (e) {}
+
+  // After 2 s, show tap button as fallback (user-initiated click always works)
+  setTimeout(function () {
+    document.getElementById('sub').textContent = 'Tap below to open the app:';
+    document.getElementById('btn').className = 'show';
+  }, 2000);
 })();
 </script>
-<p>Redirecting to Echo&hellip;</p>
 </body></html>`);
 });
 

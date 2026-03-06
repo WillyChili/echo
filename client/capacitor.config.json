@@ -1,9 +1,5 @@
 {
   "appId": "com.willychili.echo",
   "appName": "Echo",
-  "webDir": "dist",
-  "server": {
-    "url": "http://192.168.1.2:5173",
-    "cleartext": true
-  }
+  "webDir": "dist"
 }

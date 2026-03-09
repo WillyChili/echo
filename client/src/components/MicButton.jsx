@@ -1,3 +1,5 @@
+import { useTranslation } from '../hooks/useTranslation';
+
 /**
  * MicButton — reusable mic toggle button.
  * Props:
@@ -7,6 +9,7 @@
  *   size?         'sm' | 'md' | 'lg'  (default 'md')
  */
 export default function MicButton({ isRecording, isSupported, onToggle, size = 'md' }) {
+  const { t } = useTranslation();
   const sizeClass =
     size === 'sm' ? 'w-9 h-9' :
     size === 'lg' ? 'w-28 h-28' :
@@ -21,7 +24,7 @@ export default function MicButton({ isRecording, isSupported, onToggle, size = '
     return (
       <button
         disabled
-        title="Speech recognition not supported in this browser"
+        title={t('mic_not_supported')}
         className={`${sizeClass} rounded-full flex items-center justify-center bg-secondary text-muted-foreground cursor-not-allowed select-none`}
       >
         <MicIcon className={iconClass} />
@@ -32,7 +35,7 @@ export default function MicButton({ isRecording, isSupported, onToggle, size = '
   return (
     <button
       onClick={onToggle}
-      title={isRecording ? 'Stop recording' : 'Start voice input'}
+      title={isRecording ? t('mic_stop') : t('mic_start')}
       className={[
         sizeClass,
         'rounded-full flex items-center justify-center transition-colors duration-150 focus:outline-none select-none',

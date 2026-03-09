@@ -34,7 +34,7 @@ function ParticleBurst({ messages }) {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-950 px-6">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background px-6">
       <div className="relative flex items-center justify-center" style={{ width: 200, height: 200 }}>
         {PARTICLES.map((p, i) => (
           <div
@@ -171,9 +171,13 @@ export default function OnboardingPage() {
     setTimeout(() => setDisplayName(name.trim()), 3500);
   };
 
-  const loadingMessages = lang === 'es'
-    ? [`¡Hola ${name}!`, 'Personalizando tu experiencia...', 'Echo está listo.', '¡Todo listo!']
-    : [`Hi ${name}!`, 'Personalizing your experience...', 'Echo is ready.', 'All set!'];
+  // Loading messages with name interpolated
+  const loadingMessages = [
+    t('onboarding_loading_1'),
+    t('onboarding_loading_2').replace('{name}', name),
+    t('onboarding_loading_3'),
+    t('onboarding_loading_4'),
+  ];
 
   // ── Loading screen ──────────────────────────────────────────────────────────
   if (step === 3) return <ParticleBurst messages={loadingMessages} />;
@@ -186,7 +190,7 @@ export default function OnboardingPage() {
   const btnBack    = 'mt-3 text-xs text-muted-foreground active:opacity-70 transition-opacity';
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-neutral-950 px-6 overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-background px-6 overflow-hidden">
       <div className="w-full max-w-sm">
 
         {/* ── Step 0: Echo intro ───────────────────────────────────────────── */}
@@ -214,7 +218,7 @@ export default function OnboardingPage() {
               {t('onboarding_name_title')}
             </h1>
             <p className="text-sm text-muted-foreground mb-8">
-              {t('onboarding_name_sub')}
+              {t('onboarding_name_subtitle')}
             </p>
             <input
               ref={nameRef}

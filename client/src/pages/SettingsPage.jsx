@@ -39,7 +39,7 @@ export default function SettingsPage() {
         if (d.digest_window_days    != null) setDigestWindow(d.digest_window_days);
         if (d.digest_email_enabled  != null) setDigestEmailEnabled(d.digest_email_enabled);
       })
-      .catch(() => {});
+      .catch((e) => console.error('Failed to load settings:', e));
   }, []);
 
   const handleToneSelect = async (tone) => {

@@ -100,4 +100,14 @@
   @supports (corner-shape: squircle) {
     .squircle { corner-shape: squircle; }
   }
+
+  /* Respect user's reduced-motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    .mic-recording { animation: none; }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
 }

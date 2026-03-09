@@ -60,7 +60,7 @@ export function ProfileProvider({ children }) {
           setDailyChatsResetDate(resetDate || today);
         }
       })
-      .catch(() => {}) // network/server error — preserve existing state (displayName stays null)
+      .catch((e) => console.error('Failed to load profile:', e)) // preserve existing state
       .finally(() => setProfileLoading(false));
   }, [user]);
 

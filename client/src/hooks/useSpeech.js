@@ -1,8 +1,10 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback } from 'react';
+import { useTranslation } from './useTranslation';
 
-const SPEECH_LOCALE = { en: 'en-US', es: 'es-ES' };
+const LOCALE_MAP = { en: 'en-US', es: 'es-ES' };
 
-export function useSpeech(onTranscript, lang = 'es') {
+export function useSpeech(onTranscript) {
+  const { t, language } = useTranslation();
   const [isRecording, setIsRecording] = useState(false);
   const [error, setError] = useState(null);
   const recognitionRef = useRef(null);
@@ -13,10 +15,6 @@ export function useSpeech(onTranscript, lang = 'es') {
   const lastSessionTextRef = useRef('');
   // Stable ref to the SpeechRecognition class (set once on startRecording)
   const speechClassRef = useRef(null);
-  // Stable lang ref so startSession always uses the latest language
-  const langRef = useRef(lang);
-  useEffect(() => { langRef.current = lang; }, [lang]);
-
   const isSupported =
     typeof window !== 'undefined' &&
     ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
@@ -30,7 +28,7 @@ export function useSpeech(onTranscript, lang = 'es') {
     const r = new SpeechRecognitionClass();
     r.continuous = false;    // one utterance at a time → clean result list each session
     r.interimResults = true; // show text while speaking
-    r.lang = SPEECH_LOCALE[langRef.current] || 'es-ES';
+    r.lang = LOCALE_MAP[language] || 'en-US';
     r.maxAlternatives = 1;
 
     r.onresult = (event) => {
@@ -48,7 +46,7 @@ export function useSpeech(onTranscript, lang = 'es') {
 
     r.onerror = (e) => {
       if (e.error === 'not-allowed') {
-        setError('Micrófono bloqueado.');
+        setError(t('mic_blocked'));
         setIsRecording(false);
         recognitionRef.current = null;
         return;
@@ -81,14 +79,14 @@ export function useSpeech(onTranscript, lang = 'es') {
       r.start();
     } catch {
       recognitionRef.current = null;
-      setError('No se pudo iniciar el reconocimiento.');
+      setError(t('mic_error'));
       setIsRecording(false);
     }
-  }, [onTranscript]);
+  }, [onTranscript, t, language]);
 
   const startRecording = useCallback(async (onStart) => {
     if (!isSupported) {
-      setError('Speech recognition not supported.');
+      setError(t('mic_error'));
       return;
     }
 

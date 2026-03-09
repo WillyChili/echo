@@ -142,7 +142,7 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-neutral-950 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="w-full max-w-sm">
 
         {/* ── Language toggle ── */}
@@ -187,14 +187,14 @@ export default function AuthPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full bg-background border border-input rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full bg-background border border-input rounded-2xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 />
                 {error   && <p className="text-xs text-red-400">{error}</p>}
                 {message && <p className="text-xs text-green-400">{message}</p>}
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-foreground text-background rounded-xl py-2.5 text-sm font-medium active:opacity-70 transition-opacity disabled:opacity-50 mt-1"
+                  className="w-full bg-foreground text-background rounded-2xl py-2.5 text-sm font-medium active:opacity-70 transition-opacity disabled:opacity-50 mt-1"
                 >
                   {loading ? t('auth_loading') : t('auth_send_reset')}
                 </button>
@@ -215,29 +215,33 @@ export default function AuthPage() {
               </h2>
 
               <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+                <label htmlFor="auth-email" className="sr-only">{t('auth_email')}</label>
                 <input
+                  id="auth-email"
                   type="email"
                   placeholder={t('auth_email')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full bg-background border border-input rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full bg-background border border-input rounded-2xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 />
+                <label htmlFor="auth-password" className="sr-only">{t('auth_password')}</label>
                 <input
+                  id="auth-password"
                   type="password"
                   placeholder={t('auth_password')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   minLength={6}
-                  className="w-full bg-background border border-input rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full bg-background border border-input rounded-2xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 />
                 {error   && <p className="text-xs text-red-400">{error}</p>}
                 {message && <p className="text-xs text-green-400">{message}</p>}
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-foreground text-background rounded-xl py-2.5 text-sm font-medium active:opacity-70 transition-opacity disabled:opacity-50 mt-1"
+                  className="w-full bg-foreground text-background rounded-2xl py-2.5 text-sm font-medium active:opacity-70 transition-opacity disabled:opacity-50 mt-1"
                 >
                   {loading ? t('auth_loading') : mode === 'login' ? t('auth_sign_in') : t('auth_create_account')}
                 </button>
@@ -265,10 +269,10 @@ export default function AuthPage() {
               <button
                 onClick={handleGoogle}
                 disabled={googleLoading}
-                className="w-full flex items-center justify-center gap-2.5 bg-background border border-input rounded-xl py-2.5 text-sm text-foreground font-medium active:opacity-70 transition-opacity disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2.5 bg-background border border-input rounded-2xl py-2.5 text-sm text-foreground font-medium active:opacity-70 transition-opacity disabled:opacity-50"
               >
                 <GoogleIcon />
-                {googleLoading ? t('auth_redirecting') : t('auth_google')}
+                {googleLoading ? t('auth_redirecting') : t('auth_continue_google')}
               </button>
 
               <p className="text-xs text-muted-foreground text-center mt-4">

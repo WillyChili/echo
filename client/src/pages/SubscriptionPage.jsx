@@ -18,16 +18,10 @@ export default function SubscriptionPage() {
   const { t, language } = useTranslation();
   const lang = language === 'es' ? 'es' : 'en';
 
-  const title       = lang === 'es' ? 'Suscripción' : 'Subscription';
-  const subtitle    = lang === 'es' ? 'Elige el plan que mejor se adapte a ti.' : 'Choose the plan that works best for you.';
-  const currentPlan = lang === 'es' ? 'Plan actual' : 'Current plan';
-  const upgrade     = lang === 'es' ? 'Mejorar a Pro' : 'Upgrade to Pro';
-  const comingSoon  = lang === 'es' ? 'Próximamente' : 'Coming soon';
-
   return (
     <div className="max-w-xl mx-auto px-4 py-10">
-      <h1 className="text-lg font-semibold text-foreground mb-1">{title}</h1>
-      <p className="text-sm text-muted-foreground mb-8">{subtitle}</p>
+      <h1 className="text-lg font-semibold text-foreground mb-1">{t('subscription_title')}</h1>
+      <p className="text-sm text-muted-foreground mb-8">{t('subscription_subtitle')}</p>
 
       <div className="flex flex-col gap-4">
         {PLANS.map((plan) => {
@@ -42,7 +36,7 @@ export default function SubscriptionPage() {
                   <span className="text-sm font-semibold text-foreground">{info.name}</span>
                   {plan.highlight && (
                     <span className="ml-2 text-xs bg-foreground text-background px-2 py-0.5 rounded-full font-medium">
-                      {comingSoon}
+                      {t('subscription_coming_soon')}
                     </span>
                   )}
                 </div>
@@ -59,13 +53,13 @@ export default function SubscriptionPage() {
               </ul>
 
               {!plan.highlight ? (
-                <div className="text-xs text-muted-foreground font-medium">{currentPlan}</div>
+                <div className="text-xs text-muted-foreground font-medium">{t('subscription_current_plan')}</div>
               ) : (
                 <button
                   disabled
-                  className="w-full bg-foreground text-background rounded-xl py-2.5 text-sm font-medium opacity-40 cursor-not-allowed"
+                  className="w-full bg-foreground text-background rounded-2xl py-2.5 text-sm font-medium opacity-40 cursor-not-allowed"
                 >
-                  {upgrade}
+                  {t('subscription_upgrade')}
                 </button>
               )}
             </div>

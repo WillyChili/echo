@@ -304,7 +304,7 @@ export default function TodayPage() {
           setViewingDate(null);
         }, 600);
       }
-    } catch { setSaveStatus(''); }
+    } catch (e) { console.error('Save failed:', e); setSaveStatus(''); }
   }, [content, currentNoteId, todayDate, fetchAllNotes]);
 
   // ── Open a past note into the editor ─────────────────────────────────────
@@ -387,11 +387,11 @@ export default function TodayPage() {
     <>
       {/* Selection toolbar */}
       {selectionMode && (
-        <div className="fixed bottom-0 left-0 right-0 z-[100] bg-background border-t border-border px-4 py-3 pb-6 flex items-center justify-between gap-4">
+        <div className="fixed bottom-0 left-0 right-0 z-chrome bg-background border-t border-border px-4 py-3 pb-6 flex items-center justify-between gap-4">
           <span className="text-sm text-foreground font-medium">{selectedIds.size} {t('today_selected')}</span>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={cancelSelection}>{t('today_cancel')}</Button>
-            <Button variant="destructive" size="sm" onClick={deleteSelected} className="bg-red-600 text-white">
+            <Button variant="destructive" size="sm" onClick={deleteSelected}>
               {t('today_delete')}{selectedIds.size > 1 ? ` (${selectedIds.size})` : ''}
             </Button>
           </div>
@@ -460,7 +460,9 @@ export default function TodayPage() {
         {/* EAI-13: Big centered mic (w-28) + EAI-14: spinning ring + waves */}
         <div className="flex flex-col items-center gap-4 py-2">
           <div className="flex items-center justify-center gap-6">
-            <WaveAnimation heights={barHeights} />
+            <div className={`transition-opacity duration-300 ${isRecording ? 'opacity-100' : 'opacity-0'}`}>
+              <WaveAnimation heights={barHeights} />
+            </div>
             {/* EAI-13: mic container with EAI-14 ring */}
             <div className="relative flex items-center justify-center">
               {isRecording && <SpinningRing />}
@@ -471,7 +473,9 @@ export default function TodayPage() {
                 size="lg"
               />
             </div>
-            <WaveAnimation heights={[...barHeights].reverse()} />
+            <div className={`transition-opacity duration-300 ${isRecording ? 'opacity-100' : 'opacity-0'}`}>
+              <WaveAnimation heights={[...barHeights].reverse()} />
+            </div>
           </div>
           {isRecording && <span className="text-xs text-mint animate-pulse tracking-wide">{t('today_listening')}</span>}
           {micError && <span className="text-xs text-red-400">{micError}</span>}
@@ -485,7 +489,7 @@ export default function TodayPage() {
                 onClick={() => setCalendarOpen(o => !o)}
                 className="flex items-center gap-1.5 group"
               >
-                <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
+                <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                   {selectedDate === todayDate ? t('today_notes_header') : formatDateShort(selectedDate, language)}
                 </h2>
                 <CalendarIcon className="w-3.5 h-3.5 text-mint opacity-60 group-hover:opacity-100 transition-opacity" />
@@ -498,7 +502,7 @@ export default function TodayPage() {
                   {t('today_back_to_today')}
                 </button>
               ) : (
-                !selectionMode && <span className="text-xs text-muted-foreground/80">{t('today_hold_to_select')}</span>
+                !selectionMode && <span className="text-xs text-muted-foreground/70">{t('today_hold_to_select')}</span>
               )}
             </div>
             {calendarOpen && (

@@ -35,7 +35,7 @@ function ParticleBurst({ name, messages }) {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-950 px-6">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background px-6">
       {/* Particle orbit container */}
       <div className="relative flex items-center justify-center" style={{ width: 200, height: 200 }}>
         {PARTICLES.map((p, i) => (
@@ -165,7 +165,7 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-neutral-950 px-6 overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-background px-6 overflow-hidden">
       <div className="w-full max-w-sm">
 
         {/* Step 0: Language */}
@@ -176,13 +176,13 @@ export default function OnboardingPage() {
             <div className="flex flex-col gap-3">
               <button
                 onClick={() => selectLang('en')}
-                className="w-full bg-card border border-border/60 rounded-2xl p-5 text-base font-medium text-foreground active:opacity-70 transition-all hover:border-2 hover:border-mint"
+                className="w-full bg-card border border-border/60 rounded-2xl p-5 text-base font-medium text-foreground active:opacity-70 active:border-2 active:border-mint transition-all"
               >
                 English
               </button>
               <button
                 onClick={() => selectLang('es')}
-                className="w-full bg-card border border-border/60 rounded-2xl p-5 text-base font-medium text-foreground active:opacity-70 transition-all hover:border-2 hover:border-mint"
+                className="w-full bg-card border border-border/60 rounded-2xl p-5 text-base font-medium text-foreground active:opacity-70 active:border-2 active:border-mint transition-all"
               >
                 Español
               </button>

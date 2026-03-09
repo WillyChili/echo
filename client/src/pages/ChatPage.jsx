@@ -318,7 +318,7 @@ function MessageBubble({ msg }) {
   if (isUser) {
     return (
       <div className="flex justify-end">
-        <div className="max-w-[75%] bg-secondary text-foreground rounded-2xl rounded-tr-sm px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap squircle">
+        <div className="max-w-[76%] bg-secondary text-foreground rounded-2xl rounded-tr-sm px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap squircle">
           {msg.text}
         </div>
       </div>
@@ -330,7 +330,7 @@ function MessageBubble({ msg }) {
       <EchoAvatar />
       <div
         className={cn(
-          'max-w-[78%] rounded-2xl rounded-tl-sm px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap squircle',
+          'max-w-[76%] rounded-2xl rounded-tl-sm px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap squircle',
           msg.isError
             ? 'bg-destructive/20 border border-destructive/40 text-red-300'
             : 'bg-secondary/70 border border-border/40 text-foreground'

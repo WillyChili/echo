@@ -9,7 +9,7 @@ import { useTranslation } from '../hooks/useTranslation';
 function Field({ label, children }) {
   return (
     <div className="bg-card border border-border/50 rounded-2xl px-4 py-3">
-      <p className="text-[11px] text-muted-foreground mb-0.5 select-none">{label}</p>
+      <p className="text-xs text-muted-foreground mb-0.5 select-none">{label}</p>
       {children}
     </div>
   );
@@ -117,7 +117,7 @@ export default function EditProfilePage() {
   const initials = user?.email?.[0]?.toUpperCase() || '?';
 
   return (
-    <div className="px-3 py-8">
+    <div className="px-4 py-8">
       {/* Title */}
       <h1 className="text-base font-semibold text-foreground text-center mb-7">{t('edit_profile_title')}</h1>
 

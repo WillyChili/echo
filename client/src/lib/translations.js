@@ -98,6 +98,13 @@ const translations = {
     onboarding_name_subtitle: 'Echo will use this to address you.',
     onboarding_back: 'Back',
 
+    // SubscriptionPage
+    subscription_title: 'Subscription',
+    subscription_subtitle: 'Choose the plan that works best for you.',
+    subscription_current_plan: 'Current plan',
+    subscription_upgrade: 'Upgrade to Pro',
+    subscription_coming_soon: 'Coming soon',
+
     // SettingsPage
     settings_title: 'Settings',
     settings_subtitle: 'Manage your Echo preferences.',
@@ -212,6 +219,13 @@ const translations = {
     onboarding_back: 'Volver',
 
     // SettingsPage
+    // SubscriptionPage
+    subscription_title: 'Suscripción',
+    subscription_subtitle: 'Elegí el plan que mejor se adapte a vos.',
+    subscription_current_plan: 'Plan actual',
+    subscription_upgrade: 'Mejorar a Pro',
+    subscription_coming_soon: 'Próximamente',
+
     settings_title: 'Ajustes',
     settings_subtitle: 'Administra tus preferencias de Echo.',
     settings_api_key_title: 'Tu clave API de Anthropic',

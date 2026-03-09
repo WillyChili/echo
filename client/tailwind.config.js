@@ -15,6 +15,12 @@ export default {
         '2xl': 'calc(var(--radius) + 8px)',
         '3xl': 'calc(var(--radius) + 16px)',
       },
+      zIndex: {
+        nav: '10',
+        overlay: '40',
+        modal: '50',
+        chrome: '90',
+      },
       colors: {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',

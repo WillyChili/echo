@@ -12,7 +12,7 @@ import OnboardingPage from './pages/OnboardingPage.jsx';
 
 function Spinner() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-neutral-950">
+    <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="w-6 h-6 rounded-full border-2 border-border border-t-foreground animate-spin" />
     </div>
   );
@@ -23,7 +23,7 @@ function ProtectedRoutes() {
   if (profileLoading) return <Spinner />;
   if (!displayName) return <OnboardingPage />;
   return (
-    <div className="min-h-screen flex flex-col bg-neutral-950">
+    <div className="min-h-screen flex flex-col bg-background">
       <Nav />
       <main className="flex-1 flex flex-col">
         <Routes>

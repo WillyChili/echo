@@ -78,7 +78,7 @@ export default function SettingsPage() {
               value={apiKey}
               onFocus={() => { if (apiKey.startsWith('•')) setApiKey(''); }}
               onChange={(e) => { setSaved(false); setApiKey(e.target.value); }}
-              className="w-full bg-background border border-input rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring font-mono"
+              className="w-full bg-background border border-input rounded-2xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring font-mono"
             />
 
             {error && <p className="text-xs text-red-400">{error}</p>}
@@ -88,7 +88,7 @@ export default function SettingsPage() {
               <button
                 type="submit"
                 disabled={loading || !apiKey || apiKey.startsWith('•')}
-                className="flex-1 bg-foreground text-background rounded-xl py-2.5 text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-40"
+                className="flex-1 bg-foreground text-background rounded-2xl py-2.5 text-sm font-medium active:opacity-70 transition-opacity disabled:opacity-40"
               >
                 {loading ? t('settings_saving') : t('settings_save_key')}
               </button>
@@ -96,7 +96,7 @@ export default function SettingsPage() {
                 type="button"
                 onClick={handleClear}
                 disabled={loading}
-                className="px-4 bg-destructive/20 text-red-400 border border-destructive/40 rounded-xl text-sm hover:bg-destructive/30 transition-colors disabled:opacity-40"
+                className="px-4 bg-destructive/20 text-red-400 border border-destructive/40 rounded-2xl text-sm active:bg-destructive/30 transition-colors disabled:opacity-40"
               >
                 {t('settings_remove')}
               </button>

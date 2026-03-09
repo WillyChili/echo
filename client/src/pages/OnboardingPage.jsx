@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { authFetch } from '../lib/api';
 import { useProfile } from '../context/ProfileContext';
 import { useTranslation } from '../hooks/useTranslation';
+import translations from '../lib/translations';
 
 // 8 particles: 4 inner orbit + 4 outer orbit
 const PARTICLES = [
@@ -148,10 +149,10 @@ export default function OnboardingPage() {
 
   // Loading messages with name interpolated
   const loadingMessages = [
-    lang === 'es' ? 'Configurando el idioma...' : 'Setting language to English...',
-    lang === 'es' ? `Hola ${name}!` : `Hi ${name}!`,
-    lang === 'es' ? 'Personalizando tu experiencia...' : 'Personalizing your experience...',
-    lang === 'es' ? 'Echo esta listo.' : 'Echo is ready.',
+    t('onboarding_loading_1'),
+    t('onboarding_loading_2').replace('{name}', name),
+    t('onboarding_loading_3'),
+    t('onboarding_loading_4'),
   ];
 
   // Step 2: particle burst
@@ -170,8 +171,8 @@ export default function OnboardingPage() {
         {/* Step 0: Language */}
         {step === 0 && (
           <div key={0} style={slideStyle} className="text-center">
-            <h1 className="text-xl font-semibold text-foreground mb-2">Choose your language</h1>
-            <p className="text-sm text-muted-foreground mb-8">Elegi tu idioma</p>
+            <h1 className="text-xl font-semibold text-foreground mb-2">{translations.en.onboarding_lang_title}</h1>
+            <p className="text-sm text-muted-foreground mb-8">{translations.es.onboarding_lang_title}</p>
             <div className="flex flex-col gap-3">
               <button
                 onClick={() => selectLang('en')}
@@ -195,7 +196,7 @@ export default function OnboardingPage() {
           <div key={1} style={slideStyle} className="text-center">
             <h1 className="text-xl font-semibold text-foreground mb-2">{t('onboarding_name_title')}</h1>
             <p className="text-sm text-muted-foreground mb-8">
-              {lang === 'es' ? 'Echo te va a llamar por este nombre.' : 'Echo will use this to address you.'}
+              {t('onboarding_name_subtitle')}
             </p>
             <input
               ref={nameRef}
@@ -217,7 +218,7 @@ export default function OnboardingPage() {
               onClick={() => goBack(0)}
               className="mt-3 text-xs text-muted-foreground active:opacity-70"
             >
-              {lang === 'es' ? 'Volver' : 'Back'}
+              {t('onboarding_back')}
             </button>
             <div className="mt-8"><Stepper step={step} /></div>
           </div>

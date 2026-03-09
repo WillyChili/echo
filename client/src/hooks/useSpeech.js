@@ -1,6 +1,10 @@
 import { useState, useRef, useCallback } from 'react';
+import { useTranslation } from './useTranslation';
+
+const LOCALE_MAP = { en: 'en-US', es: 'es-ES' };
 
 export function useSpeech(onTranscript) {
+  const { t, language } = useTranslation();
   const [isRecording, setIsRecording] = useState(false);
   const [error, setError] = useState(null);
   const recognitionRef = useRef(null);
@@ -25,7 +29,7 @@ export function useSpeech(onTranscript) {
     const r = new SpeechRecognitionClass();
     r.continuous = false;    // one utterance at a time → clean result list each session
     r.interimResults = true; // show text while speaking
-    r.lang = 'es-ES';
+    r.lang = LOCALE_MAP[language] || 'en-US';
 
     r.onresult = (event) => {
       let sessionText = '';
@@ -42,7 +46,7 @@ export function useSpeech(onTranscript) {
 
     r.onerror = (e) => {
       if (e.error === 'not-allowed') {
-        setError('Micrófono bloqueado.');
+        setError(t('mic_blocked'));
         setIsRecording(false);
         recognitionRef.current = null;
       }
@@ -72,14 +76,14 @@ export function useSpeech(onTranscript) {
       r.start();
     } catch {
       recognitionRef.current = null;
-      setError('No se pudo iniciar el reconocimiento.');
+      setError(t('mic_error'));
       setIsRecording(false);
     }
-  }, [onTranscript]);
+  }, [onTranscript, t, language]);
 
   const startRecording = useCallback(async (onStart) => {
     if (!isSupported) {
-      setError('Speech recognition not supported.');
+      setError(t('mic_error'));
       return;
     }
 

@@ -1,5 +1,9 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
+import translations from '../lib/translations';
+
+// AuthPage renders outside ProfileProvider, so we use translations directly (always English)
+const t = (key) => translations.en[key] ?? key;
 
 // Waveform bar pattern: height (px) + animation delay (s)
 const BARS = [
@@ -42,7 +46,7 @@ export default function AuthPage() {
       if (mode === 'register') {
         const { error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
-        setMessage('Check your email to confirm your account.');
+        setMessage(t('auth_confirm_email'));
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -90,20 +94,20 @@ export default function AuthPage() {
             ))}
           </div>
           <h1 className="text-2xl font-semibold text-foreground tracking-tight">echo</h1>
-          <p className="text-sm text-muted-foreground mt-1">Your personal AI reflection</p>
+          <p className="text-sm text-muted-foreground mt-1">{t('auth_tagline')}</p>
         </div>
 
         {/* ── Card ── */}
         <div className="bg-card border border-border/60 rounded-2xl p-6">
           <h2 className="text-base font-medium text-foreground mb-5">
-            {mode === 'login' ? 'Sign in' : 'Create account'}
+            {mode === 'login' ? t('auth_sign_in') : t('auth_create_account')}
           </h2>
 
           {/* Email / password */}
           <form onSubmit={handleSubmit} className="flex flex-col gap-3">
             <input
               type="email"
-              placeholder="Email"
+              placeholder={t('auth_email')}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -111,7 +115,7 @@ export default function AuthPage() {
             />
             <input
               type="password"
-              placeholder="Password"
+              placeholder={t('auth_password')}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -127,14 +131,14 @@ export default function AuthPage() {
               disabled={loading}
               className="w-full bg-foreground text-background rounded-xl py-2.5 text-sm font-medium active:opacity-70 transition-opacity disabled:opacity-50 mt-1"
             >
-              {loading ? 'Loading…' : mode === 'login' ? 'Sign in' : 'Create account'}
+              {loading ? t('auth_loading') : mode === 'login' ? t('auth_sign_in') : t('auth_create_account')}
             </button>
           </form>
 
           {/* Divider */}
           <div className="flex items-center gap-3 my-4">
             <div className="flex-1 h-px bg-border/50" />
-            <span className="text-xs text-muted-foreground">or</span>
+            <span className="text-xs text-muted-foreground">{t('auth_or')}</span>
             <div className="flex-1 h-px bg-border/50" />
           </div>
 
@@ -145,16 +149,16 @@ export default function AuthPage() {
             className="w-full flex items-center justify-center gap-2.5 bg-background border border-input rounded-xl py-2.5 text-sm text-foreground font-medium active:opacity-70 transition-opacity disabled:opacity-50"
           >
             <GoogleIcon />
-            {googleLoading ? 'Redirecting…' : 'Continue with Google'}
+            {googleLoading ? t('auth_redirecting') : t('auth_continue_google')}
           </button>
 
           <p className="text-xs text-muted-foreground text-center mt-4">
-            {mode === 'login' ? "Don't have an account? " : 'Already have an account? '}
+            {mode === 'login' ? t('auth_no_account') : t('auth_have_account')}{' '}
             <button
               onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setError(null); setMessage(null); }}
               className="text-foreground underline"
             >
-              {mode === 'login' ? 'Sign up' : 'Sign in'}
+              {mode === 'login' ? t('auth_sign_up') : t('auth_sign_in')}
             </button>
           </p>
         </div>

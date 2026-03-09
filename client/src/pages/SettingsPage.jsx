@@ -15,7 +15,7 @@ export default function SettingsPage() {
     authFetch('/api/settings')
       .then((r) => r.json())
       .then((d) => { if (d.hasApiKey) setApiKey('••••••••••••••••••••'); })
-      .catch(() => {})
+      .catch((e) => console.error('Failed to load settings:', e))
       .finally(() => setFetching(false));
   }, []);
 

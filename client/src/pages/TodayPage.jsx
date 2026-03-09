@@ -301,7 +301,7 @@ export default function TodayPage() {
           });
           if (res.ok) {
             const note = await res.json();
-            setCurrentNoteId(note.id);
+            if (note?.id) setCurrentNoteId(note.id);
             lastSavedContent.current = content;
             setSaveStatus('saved');
             fetchAllNotes();
@@ -315,7 +315,7 @@ export default function TodayPage() {
           fetchAllNotes();
           setTimeout(() => setSaveStatus(''), 2000);
         }
-      } catch { setSaveStatus(''); }
+      } catch (e) { console.error('Auto-save failed:', e); setSaveStatus(''); }
     }, 1000);
 
     return () => clearTimeout(debounceTimer.current);
@@ -350,7 +350,7 @@ export default function TodayPage() {
           lastSavedContent.current = '';
         }, 600);
       }
-    } catch { setSaveStatus(''); }
+    } catch (e) { console.error('Save failed:', e); setSaveStatus(''); }
   }, [content, currentNoteId, todayDate, fetchAllNotes]);
 
   // ── Open a past note into the editor ─────────────────────────────────────
@@ -522,7 +522,7 @@ export default function TodayPage() {
                   onClick={() => setSelectedDate(todayDate)}
                   className="text-xs text-mint active:opacity-70 transition-opacity"
                 >
-                  {language === 'es' ? 'Volver a hoy' : 'Back to today'}
+                  {t('today_back_to_today')}
                 </button>
               ) : (
                 !selectionMode && <span className="text-xs text-muted-foreground/50">{t('today_hold_to_select')}</span>

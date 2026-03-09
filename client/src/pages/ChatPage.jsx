@@ -87,8 +87,8 @@ export default function ChatPage() {
         if (Array.isArray(msgs)) {
           setMessages(msgs.map((m) => ({ role: m.role, text: m.content })));
         }
-      } catch {
-        // proceed with empty state
+      } catch (e) {
+        console.error('Failed to load chat history:', e);
       } finally {
         setLoadingHistory(false);
       }
@@ -105,7 +105,7 @@ export default function ChatPage() {
       if (Array.isArray(data)) {
         setMessages(data.map((m) => ({ role: m.role, text: m.content })));
       }
-    } catch {}
+    } catch (e) { console.error('Failed to load messages:', e); }
   };
 
   const handleDateChange = (newDate) => {

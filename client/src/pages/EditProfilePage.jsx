@@ -45,7 +45,7 @@ export default function EditProfilePage() {
         if (d.bio)          setBio(d.bio);
         // language is managed in ProfileContext
       })
-      .catch(() => {})
+      .catch((e) => console.error('Failed to load profile:', e))
       .finally(() => setFetching(false));
   }, []);
 

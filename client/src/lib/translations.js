@@ -69,6 +69,35 @@ const translations = {
     onboarding_loading_3: 'Personalizing your experience...',
     onboarding_loading_4: 'Echo is ready.',
 
+    // AuthPage
+    auth_tagline: 'Your personal AI reflection',
+    auth_sign_in: 'Sign in',
+    auth_create_account: 'Create account',
+    auth_email: 'Email',
+    auth_password: 'Password',
+    auth_loading: 'Loading…',
+    auth_or: 'or',
+    auth_redirecting: 'Redirecting…',
+    auth_continue_google: 'Continue with Google',
+    auth_no_account: "Don't have an account?",
+    auth_have_account: 'Already have an account?',
+    auth_sign_up: 'Sign up',
+    auth_confirm_email: 'Check your email to confirm your account.',
+
+    // MicButton / useSpeech
+    mic_not_supported: 'Speech recognition not supported in this browser',
+    mic_stop: 'Stop recording',
+    mic_start: 'Start voice input',
+    mic_blocked: 'Microphone blocked.',
+    mic_error: 'Could not start recognition.',
+
+    // TodayPage extra
+    today_back_to_today: 'Back to today',
+
+    // OnboardingPage extra
+    onboarding_name_subtitle: 'Echo will use this to address you.',
+    onboarding_back: 'Back',
+
     // SettingsPage
     settings_title: 'Settings',
     settings_subtitle: 'Manage your Echo preferences.',
@@ -151,7 +180,36 @@ const translations = {
     onboarding_loading_1: 'Configurando el idioma...',
     onboarding_loading_2: 'Hola {name}!',
     onboarding_loading_3: 'Personalizando tu experiencia...',
-    onboarding_loading_4: 'Echo esta listo.',
+    onboarding_loading_4: 'Echo está listo.',
+
+    // AuthPage
+    auth_tagline: 'Tu reflexión personal con IA',
+    auth_sign_in: 'Iniciar sesión',
+    auth_create_account: 'Crear cuenta',
+    auth_email: 'Email',
+    auth_password: 'Contraseña',
+    auth_loading: 'Cargando…',
+    auth_or: 'o',
+    auth_redirecting: 'Redirigiendo…',
+    auth_continue_google: 'Continuar con Google',
+    auth_no_account: '¿No tenés cuenta?',
+    auth_have_account: '¿Ya tenés cuenta?',
+    auth_sign_up: 'Registrate',
+    auth_confirm_email: 'Revisá tu email para confirmar tu cuenta.',
+
+    // MicButton / useSpeech
+    mic_not_supported: 'Reconocimiento de voz no soportado en este navegador',
+    mic_stop: 'Detener grabación',
+    mic_start: 'Iniciar voz',
+    mic_blocked: 'Micrófono bloqueado.',
+    mic_error: 'No se pudo iniciar el reconocimiento.',
+
+    // TodayPage extra
+    today_back_to_today: 'Volver a hoy',
+
+    // OnboardingPage extra
+    onboarding_name_subtitle: 'Echo te va a llamar por este nombre.',
+    onboarding_back: 'Volver',
 
     // SettingsPage
     settings_title: 'Ajustes',

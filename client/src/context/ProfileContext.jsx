@@ -25,7 +25,7 @@ export function ProfileProvider({ children }) {
         if ('language' in d) setLanguage(d.language || 'en');
         if ('bio' in d) setBio(d.bio || '');
       })
-      .catch(() => {}) // network error - preserve existing state
+      .catch((e) => console.error('Failed to load profile:', e)) // preserve existing state
       .finally(() => setProfileLoading(false));
   }, [user]);
 

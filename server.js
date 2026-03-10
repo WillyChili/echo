@@ -39,7 +39,14 @@ app.get('/.well-known/assetlinks.json', (req, res) => {
 app.get('/auth/callback', (req, res) => {
   const qs = require('querystring');
   const params = req.query;
-  const deepLink = 'com.willychili.echo://login?' + qs.stringify(params);
+  const queryString = qs.stringify(params);
+
+  // Intent URI: Chrome Custom Tab handles this natively to launch the app.
+  // Custom URI schemes (com.willychili.echo://) can be silently blocked by Chrome CCT;
+  // Intent URIs bypass that restriction and directly fire an Android Intent.
+  const intentUri  = `intent://login?${queryString}#Intent;scheme=com.willychili.echo;package=com.willychili.echo;end`;
+  // Fallback: plain custom scheme (works on some devices / other browsers)
+  const customUri  = `com.willychili.echo://login?${queryString}`;
 
   res.setHeader('Content-Type', 'text/html');
   res.send(`<!DOCTYPE html>
@@ -48,18 +55,39 @@ app.get('/auth/callback', (req, res) => {
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Echo – Sign in</title>
 <style>
+  *{box-sizing:border-box}
   body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     background:#0a0a0a;color:#fff;display:flex;flex-direction:column;
     align-items:center;justify-content:center;min-height:100vh;padding:24px;text-align:center}
-  h1{font-size:22px;font-weight:600;margin-bottom:8px}
-  p{color:#888;font-size:14px;margin-bottom:32px}
-  a{display:inline-block;background:#2dd4a0;color:#0a0a0a;text-decoration:none;
-    padding:16px 40px;border-radius:14px;font-weight:600;font-size:17px}
+  h1{font-size:22px;font-weight:600;margin:0 0 8px}
+  p{color:#888;font-size:14px;margin:0 0 32px}
+  .btn{display:inline-block;background:#2dd4a0;color:#0a0a0a;text-decoration:none;
+    padding:16px 40px;border-radius:14px;font-weight:700;font-size:17px;
+    transition:opacity .15s;-webkit-tap-highlight-color:transparent}
+  .btn:active,.btn.tapped{opacity:.6}
+  .hint{color:#555;font-size:12px;margin-top:20px}
 </style>
 </head><body>
 <h1>Almost there!</h1>
 <p>Tap the button to finish signing in to Echo.</p>
-<a href="${deepLink}">Open Echo</a>
+
+<a id="btn" class="btn" href="${intentUri}"
+   onclick="tap(event)">Open Echo</a>
+
+<p class="hint" id="hint"></p>
+
+<script>
+function tap(e){
+  var btn = document.getElementById('btn');
+  btn.classList.add('tapped');
+  document.getElementById('hint').textContent = 'Opening Echo…';
+  // After 2 s, if still here, try plain custom scheme as fallback
+  setTimeout(function(){
+    document.getElementById('hint').textContent = 'Trying fallback…';
+    window.location.href = '${customUri}';
+  }, 2000);
+}
+</script>
 </body></html>`);
 });
 

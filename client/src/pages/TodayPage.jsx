@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import MicButton from '../components/MicButton.jsx';
 import { Button } from '../components/ui/button.jsx';
 import { Textarea } from '../components/ui/textarea.jsx';
@@ -177,6 +178,7 @@ export default function TodayPage() {
   const { user } = useAuth();
   const { t, language } = useTranslation();
   const { displayName: profileDisplayName } = useProfile();
+  const navigate = useNavigate();
   const [refreshing, setRefreshing] = useState(false);
   const touchStartY = useRef(0);
 
@@ -471,6 +473,18 @@ export default function TodayPage() {
             {t('today_save')}
           </Button>
         </div>
+
+        {/* Ask Echo button — shown when a saved note is open in the editor */}
+        {!isNewEntry && content.trim() && (
+          <button
+            type="button"
+            onClick={() => navigate('/chat', { state: { prefill: content.trim() } })}
+            className="flex items-center gap-2 self-start text-sm font-medium text-mint active:opacity-60 transition-opacity select-none"
+          >
+            <span className="w-5 h-5 rounded-full bg-mint/15 border border-mint/30 flex items-center justify-center text-[10px] font-bold shrink-0">e</span>
+            {t('today_ask_echo')}
+          </button>
+        )}
 
         {/* EAI-13: Big centered mic (w-28) + EAI-14: spinning ring + waves */}
         <div className="flex flex-col items-center gap-4 py-2">

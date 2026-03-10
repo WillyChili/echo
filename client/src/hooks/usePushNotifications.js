@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { authFetch } from '../lib/api';
@@ -10,6 +10,15 @@ export function usePushNotifications() {
   const [enabled, setEnabled]   = useState(false);
   const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState(null);
+
+  // Restore persisted state on mount: if an fcm_token is saved in the profile, the
+  // toggle should show as ON — avoids the toggle always appearing OFF on re-entry.
+  useEffect(() => {
+    authFetch('/api/profile')
+      .then((r) => r.json())
+      .then((d) => { if (d.fcm_token) setEnabled(true); })
+      .catch(() => { /* silent */ });
+  }, []);
 
   // Register token with backend
   const saveToken = useCallback(async (token) => {

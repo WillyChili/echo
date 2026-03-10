@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import MicButton from '../components/MicButton.jsx';
 import UpgradeModal from '../components/UpgradeModal.jsx';
 import { useSpeech } from '../hooks/useSpeech.js';
@@ -21,10 +22,12 @@ function SendIcon() {
 export default function ChatPage() {
   const { t } = useTranslation();
   const { language, isSubscribed, chatsUsedToday, setChatsUsedToday } = useProfile();
+  const location = useLocation();
   const today = getToday();
 
   const [messages, setMessages]               = useState([]); // { role, text, date, created_at }
-  const [input, setInput]                     = useState('');
+  // Pre-fill input from navigation state (e.g. "Ask Echo about this" from Notes)
+  const [input, setInput]                     = useState(location.state?.prefill || '');
   const [isLoading, setIsLoading]             = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
   const [isLoadingMore, setIsLoadingMore]     = useState(false);

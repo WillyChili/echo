@@ -189,8 +189,11 @@ const translations = {
     settings_export_btn: 'Export my data',
     settings_export_loading: 'Exporting…',
 
+    // Notes → Ask Echo
+    today_ask_echo: 'Ask Echo about this',
+
     // Delete account
-    settings_delete_title: 'Danger zone',
+    settings_delete_title: 'Account',
     settings_delete_desc: 'Permanently delete your account and all data.',
     settings_delete_btn: 'Delete account',
     settings_delete_modal_title: 'Delete your account?',
@@ -391,8 +394,11 @@ const translations = {
     settings_export_btn: 'Exportar mis datos',
     settings_export_loading: 'Exportando…',
 
+    // Notes → Ask Echo
+    today_ask_echo: 'Consultarle a Echo sobre esto',
+
     // Delete account
-    settings_delete_title: 'Zona de peligro',
+    settings_delete_title: 'Cuenta',
     settings_delete_desc: 'Eliminá tu cuenta y todos tus datos permanentemente.',
     settings_delete_btn: 'Eliminar cuenta',
     settings_delete_modal_title: '¿Eliminar tu cuenta?',

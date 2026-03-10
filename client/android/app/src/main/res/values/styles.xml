@@ -13,8 +13,13 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:background">@null</item>
-        <item name="android:navigationBarColor">#0a0a0a</item>
+        <!-- Edge-to-edge: transparent nav bar so WebView renders behind it.
+             WindowCompat.setDecorFitsSystemWindows(false) in MainActivity
+             makes the WebView extend into the system bars area, and
+             CSS env(safe-area-inset-bottom) + viewport-fit=cover handle the padding. -->
+        <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowTranslucentNavigation">false</item>
+        <item name="android:enforceNavigationBarContrast">false</item>
     </style>
 
 

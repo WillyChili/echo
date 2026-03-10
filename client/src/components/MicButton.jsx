@@ -11,13 +11,15 @@ import { useTranslation } from '../hooks/useTranslation';
 export default function MicButton({ isRecording, isSupported, onToggle, size = 'md' }) {
   const { t } = useTranslation();
   const sizeClass =
-    size === 'sm' ? 'w-9 h-9' :
-    size === 'lg' ? 'w-28 h-28' :
+    size === 'sm'   ? 'w-9 h-9' :
+    size === 'lg'   ? 'w-28 h-28' :
+    size === 'home' ? 'w-[90px] h-[90px]' :  // EAI-40: 80% of lg (112px)
     'w-11 h-11';
 
   const iconClass =
-    size === 'sm' ? 'w-4 h-4' :
-    size === 'lg' ? 'w-10 h-10' :
+    size === 'sm'   ? 'w-4 h-4' :
+    size === 'lg'   ? 'w-10 h-10' :
+    size === 'home' ? 'w-8 h-8' :             // EAI-40: 80% of lg icon
     'w-5 h-5';
 
   if (!isSupported) {

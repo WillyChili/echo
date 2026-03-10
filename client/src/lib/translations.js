@@ -191,6 +191,7 @@ const translations = {
 
     // Notes → Ask Echo
     today_ask_echo: 'Ask Echo about this',
+    today_clear: 'Clear',
 
     // Delete account
     settings_delete_title: 'Account',
@@ -396,6 +397,7 @@ const translations = {
 
     // Notes → Ask Echo
     today_ask_echo: 'Consultarle a Echo sobre esto',
+    today_clear: 'Limpiar',
 
     // Delete account
     settings_delete_title: 'Cuenta',

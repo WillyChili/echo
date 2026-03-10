@@ -62,8 +62,8 @@ function WaveAnimation({ heights }) {
 
 // ── EAI-14: Spinning arc ring around mic button ───────────────────────────────
 function SpinningRing() {
-  // Button is w-28 = 112px; ring sits 10px outside it
-  const total = 132;
+  // EAI-40: Button is now 90px (home size); ring sits 10px outside it
+  const total = 110;
   const r = total / 2 - 4;
   const circ = 2 * Math.PI * r;
   const arc = circ * 0.28;
@@ -350,10 +350,15 @@ export default function TodayPage() {
           return next;
         });
       } else {
-        openNote(note);
+        // EAI-41: tap on already-active note → deselect (go back to new entry)
+        if (currentNoteId === note.id) {
+          startNewEntry();
+        } else {
+          openNote(note);
+        }
       }
     }
-  }, [selectionMode, openNote]);
+  }, [selectionMode, currentNoteId, openNote, startNewEntry]);
 
   const handlePressCancel = useCallback(() => {
     clearTimeout(longPressTimer.current);
@@ -372,6 +377,15 @@ export default function TodayPage() {
   }, [selectedIds, currentNoteId, startNewEntry, fetchAllNotes]);
 
   const isNewEntry = !currentNoteId && !viewingDate;
+
+  // EAI-42: save current note (if any content) then start fresh
+  const handleNewNote = useCallback(async () => {
+    if (content.trim()) {
+      await saveAndNew();
+    } else {
+      startNewEntry();
+    }
+  }, [content, saveAndNew, startNewEntry]);
 
   const handleTouchStart = (e) => {
     touchStartY.current = e.touches[0].clientY;
@@ -431,20 +445,21 @@ export default function TodayPage() {
           <div>
             {viewingDate ? (
               <>
-                <h1 className="text-xl font-semibold text-foreground leading-tight">{formatDate(viewingDate, language)}</h1>
+                <h1 className="text-2xl font-semibold text-foreground leading-tight">{formatDate(viewingDate, language)}</h1>
                 <p className="text-muted-foreground text-xs mt-0.5">{t('today_editing_past')}</p>
               </>
             ) : (
               <>
                 <p className="text-xs text-muted-foreground mb-0.5">{formatDate(todayDate, language)}</p>
-                <h1 className="text-xl font-semibold text-foreground leading-tight">
+                <h1 className="text-2xl font-semibold text-foreground leading-tight">
                   {t('today_greeting_hey')}{displayName ? <>, <span className="capitalize">{displayName}</span></> : ''}
                 </h1>
               </>
             )}
           </div>
-          {!isNewEntry && (
-            <Button variant="outline" size="sm" onClick={startNewEntry}>{t('today_new_note')}</Button>
+          {/* EAI-42: show while editing old note OR while writing new content */}
+          {(!isNewEntry || content.trim()) && (
+            <Button variant="outline" size="sm" onClick={handleNewNote}>{t('today_new_note')}</Button>
           )}
         </div>
 
@@ -464,6 +479,16 @@ export default function TodayPage() {
           }`}>
             {saveStatus === 'saving' ? t('today_saving') : t('today_saved')}
           </span>
+          {/* EAI-43: "Limpiar" to the left of "Guardar" */}
+          {content.trim() && (
+            <button
+              type="button"
+              onClick={() => { setContent(''); setSaveStatus(''); }}
+              className="absolute bottom-[14px] right-[5.5rem] text-xs text-muted-foreground active:opacity-60 transition-opacity select-none"
+            >
+              {t('today_clear')}
+            </button>
+          )}
           <Button
             size="sm"
             onClick={saveAndNew}
@@ -475,13 +500,13 @@ export default function TodayPage() {
         </div>
 
         {/* Ask Echo button — shown when a saved note is open in the editor */}
+        {/* EAI-44: removed avatar icon, keep text only */}
         {!isNewEntry && content.trim() && (
           <button
             type="button"
             onClick={() => navigate('/chat', { state: { prefill: content.trim() } })}
             className="flex items-center gap-2 self-start text-sm font-medium text-mint active:opacity-60 transition-opacity select-none"
           >
-            <span className="w-5 h-5 rounded-full bg-mint/15 border border-mint/30 flex items-center justify-center text-[10px] font-bold shrink-0">e</span>
             {t('today_ask_echo')}
           </button>
         )}
@@ -499,7 +524,7 @@ export default function TodayPage() {
                 isRecording={isRecording}
                 isSupported={isSupported}
                 onToggle={toggleMic}
-                size="lg"
+                size="home"
               />
             </div>
             <div className={`transition-opacity duration-300 ${isRecording ? 'opacity-100' : 'opacity-0'}`}>

@@ -7,6 +7,16 @@ export default {
       fontFamily: {
         sans: ['Geist', 'system-ui', 'sans-serif'],
       },
+      // EAI-39: bump all font sizes up by ~2px for readability
+      fontSize: {
+        xs:   ['0.875rem', { lineHeight: '1.25rem' }],  // 14px (was 12px)
+        sm:   ['1rem',     { lineHeight: '1.5rem'  }],  // 16px (was 14px)
+        base: ['1.125rem', { lineHeight: '1.75rem' }],  // 18px (was 16px)
+        lg:   ['1.25rem',  { lineHeight: '1.75rem' }],  // 20px (was 18px)
+        xl:   ['1.375rem', { lineHeight: '1.875rem'}],  // 22px (was 20px)
+        '2xl':['1.625rem', { lineHeight: '2rem'    }],  // 26px (was 24px)
+        '3xl':['2rem',     { lineHeight: '2.25rem' }],  // 32px (was 30px)
+      },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',

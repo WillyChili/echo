@@ -28,8 +28,8 @@ app.get('/.well-known/assetlinks.json', (req, res) => {
       sha256_cert_fingerprints: [
         // Debug key (Android Studio wireless debug)
         '06:1B:1C:D8:30:11:88:0C:37:E3:34:B0:6B:D5:FA:D3:D4:64:A6:84:65:27:66:1E:72:2F:96:0F:CE:31:85:ED',
-        // Release key (echo-release-v2.keystore)
-        '92:0C:67:6A:EF:F3:97:8B:DD:CE:19:81:FF:FB:0F:FE:90:38:97:55:22:5B:5C:6B:15:25:07:27:EF:7E:0B:73'
+        // App signing key (Google Play signs distributed APKs with this key)
+        '80:96:3B:CB:C6:1C:43:9D:9A:7F:8B:FD:E2:4B:49:DB:92:1C:5C:B6:A4:28:FA:C9:F5:45:C4:20:1F:8B:15:59'
       ]
     }
   }]);

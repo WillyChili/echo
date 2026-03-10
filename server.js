@@ -35,6 +35,10 @@ app.get('/.well-known/assetlinks.json', (req, res) => {
   }]);
 });
 
+// Allow any origin — must be before ALL routes so /auth/pending gets CORS headers
+app.use(cors({ origin: true }));
+app.use(express.json({ limit: '2mb' }));
+
 // ── OAuth polling store ───────────────────────────────────────────────────────
 // Maps session_id → { code, createdAt }. The Android app polls /auth/pending
 // after opening the browser — no deep links or Intent URIs needed.
@@ -96,9 +100,7 @@ app.get('/auth/pending', (req, res) => {
   res.json({ code: entry.code });
 });
 
-// Allow any origin in dev (phone, tablet, etc.)
-app.use(cors({ origin: true }));
-app.use(express.json({ limit: '2mb' }));
+// (cors and express.json already applied above)
 
 app.use('/api/notes',    notesRouter);
 app.use('/api/chat',     chatRouter);

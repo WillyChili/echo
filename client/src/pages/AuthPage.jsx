@@ -49,7 +49,6 @@ export default function AuthPage() {
   const [message, setMessage]   = useState(null);
   const [loading, setLoading]   = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
-  const [debugMsg, setDebugMsg] = useState(null);
 
   // Show OAuth errors from AuthContext
   useEffect(() => {
@@ -66,7 +65,6 @@ export default function AuthPage() {
   const startOAuthPolling = (sessionId) => {
     if (pollRef.current) clearInterval(pollRef.current);
     let attempts = 0;
-    setDebugMsg(`Polling... (id: ...${sessionId.slice(-6)})`);
     pollRef.current = setInterval(async () => {
       attempts++;
       if (attempts > 300) { // 10 min max
@@ -74,13 +72,11 @@ export default function AuthPage() {
         localStorage.removeItem('echo_pending_session_id');
         setError('Login timed out. Please try again.');
         setGoogleLoading(false);
-        setDebugMsg(null);
         return;
       }
       try {
         const res = await fetch(`${RAILWAY_URL}/auth/pending?session_id=${sessionId}`);
         const data = await res.json();
-        setDebugMsg(`Poll #${attempts}: ${data.code ? 'code found!' : 'pending...'}`);
         if (data.code) {
           clearInterval(pollRef.current);
           localStorage.removeItem('echo_pending_session_id');
@@ -88,22 +84,14 @@ export default function AuthPage() {
             const { Browser } = await import('@capacitor/browser');
             Browser.close().catch(() => {});
             const { error } = await supabase.auth.exchangeCodeForSession(data.code);
-            if (error) {
-              setError(`Exchange failed: ${error.message}`);
-              setDebugMsg(`Exchange error: ${error.message}`);
-            } else {
-              setDebugMsg('Exchange OK — logging in...');
-            }
+            if (error) setError(`Login failed: ${error.message}`);
           } catch (exchangeErr) {
-            setError(`Exchange exception: ${exchangeErr?.message ?? exchangeErr}`);
-            setDebugMsg(`Exception: ${exchangeErr?.message ?? exchangeErr}`);
+            setError(`Login failed: ${exchangeErr?.message ?? 'Unknown error'}`);
           } finally {
             setGoogleLoading(false);
           }
         }
-      } catch (fetchErr) {
-        setDebugMsg(`Fetch error #${attempts}: ${fetchErr?.message}`);
-      }
+      } catch (_) { /* network hiccup, keep polling */ }
     }, 2000);
   };
 
@@ -320,8 +308,6 @@ export default function AuthPage() {
                 <GoogleIcon />
                 {googleLoading ? t('auth_redirecting') : t('auth_continue_google')}
               </button>
-              {debugMsg && <p className="text-xs text-muted-foreground text-center mt-1 font-mono">{debugMsg}</p>}
-
               <p className="text-xs text-muted-foreground text-center mt-4">
                 {mode === 'login' ? t('auth_no_account') : t('auth_have_account')}{' '}
                 <button

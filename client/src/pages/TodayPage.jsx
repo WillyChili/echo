@@ -186,12 +186,13 @@ export default function TodayPage() {
   const displayName = profileDisplayName || user?.email?.split('@')[0] || '';
 
   // EAI-16: id-based tracking (null = fresh new entry)
-  const [currentNoteId, setCurrentNoteId] = useState(null);
-  const [content, setContent] = useState('');
+  // Seed from localStorage so drafts survive app backgrounding
+  const [currentNoteId, setCurrentNoteId] = useState(() => localStorage.getItem('echo_draft_note_id') || null);
+  const [content, setContent] = useState(() => localStorage.getItem('echo_draft_content') || '');
   const [notes, setNotes] = useState([]);
   const [saveStatus, setSaveStatus] = useState('');
   const [micError, setMicError] = useState(null);
-  const [viewingDate, setViewingDate] = useState(null);
+  const [viewingDate, setViewingDate] = useState(() => localStorage.getItem('echo_draft_viewing_date') || null);
 
   // Calendar date picker
   const [selectedDate, setSelectedDate] = useState(todayDate);
@@ -242,6 +243,21 @@ export default function TodayPage() {
   }, []);
 
   useEffect(() => { fetchAllNotes(); }, [fetchAllNotes]);
+
+  // Persist draft to localStorage so it survives app backgrounding
+  useEffect(() => {
+    if (content.trim()) {
+      localStorage.setItem('echo_draft_content', content);
+      if (currentNoteId) localStorage.setItem('echo_draft_note_id', currentNoteId);
+      else localStorage.removeItem('echo_draft_note_id');
+      if (viewingDate) localStorage.setItem('echo_draft_viewing_date', viewingDate);
+      else localStorage.removeItem('echo_draft_viewing_date');
+    } else {
+      localStorage.removeItem('echo_draft_content');
+      localStorage.removeItem('echo_draft_note_id');
+      localStorage.removeItem('echo_draft_viewing_date');
+    }
+  }, [content, currentNoteId, viewingDate]);
 
   // Derived: notes for selected date + all dates that have notes (for calendar dots)
   const displayedNotes = notes.filter(n => n.date === selectedDate);
@@ -300,6 +316,9 @@ export default function TodayPage() {
       if (res.ok) {
         setSaveStatus('saved');
         fetchAllNotes();
+        localStorage.removeItem('echo_draft_content');
+        localStorage.removeItem('echo_draft_note_id');
+        localStorage.removeItem('echo_draft_viewing_date');
         setTimeout(() => {
           setSaveStatus('');
           setContent('');
@@ -323,6 +342,9 @@ export default function TodayPage() {
     setCurrentNoteId(null);
     setViewingDate(null);
     setSaveStatus('');
+    localStorage.removeItem('echo_draft_content');
+    localStorage.removeItem('echo_draft_note_id');
+    localStorage.removeItem('echo_draft_viewing_date');
   }, []);
 
   // ── Long-press handlers ───────────────────────────────────────────────────
@@ -483,7 +505,7 @@ export default function TodayPage() {
           {content.trim() && (
             <button
               type="button"
-              onClick={() => { setContent(''); setSaveStatus(''); }}
+              onClick={() => { setContent(''); setSaveStatus(''); localStorage.removeItem('echo_draft_content'); localStorage.removeItem('echo_draft_note_id'); localStorage.removeItem('echo_draft_viewing_date'); }}
               className="absolute bottom-[14px] right-[5.5rem] text-xs text-muted-foreground active:opacity-60 transition-opacity select-none"
             >
               {t('today_clear')}

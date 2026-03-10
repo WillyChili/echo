@@ -20,8 +20,10 @@ function Spinner() {
 
 function ProtectedRoutes() {
   const { displayName, profileLoading } = useProfile();
-  if (profileLoading) return <Spinner />;
-  // null = profile fetch failed; don't trigger onboarding, just wait
+  // Only block with spinner on first load (no cached data yet).
+  // On app resume / token refresh, displayName is already in localStorage
+  // so we let the profile re-fetch happen silently in the background.
+  if (profileLoading && displayName === null) return <Spinner />;
   if (displayName === null) return <Spinner />;
   if (!displayName) return <OnboardingPage />;
   return (

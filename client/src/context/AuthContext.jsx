@@ -21,9 +21,18 @@ export function AuthProvider({ children }) {
 
     // Listen for auth changes (login, logout, token refresh)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT') localStorage.removeItem('echo_display_name');
-      setSession(session);
-      setUser(session?.user ?? null);
+      if (event === 'SIGNED_OUT') {
+        localStorage.removeItem('echo_display_name');
+        setSession(null);
+        setUser(null);
+      } else if (event === 'TOKEN_REFRESHED') {
+        // Update tokens silently — don't touch user state so we don't
+        // re-trigger profile fetches and show a loading spinner on app resume
+        setSession(session);
+      } else {
+        setSession(session);
+        setUser(session?.user ?? null);
+      }
     });
 
     return () => subscription.unsubscribe();

@@ -28,6 +28,7 @@ const translations = {
     today_selected: 'selected',
     today_cancel: 'Cancel',
     today_delete: 'Delete',
+    today_delete_confirm: 'Delete this note?',
     today_back_to_today: 'Back to today',
 
     // ChatPage
@@ -58,8 +59,8 @@ const translations = {
     pricing_feat_chats_pro: 'Unlimited chats',
     pricing_feat_notes: 'Unlimited notes',
     pricing_feat_tone: 'Custom Echo personality',
-    pricing_feat_digest_free: '1 weekly digest',
-    pricing_feat_digest_pro: 'Unlimited digests',
+    pricing_feat_digest_free: '1 weekly summary',
+    pricing_feat_digest_pro: 'Unlimited summaries',
     pricing_android_only: 'Subscriptions are only available in the Android app.',
 
     // AuthPage
@@ -171,7 +172,7 @@ const translations = {
     onboarding_tone_curious_desc: 'Thoughtful and exploratory. Echo asks questions.',
 
     // Digest settings
-    settings_digest_title: 'Periodic Digest',
+    settings_digest_title: 'Weekly Summary',
     settings_digest_desc: 'Echo will send you a summary of your notes as a chat message on a schedule you choose.',
     settings_digest_frequency_label: 'Every',
     settings_digest_frequency_unit: 'days',
@@ -179,8 +180,8 @@ const translations = {
     settings_digest_window_unit: 'days of notes',
     settings_digest_save: 'Save',
     settings_digest_saved: 'Saved ✓',
-    settings_digest_email_label: 'Send digest by email',
-    settings_digest_email_desc: 'Receive your digest in your inbox in addition to the chat.',
+    settings_digest_email_label: 'Send summary by email',
+    settings_digest_email_desc: 'Receive your summary in your inbox in addition to the chat.',
 
     // Export data
     settings_export_title: 'Export your data',
@@ -228,6 +229,7 @@ const translations = {
     today_selected: 'seleccionados',
     today_cancel: 'Cancelar',
     today_delete: 'Eliminar',
+    today_delete_confirm: '¿Eliminar esta nota?',
     today_back_to_today: 'Volver a hoy',
 
     // ChatPage
@@ -380,7 +382,7 @@ const translations = {
     settings_digest_window_unit: 'días de notas',
     settings_digest_save: 'Guardar',
     settings_digest_saved: 'Guardado ✓',
-    settings_digest_email_label: 'Recibir digest por email',
+    settings_digest_email_label: 'Recibir resumen por email',
     settings_digest_email_desc: 'Recibí el resumen en tu bandeja además del chat.',
 
     // Export data

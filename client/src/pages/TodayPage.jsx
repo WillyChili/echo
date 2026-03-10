@@ -204,6 +204,7 @@ export default function TodayPage() {
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [pressingId, setPressingId] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const longPressTimer = useRef(null);
   const longPressFired = useRef(false);
 
@@ -357,7 +358,7 @@ export default function TodayPage() {
     setPressingId(null);
   }, []);
 
-  const cancelSelection = () => { setSelectionMode(false); setSelectedIds(new Set()); };
+  const cancelSelection = () => { setSelectionMode(false); setSelectedIds(new Set()); setConfirmDelete(false); };
 
   const deleteSelected = useCallback(async () => {
     const ids = Array.from(selectedIds);
@@ -388,13 +389,27 @@ export default function TodayPage() {
       {/* Selection toolbar */}
       {selectionMode && (
         <div className="fixed bottom-0 left-0 right-0 z-chrome bg-background border-t border-border px-4 py-3 pb-6 flex items-center justify-between gap-4">
-          <span className="text-sm text-foreground font-medium">{selectedIds.size} {t('today_selected')}</span>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={cancelSelection}>{t('today_cancel')}</Button>
-            <Button variant="destructive" size="sm" onClick={deleteSelected}>
-              {t('today_delete')}{selectedIds.size > 1 ? ` (${selectedIds.size})` : ''}
-            </Button>
-          </div>
+          {confirmDelete ? (
+            <>
+              <span className="text-sm text-destructive font-medium">{t('today_delete_confirm')}</span>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" onClick={() => setConfirmDelete(false)}>{t('today_cancel')}</Button>
+                <Button variant="destructive" size="sm" onClick={async () => { setConfirmDelete(false); await deleteSelected(); }}>
+                  {t('today_delete')}{selectedIds.size > 1 ? ` (${selectedIds.size})` : ''}
+                </Button>
+              </div>
+            </>
+          ) : (
+            <>
+              <span className="text-sm text-foreground font-medium">{selectedIds.size} {t('today_selected')}</span>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" onClick={cancelSelection}>{t('today_cancel')}</Button>
+                <Button variant="destructive" size="sm" onClick={() => setConfirmDelete(true)}>
+                  {t('today_delete')}{selectedIds.size > 1 ? ` (${selectedIds.size})` : ''}
+                </Button>
+              </div>
+            </>
+          )}
         </div>
       )}
 

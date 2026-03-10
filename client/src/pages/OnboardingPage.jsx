@@ -19,14 +19,8 @@ const PARTICLES = [
   { angle: '315deg',  r: '84px', duration: '3.8s', size: 4, opacity: 0.8 },
 ];
 
-function ParticleBurst({ messages }) {
-  const [msgIndex, setMsgIndex] = useState(0);
+function ParticleBurst() {
   const [progress, setProgress] = useState(0);
-
-  useEffect(() => {
-    const iv = setInterval(() => setMsgIndex((i) => (i + 1) % messages.length), 875);
-    return () => clearInterval(iv);
-  }, [messages.length]);
 
   useEffect(() => {
     const t = setTimeout(() => setProgress(100), 50);
@@ -50,15 +44,6 @@ function ParticleBurst({ messages }) {
             }}
           />
         ))}
-      </div>
-      <div className="mt-10 h-6 flex items-center justify-center">
-        <p
-          key={msgIndex}
-          className="text-sm text-muted-foreground text-center"
-          style={{ animation: 'fade-message 0.875s ease-in-out forwards' }}
-        >
-          {messages[msgIndex]}
-        </p>
       </div>
       <div className="mt-6 w-48 h-0.5 bg-border rounded-full overflow-hidden">
         <div
@@ -180,7 +165,7 @@ export default function OnboardingPage() {
   ];
 
   // ── Loading screen ──────────────────────────────────────────────────────────
-  if (step === 3) return <ParticleBurst messages={loadingMessages} />;
+  if (step === 3) return <ParticleBurst />;
 
   const slideStyle = {
     animation: `${direction === 'right' ? 'slide-in-right' : 'slide-in-left'} 0.28s ease-out both`,

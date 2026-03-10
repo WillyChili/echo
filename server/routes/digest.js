@@ -3,6 +3,7 @@ const router = express.Router();
 const supabase = require('../supabase');
 const auth = require('../middleware/auth');
 const { Resend } = require('resend');
+const { sendPushToUser } = require('./push');
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
@@ -207,6 +208,13 @@ Rules:
       .from('profiles')
       .update({ last_digest_at: new Date().toISOString() })
       .eq('id', req.user.id);
+
+    // Send push notification
+    try {
+      const pushTitle = lang === 'Spanish' ? '¡Tu resumen de Echo está listo!' : 'Your Echo summary is ready!';
+      const pushBody  = lang === 'Spanish' ? 'Abrí Echo para leerlo.' : 'Open Echo to read it.';
+      await sendPushToUser(req.user.id, pushTitle, pushBody);
+    } catch (_) { /* never block response */ }
 
     // Send email if enabled
     if (profile?.digest_email_enabled && resend) {

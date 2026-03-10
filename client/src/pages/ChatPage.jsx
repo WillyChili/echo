@@ -342,7 +342,7 @@ function MessageBubble({ msg }) {
   if (isUser) {
     return (
       <div className="flex justify-end">
-        <div className="max-w-[76%] bg-secondary text-foreground rounded-2xl rounded-tr-sm px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap squircle">
+        <div className="max-w-[76%] bg-mint/15 text-foreground rounded-2xl rounded-tr-sm px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap squircle">
           {msg.text}
         </div>
       </div>

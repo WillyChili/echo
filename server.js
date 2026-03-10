@@ -1,6 +1,7 @@
 require('dotenv').config({ override: true });
 const express = require('express');
 const cors = require('cors');
+const cron = require('node-cron');
 
 const notesRouter    = require('./server/routes/notes');
 const chatRouter     = require('./server/routes/chat');
@@ -112,6 +113,32 @@ app.use('/api/account',  accountRouter);
 
 // Health check
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
+
+// ── Daily reminder push notification (9 AM UTC) ───────────────────────────────
+const supabaseAdmin = require('./server/supabase');
+const { sendPushToUser } = require('./server/routes/push');
+
+cron.schedule('0 9 * * *', async () => {
+  console.log('[cron] Sending daily reminders...');
+  try {
+    const { data: users, error } = await supabaseAdmin
+      .from('profiles')
+      .select('id, language, fcm_token')
+      .not('fcm_token', 'is', null);
+
+    if (error) { console.error('[cron] Error fetching users:', error); return; }
+
+    for (const user of users || []) {
+      const isEs = user.language === 'es';
+      const title = isEs ? '¿Qué tenés en mente hoy?' : "What's on your mind today?";
+      const body  = isEs ? 'Tomá un momento para escribir tus pensamientos.' : 'Take a moment to write your thoughts.';
+      await sendPushToUser(user.id, title, body);
+    }
+    console.log(`[cron] Sent reminders to ${(users || []).length} users.`);
+  } catch (err) {
+    console.error('[cron] Daily reminder error:', err);
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Echo server running on http://localhost:${PORT}`);

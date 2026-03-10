@@ -31,6 +31,7 @@ function GoogleIcon() {
 export default function AuthPage() {
   const { oauthError, clearOauthError } = useAuth();
   const [lang, setLang] = useState(() => localStorage.getItem('echo_lang') || 'en');
+  const [oauthDebug, setOauthDebug] = useState(() => localStorage.getItem('echo_oauth_debug') || '');
   const t = (key) => translations[lang]?.[key] ?? translations.en[key] ?? key;
 
   const toggleLang = () => {
@@ -51,6 +52,15 @@ export default function AuthPage() {
   useEffect(() => {
     if (oauthError) { setError(oauthError); clearOauthError(); }
   }, [oauthError]);
+
+  // Poll localStorage for debug info (updates after appUrlOpen fires)
+  useEffect(() => {
+    const id = setInterval(() => {
+      const v = localStorage.getItem('echo_oauth_debug') || '';
+      if (v) setOauthDebug(v);
+    }, 500);
+    return () => clearInterval(id);
+  }, []);
 
   const resetForm = () => { setError(null); setMessage(null); };
 
@@ -271,6 +281,13 @@ export default function AuthPage() {
           )}
         </div>
       </div>
+
+      {/* OAuth debug info — remove before production */}
+      {oauthDebug ? (
+        <p style={{fontSize:10,color:'#666',marginTop:12,wordBreak:'break-all',maxWidth:320,textAlign:'left'}}>
+          🔍 {oauthDebug}
+        </p>
+      ) : null}
     </div>
   );
 }

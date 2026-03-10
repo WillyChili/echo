@@ -37,7 +37,7 @@ export function AuthProvider({ children }) {
     const handleOAuthUrl = async (url) => {
       if (!url) return;
       console.log('[Echo] appUrlOpen received:', url);
-      localStorage.setItem('echo_last_oauth_url', url); // diagnostic
+      localStorage.setItem('echo_oauth_debug', 'STEP1: received url=' + url.substring(0, 120));
 
       // PKCE flow: URL contains ?code=...
       const queryParams = new URLSearchParams(url.split('?')[1] || '');
@@ -57,12 +57,19 @@ export function AuthProvider({ children }) {
 
       try {
         if (code) {
-          const { error } = await supabase.auth.exchangeCodeForSession(code);
-          if (error) { setOauthError(`Code exchange failed: ${error.message}`); return; }
+          localStorage.setItem('echo_oauth_debug', 'STEP2: exchanging code=' + code.substring(0, 20));
+          const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+          if (error) {
+            localStorage.setItem('echo_oauth_debug', 'STEP3_ERR: ' + error.message);
+            setOauthError(`Code exchange failed: ${error.message}`);
+            return;
+          }
+          localStorage.setItem('echo_oauth_debug', 'STEP3_OK: session=' + (data?.session ? 'yes' : 'null'));
         } else if (accessToken && refreshToken) {
           const { error } = await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
           if (error) { setOauthError(`Set session failed: ${error.message}`); return; }
         } else {
+          localStorage.setItem('echo_oauth_debug', 'STEP2_ERR: no code, no tokens. url=' + url.substring(0, 80));
           setOauthError(`No auth params in callback URL`);
           return;
         }
@@ -70,6 +77,7 @@ export function AuthProvider({ children }) {
         const { Browser } = await import('@capacitor/browser');
         Browser.close().catch(() => {});
       } catch (e) {
+        localStorage.setItem('echo_oauth_debug', 'EXCEPTION: ' + e.message);
         setOauthError(`OAuth exception: ${e.message}`);
         console.error('[Echo] OAuth callback error:', e);
       }
@@ -91,6 +99,7 @@ export function AuthProvider({ children }) {
       // Handle case where app was already running and deep link fires
       // (fires for both custom scheme and verified HTTPS App Links)
       appUrlListener = await CapApp.addListener('appUrlOpen', ({ url }) => {
+        localStorage.setItem('echo_oauth_debug', 'appUrlOpen fired: ' + (url || 'null').substring(0, 120));
         if (isOAuthCallback(url)) handleOAuthUrl(url);
       });
     };

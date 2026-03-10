@@ -3,13 +3,15 @@ import { useTranslation } from './useTranslation';
 
 const LOCALE_MAP = { en: 'en-US', es: 'es-ES' };
 
-// Use the device/browser language for speech recognition, NOT the app's UI language.
-// This ensures the microphone understands what the user actually speaks regardless of
-// which display language they've chosen in Echo.
+// Resolve the BCP-47 locale for speech recognition.
+// Priority: (1) app language the user explicitly chose in Echo settings,
+// (2) device/browser language as a fallback, (3) en-US as last resort.
+// navigator.language is unreliable inside a Capacitor WebView and can return
+// the wrong locale, so we always prefer the user's explicit selection first.
 function getVoiceLang(appLanguage) {
-  // navigator.language is the device/browser preferred language (e.g. 'es-AR', 'en-US')
+  if (appLanguage && LOCALE_MAP[appLanguage]) return LOCALE_MAP[appLanguage];
   const deviceLang = typeof navigator !== 'undefined' ? navigator.language : '';
-  return deviceLang || LOCALE_MAP[appLanguage] || 'en-US';
+  return deviceLang || 'en-US';
 }
 
 export function useSpeech(onTranscript) {
@@ -41,7 +43,7 @@ export function useSpeech(onTranscript) {
     const r = new SpeechRecognitionClass();
     r.continuous = false;    // one utterance at a time → clean result list each session
     r.interimResults = true; // show text while speaking
-    r.lang = getVoiceLang(language); // use device language, not app UI language
+    r.lang = getVoiceLang(language); // app language first, then device locale
     r.maxAlternatives = 1;
 
     r.onresult = (event) => {

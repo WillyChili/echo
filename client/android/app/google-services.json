@@ -12,7 +12,12 @@
           "package_name": "com.willychili.echo"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "22965448469-7ed6fcmhk7qujief76s8nssfvtt65sl8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBWEEe8W3Upd5EMHBTJIANZb-_J5zZ57iI"
@@ -20,7 +25,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "22965448469-7ed6fcmhk7qujief76s8nssfvtt65sl8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

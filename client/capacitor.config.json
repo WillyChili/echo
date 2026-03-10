@@ -1,5 +1,12 @@
 {
   "appId": "com.willychili.echo",
   "appName": "Echo",
-  "webDir": "dist"
+  "webDir": "dist",
+  "plugins": {
+    "GoogleAuth": {
+      "scopes": ["profile", "email"],
+      "serverClientId": "22965448469-7ed6fcmhk7qujief76s8nssfvtt65sl8.apps.googleusercontent.com",
+      "forceCodeForRefreshToken": true
+    }
+  }
 }

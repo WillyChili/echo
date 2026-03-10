@@ -96,8 +96,8 @@ export default function AuthPage() {
     resetForm();
     try {
       if (Capacitor.isNativePlatform()) {
-        // Native: open system browser so the app WebView stays alive,
-        // then receive the callback via the com.willychili.echo:// deep link.
+        // Native Android: open OAuth in browser, server shows "Open Echo" button
+        // User taps button → custom scheme → appUrlOpen fires (bypasses MIUI background restriction)
         const { data, error } = await supabase.auth.signInWithOAuth({
           provider: 'google',
           options: {
@@ -107,25 +107,7 @@ export default function AuthPage() {
         });
         if (error) throw error;
         if (data?.url) {
-          // Clear any previous diagnostic so we get fresh info
-          localStorage.removeItem('echo_last_oauth_url');
-
-          // Diagnostic: after browser closes, check if appUrlOpen fired
-          const finishedListener = await Browser.addListener('browserFinished', async () => {
-            await finishedListener.remove();
-            // Wait 1.5 s for appUrlOpen to fire first
-            await new Promise(r => setTimeout(r, 1500));
-            const gotUrl = localStorage.getItem('echo_last_oauth_url');
-            if (!gotUrl) {
-              // appUrlOpen never fired — show diagnostic
-              setError('DEBUG: browser closed but no deep link received (appUrlOpen did not fire). Did you see the "Signing in to Echo" page?');
-            }
-            setGoogleLoading(false);
-          });
-
           await Browser.open({ url: data.url });
-        } else {
-          setGoogleLoading(false);
         }
       } else {
         // Web: normal redirect flow
@@ -137,6 +119,7 @@ export default function AuthPage() {
       }
     } catch (err) {
       setError(err.message);
+    } finally {
       setGoogleLoading(false);
     }
   };

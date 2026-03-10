@@ -25,15 +25,6 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="com.willychili.echo" />
             </intent-filter>
-            <!-- Android App Links: OS-level interception of HTTPS redirect (no Chrome involvement) -->
-            <intent-filter android:autoVerify="true">
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https"
-                      android:host="echo-production-c241.up.railway.app"
-                      android:pathPrefix="/auth/callback" />
-            </intent-filter>
         </activity>
 
         <provider

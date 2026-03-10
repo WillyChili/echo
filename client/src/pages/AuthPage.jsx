@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import translations from '../lib/translations';
 import { Capacitor } from '@capacitor/core';
@@ -28,11 +28,13 @@ function GoogleIcon() {
   );
 }
 
+const RAILWAY_URL = 'https://echo-production-c241.up.railway.app';
+
 export default function AuthPage() {
   const { oauthError, clearOauthError } = useAuth();
   const [lang, setLang] = useState(() => localStorage.getItem('echo_lang') || 'en');
-  const [oauthDebug, setOauthDebug] = useState(() => localStorage.getItem('echo_oauth_debug') || '');
   const t = (key) => translations[lang]?.[key] ?? translations.en[key] ?? key;
+  const pollRef = useRef(null);
 
   const toggleLang = () => {
     const next = lang === 'en' ? 'es' : 'en';
@@ -48,19 +50,45 @@ export default function AuthPage() {
   const [loading, setLoading]   = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
-  // Show OAuth errors from AuthContext (deep link callback failures)
+  // Show OAuth errors from AuthContext
   useEffect(() => {
     if (oauthError) { setError(oauthError); clearOauthError(); }
   }, [oauthError]);
 
-  // Poll localStorage for debug info (updates after appUrlOpen fires)
+  // Resume polling if app was killed and relaunched mid-OAuth
   useEffect(() => {
-    const id = setInterval(() => {
-      const v = localStorage.getItem('echo_oauth_debug') || '';
-      if (v) setOauthDebug(v);
-    }, 500);
-    return () => clearInterval(id);
+    const pending = localStorage.getItem('echo_pending_session_id');
+    if (pending) startOAuthPolling(pending);
+    return () => { if (pollRef.current) clearInterval(pollRef.current); };
   }, []);
+
+  const startOAuthPolling = (sessionId) => {
+    if (pollRef.current) clearInterval(pollRef.current);
+    let attempts = 0;
+    pollRef.current = setInterval(async () => {
+      attempts++;
+      if (attempts > 300) { // 10 min max
+        clearInterval(pollRef.current);
+        localStorage.removeItem('echo_pending_session_id');
+        setError('Login timed out. Please try again.');
+        setGoogleLoading(false);
+        return;
+      }
+      try {
+        const res = await fetch(`${RAILWAY_URL}/auth/pending?session_id=${sessionId}`);
+        const data = await res.json();
+        if (data.code) {
+          clearInterval(pollRef.current);
+          localStorage.removeItem('echo_pending_session_id');
+          const { Browser } = await import('@capacitor/browser');
+          Browser.close().catch(() => {});
+          const { error } = await supabase.auth.exchangeCodeForSession(data.code);
+          if (error) setError(`Login failed: ${error.message}`);
+          setGoogleLoading(false);
+        }
+      } catch (_) { /* network hiccup, keep polling */ }
+    }, 2000);
+  };
 
   const resetForm = () => { setError(null); setMessage(null); };
 
@@ -104,20 +132,27 @@ export default function AuthPage() {
   const handleGoogle = async () => {
     setGoogleLoading(true);
     resetForm();
+    let pollingStarted = false;
     try {
       if (Capacitor.isNativePlatform()) {
-        // Native Android: open OAuth in browser, server shows "Open Echo" button
-        // User taps button → custom scheme → appUrlOpen fires (bypasses MIUI background restriction)
+        // Native Android: polling approach — no deep links or Intent URIs needed.
+        // The app polls /auth/pending every 2 s; the Railway server stores the
+        // auth code when Supabase redirects to /auth/callback?session_id=XXX&code=YYY.
+        const sessionId = (crypto.randomUUID?.() ?? Math.random().toString(36).slice(2)) + Date.now().toString(36);
+        localStorage.setItem('echo_pending_session_id', sessionId);
+
         const { data, error } = await supabase.auth.signInWithOAuth({
           provider: 'google',
           options: {
-            redirectTo: 'https://echo-production-c241.up.railway.app/auth/callback',
+            redirectTo: `${RAILWAY_URL}/auth/callback?session_id=${sessionId}`,
             skipBrowserRedirect: true,
           },
         });
         if (error) throw error;
         if (data?.url) {
           await Browser.open({ url: data.url });
+          startOAuthPolling(sessionId);
+          pollingStarted = true; // polling will call setGoogleLoading(false) when done
         }
       } else {
         // Web: normal redirect flow
@@ -129,8 +164,9 @@ export default function AuthPage() {
       }
     } catch (err) {
       setError(err.message);
+      localStorage.removeItem('echo_pending_session_id');
     } finally {
-      setGoogleLoading(false);
+      if (!pollingStarted) setGoogleLoading(false);
     }
   };
 
@@ -282,12 +318,6 @@ export default function AuthPage() {
         </div>
       </div>
 
-      {/* OAuth debug info — remove before production */}
-      {oauthDebug ? (
-        <p style={{fontSize:10,color:'#666',marginTop:12,wordBreak:'break-all',maxWidth:320,textAlign:'left'}}>
-          🔍 {oauthDebug}
-        </p>
-      ) : null}
     </div>
   );
 }

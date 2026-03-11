@@ -90,7 +90,7 @@ export default function Nav() {
   return (
     <>
       <nav
-        className="fixed top-0 left-0 right-0 z-10 border-b border-border/60 bg-background/90 backdrop-blur-sm"
+        className="fixed top-0 left-0 right-0 z-10 border-b border-border/60 bg-background"
         style={{ paddingTop: 'env(safe-area-inset-top)' }}
       >
         <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">

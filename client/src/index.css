@@ -35,6 +35,8 @@
     padding-bottom: env(safe-area-inset-bottom);
     -webkit-user-select: none;
     user-select: none;
+    /* Prevent rubber-band overscroll from letting content bleed behind the fixed nav */
+    overscroll-behavior: none;
   }
 
   textarea, input {

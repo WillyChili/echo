@@ -28,7 +28,7 @@ function ProtectedRoutes() {
   if (!displayName) return <OnboardingPage />;
   return (
     <div
-      className="min-h-screen flex flex-col bg-background"
+      className="h-screen flex flex-col bg-background overflow-hidden"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       <Nav />

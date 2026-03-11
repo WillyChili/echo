@@ -27,7 +27,10 @@ function ProtectedRoutes() {
   if (displayName === null) return <Spinner />;
   if (!displayName) return <OnboardingPage />;
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div
+      className="min-h-screen flex flex-col bg-background"
+      style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}
+    >
       <Nav />
       <main className="flex-1 flex flex-col">
         <Routes>

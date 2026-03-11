@@ -29,9 +29,11 @@ function ProtectedRoutes() {
   return (
     <div
       className="min-h-screen flex flex-col bg-background"
-      style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}
+      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       <Nav />
+      {/* Spacer that matches the fixed Nav height (h-14 + status bar safe area) */}
+      <div style={{ height: 'calc(3.5rem + env(safe-area-inset-top))', flexShrink: 0 }} />
       <main className="flex-1 flex flex-col">
         <Routes>
           <Route path="/"         element={<TodayPage />} />

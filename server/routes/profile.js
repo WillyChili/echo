@@ -39,6 +39,17 @@ router.post('/', async (req, res) => {
 
     if (Object.keys(fields).length === 0) return res.json({ success: true });
 
+    // If registering a new FCM token, remove it from any other profile first.
+    // This prevents duplicate notifications when the same device is used by
+    // multiple accounts (e.g. tester switching between accounts).
+    if (fcm_token) {
+      await supabase
+        .from('profiles')
+        .update({ fcm_token: null })
+        .eq('fcm_token', fcm_token)
+        .neq('id', req.user.id);
+    }
+
     // Use upsert so it works even if the profile row was never auto-created
     const { error } = await supabase
       .from('profiles')

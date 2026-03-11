@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Monochrome notification icon — concentric rings matching the Echo logo.
+     Must be white on transparent for Android 5+ notification tray. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Center filled dot -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M12,10 A2,2,0,1,0,12,14 A2,2,0,1,0,12,10 Z" />
+
+    <!-- Inner ring -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="1.5"
+        android:pathData="M12,6.5 A5.5,5.5,0,1,0,12,17.5 A5.5,5.5,0,1,0,12,6.5 Z" />
+
+    <!-- Outer ring -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="1.5"
+        android:pathData="M12,2 A10,10,0,1,0,12,22 A10,10,0,1,0,12,2 Z" />
+
+</vector>

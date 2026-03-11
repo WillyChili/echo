@@ -183,7 +183,7 @@ export default function OnboardingPage() {
           <div key={0} style={slideStyle} className="text-center">
             <LangToggle lang={lang} onChange={changeLang} />
             <EchoIllustration />
-            <h1 className="text-xl font-semibold text-foreground mb-3">
+            <h1 className="text-2xl font-semibold text-foreground mb-3">
               {t('onboarding_intro_title')}
             </h1>
             <p className="text-sm text-muted-foreground leading-relaxed mb-8">
@@ -199,7 +199,7 @@ export default function OnboardingPage() {
         {/* ── Step 1: Name ─────────────────────────────────────────────────── */}
         {step === 1 && (
           <div key={1} style={slideStyle} className="text-center">
-            <h1 className="text-xl font-semibold text-foreground mb-2">
+            <h1 className="text-2xl font-semibold text-foreground mb-2">
               {t('onboarding_name_title')}
             </h1>
             <p className="text-sm text-muted-foreground mb-8">
@@ -228,7 +228,7 @@ export default function OnboardingPage() {
         {step === 2 && (
           <div key={2} style={slideStyle} className="text-center">
             <NotesIllustration />
-            <h1 className="text-xl font-semibold text-foreground mb-3">
+            <h1 className="text-2xl font-semibold text-foreground mb-3">
               {t('onboarding_notes_title')}
             </h1>
             <p className="text-sm text-muted-foreground leading-relaxed mb-8">

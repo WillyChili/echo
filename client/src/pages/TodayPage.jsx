@@ -202,6 +202,8 @@ export default function TodayPage() {
     return { year: d.getFullYear(), month: d.getMonth() };
   });
   const calendarRef = useRef(null);
+  const [visibleCount, setVisibleCount] = useState(10);
+  const sentinelRef = useRef(null);
 
   // EAI-10: Long-press selection
   const [selectionMode, setSelectionMode] = useState(false);
@@ -244,8 +246,12 @@ export default function TodayPage() {
 
   useEffect(() => { fetchAllNotes(); }, [fetchAllNotes]);
 
-  // Persist draft to localStorage so it survives app backgrounding
+  // Persist draft to localStorage so it survives app backgrounding.
+  // Skip during active recording — speech fires interim results 10-20x/sec and
+  // localStorage.setItem() is synchronous, so writing on every interim result
+  // blocks the main thread and degrades speech recognition quality.
   useEffect(() => {
+    if (isRecording) return;
     if (content.trim()) {
       localStorage.setItem('echo_draft_content', content);
       if (currentNoteId) localStorage.setItem('echo_draft_note_id', currentNoteId);
@@ -257,11 +263,31 @@ export default function TodayPage() {
       localStorage.removeItem('echo_draft_note_id');
       localStorage.removeItem('echo_draft_viewing_date');
     }
-  }, [content, currentNoteId, viewingDate]);
+  }, [content, currentNoteId, viewingDate, isRecording]);
 
-  // Derived: notes for selected date + all dates that have notes (for calendar dots)
-  const displayedNotes = notes.filter(n => n.date === selectedDate);
+  // Derived: all notes when viewing today (infinite scroll), filtered when a past date is selected
+  const displayedNotes = selectedDate === todayDate
+    ? notes
+    : notes.filter(n => n.date === selectedDate);
+  const visibleNotes = selectedDate === todayDate
+    ? displayedNotes.slice(0, visibleCount)
+    : displayedNotes;
   const allNoteDates = new Set(notes.map(n => n.date));
+
+  // Reset visible count when switching between today / past-date views
+  useEffect(() => { setVisibleCount(10); }, [selectedDate]);
+
+  // Infinite scroll — observe sentinel at bottom of list and load 10 more notes
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setVisibleCount(c => c + 10); },
+      { threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [visibleNotes.length]);
 
   // Close calendar on outside click
   useEffect(() => {
@@ -479,8 +505,8 @@ export default function TodayPage() {
               </>
             )}
           </div>
-          {/* EAI-42: show while editing old note OR while writing new content */}
-          {(!isNewEntry || content.trim()) && (
+          {/* Show "New note" only when editing an existing note — Save/Clear cover the writing case */}
+          {!isNewEntry && (
             <Button variant="outline" size="sm" onClick={handleNewNote}>{t('today_new_note')}</Button>
           )}
         </div>
@@ -501,24 +527,25 @@ export default function TodayPage() {
           }`}>
             {saveStatus === 'saving' ? t('today_saving') : t('today_saved')}
           </span>
-          {/* EAI-43: "Limpiar" to the left of "Guardar" */}
-          {content.trim() && (
-            <button
-              type="button"
-              onClick={() => { setContent(''); setSaveStatus(''); localStorage.removeItem('echo_draft_content'); localStorage.removeItem('echo_draft_note_id'); localStorage.removeItem('echo_draft_viewing_date'); }}
-              className="absolute bottom-[14px] right-[5.5rem] text-xs text-muted-foreground active:opacity-60 transition-opacity select-none"
+          {/* Clear + Save — flex row so spacing adapts to any language's text length */}
+          <div className="absolute bottom-2 right-2 flex items-center gap-2">
+            {content.trim() && (
+              <button
+                type="button"
+                onClick={() => { setContent(''); setSaveStatus(''); localStorage.removeItem('echo_draft_content'); localStorage.removeItem('echo_draft_note_id'); localStorage.removeItem('echo_draft_viewing_date'); }}
+                className="text-xs text-muted-foreground active:opacity-60 transition-opacity select-none"
+              >
+                {t('today_clear')}
+              </button>
+            )}
+            <Button
+              size="sm"
+              onClick={saveAndNew}
+              disabled={!content.trim() || saveStatus === 'saving'}
             >
-              {t('today_clear')}
-            </button>
-          )}
-          <Button
-            size="sm"
-            onClick={saveAndNew}
-            disabled={!content.trim() || saveStatus === 'saving'}
-            className="absolute bottom-2 right-2"
-          >
-            {t('today_save')}
-          </Button>
+              {t('today_save')}
+            </Button>
+          </div>
         </div>
 
         {/* Ask Echo button — shown when a saved note is open in the editor */}
@@ -598,7 +625,7 @@ export default function TodayPage() {
 
           {displayedNotes.length > 0 ? (
             <ul className="flex flex-col gap-2">
-              {displayedNotes.map((note) => {
+              {visibleNotes.map((note) => {
                 const isSelected = selectedIds.has(note.id);
                 const isActive = currentNoteId === note.id;
                 const isPressing = pressingId === note.id;
@@ -622,7 +649,9 @@ export default function TodayPage() {
                     >
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-2 min-w-0">
-                          <span className="text-xs text-muted-foreground shrink-0">{formatTime(note.created_at, language)}</span>
+                          <span className="text-xs text-muted-foreground shrink-0">
+                            {formatDateShort(note.date, language)} · {formatTime(note.created_at, language)}
+                          </span>
                         </div>
                         {selectionMode && (
                           <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
@@ -648,6 +677,10 @@ export default function TodayPage() {
             <p className="text-muted-foreground text-sm text-center py-4">
               {selectedDate === todayDate ? t('today_no_notes') : t('today_no_notes_date')}
             </p>
+          )}
+          {/* Infinite scroll sentinel — only when showing all notes and there are more to load */}
+          {selectedDate === todayDate && visibleCount < displayedNotes.length && (
+            <div ref={sentinelRef} className="h-4" />
           )}
         </div>
       </div>

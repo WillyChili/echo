@@ -1,14 +1,12 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import MicButton from '../components/MicButton.jsx';
-import UpgradeModal from '../components/UpgradeModal.jsx';
 import { useSpeech } from '../hooks/useSpeech.js';
 import { cn } from '@/lib/utils';
 import { authFetch } from '../lib/api.js';
 import { useTranslation } from '../hooks/useTranslation.js';
 import { useProfile } from '../context/ProfileContext.jsx';
 
-const FREE_CHAT_LIMIT = 10;
 const getToday = () => new Date().toISOString().slice(0, 10);
 
 function SendIcon() {
@@ -21,7 +19,7 @@ function SendIcon() {
 
 export default function ChatPage() {
   const { t } = useTranslation();
-  const { language, isSubscribed, chatsUsedToday, setChatsUsedToday } = useProfile();
+  const { language } = useProfile();
   const location = useLocation();
   const today = getToday();
 
@@ -33,7 +31,6 @@ export default function ChatPage() {
   const [isLoadingMore, setIsLoadingMore]     = useState(false);
   const [hasMore, setHasMore]                 = useState(false);
   const [micError, setMicError]               = useState(null);
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   const bottomRef    = useRef(null);
   const inputRef     = useRef(null);
@@ -163,18 +160,13 @@ export default function ChatPage() {
 
       const data = await res.json();
 
-      if (res.status === 429 && data.error === 'limit_reached') {
-        setMessages((prev) => prev.slice(0, -1)); // remove optimistic user message
-        setInput(text); // restore input
-        setShowUpgradeModal(true);
-      } else if (!res.ok || data.error) {
+      if (!res.ok || data.error) {
         setMessages((prev) => [
           ...prev,
           { role: 'echo', text: data.error || t('chat_error_generic'), isError: true, date: today },
         ]);
       } else {
         setMessages((prev) => [...prev, { role: 'echo', text: data.reply, date: today }]);
-        setChatsUsedToday((prev) => prev + 1);
       }
     } catch {
       setMessages((prev) => [
@@ -196,10 +188,6 @@ export default function ChatPage() {
 
   const showWelcome = messages.length === 0 && !isLoading && !isLoadingHistory;
 
-  const usageBadgeText = t('chat_usage_badge')
-    .replace('{used}', chatsUsedToday)
-    .replace('{limit}', FREE_CHAT_LIMIT);
-
   // ── Render messages with date separators ─────────────────────────────────
   const renderMessages = () => {
     let lastDate = null;
@@ -218,10 +206,6 @@ export default function ChatPage() {
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
-
-      {showUpgradeModal && (
-        <UpgradeModal limit={FREE_CHAT_LIMIT} onClose={() => setShowUpgradeModal(false)} />
-      )}
 
       {/* Notice bar */}
       <div className="px-4 py-2.5 border-b border-border/60">
@@ -262,22 +246,8 @@ export default function ChatPage() {
         </div>
       </div>
 
-      {/* Usage separator — acts as the top border for free users */}
-      {!isSubscribed && (
-        <div className="flex flex-col items-center px-4 py-1.5 border-t border-border/60 bg-background/80 gap-0.5">
-          <div className="flex items-center gap-3 w-full">
-            <div className="flex-1 h-px bg-border/60" />
-            <span className="text-xs text-muted-foreground tabular-nums shrink-0">{usageBadgeText}</span>
-            <div className="flex-1 h-px bg-border/60" />
-          </div>
-          {chatsUsedToday >= FREE_CHAT_LIMIT && (
-            <span className="text-xs text-muted-foreground/80">{t('chat_limit_reset')}</span>
-          )}
-        </div>
-      )}
-
       {/* Input area */}
-      <div className={`${isSubscribed ? 'border-t border-border/60' : ''} bg-background/80 backdrop-blur-sm px-4 py-4`}>
+      <div className="border-t border-border/60 bg-background/80 backdrop-blur-sm px-4 py-4">
         <div className="max-w-2xl mx-auto">
           {micError && <p className="text-xs text-red-400 mb-2">{micError}</p>}
           <div className="flex items-center gap-2">

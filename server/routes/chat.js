@@ -28,11 +28,11 @@ router.post('/', freemium, async (req, res) => {
 
     const { data: profile } = await supabase
       .from('profiles')
-      .select('bio, display_name')
+      .select('bio, display_name, echo_tone')
       .eq('id', req.user.id)
       .single();
 
-    const systemPrompt = buildSystemPrompt(notes || [], language || 'en', profile?.bio || '', profile?.display_name || '');
+    const systemPrompt = buildSystemPrompt(notes || [], language || 'en', profile?.bio || '', profile?.display_name || '', profile?.echo_tone || 'warm');
 
     // Fetch last 20 messages for conversational context
     const { data: history } = await supabase

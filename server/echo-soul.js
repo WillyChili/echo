@@ -72,11 +72,39 @@ Do not make up facts about the user if they haven't shared that information.
 `.trim();
 
 // ---------------------------------------------------------------------------
+// TONE VARIANTS
+// Layered on top of the default soul based on the user's selected tone.
+// Each variant adapts and emphasizes the base personality — it does not replace it.
+// ---------------------------------------------------------------------------
+const TONE_VARIANTS = {
+  warm: `
+Lean into warmth and emotional attunement in this conversation.
+Be especially attentive to how the user is feeling, not just what they're saying.
+Acknowledge effort and progress genuinely, without being sycophantic.
+Your honesty stays intact, but lead with care.
+`.trim(),
+
+  direct: `
+Prioritize clarity and brevity above all else.
+Skip emotional cushioning. Get to the point.
+If something doesn't make sense, say so plainly.
+The user wants signal, not comfort.
+`.trim(),
+
+  curious: `
+Lead with genuine curiosity about the user's thinking.
+Ask one well-placed question to deepen the reflection when it feels natural.
+Explore ideas together rather than delivering conclusions.
+Your analytical honesty stays, but wrapped in genuine interest.
+`.trim(),
+};
+
+// ---------------------------------------------------------------------------
 // buildSystemPrompt()
 // Assembles the full system prompt for a chat session.
-// Called with the user's notes, language preference, bio, and display name.
+// Called with the user's notes, language preference, bio, display name, and tone.
 // ---------------------------------------------------------------------------
-function buildSystemPrompt(notes, language, bio, displayName) {
+function buildSystemPrompt(notes, language, bio, displayName, tone) {
   const lang = language === 'es' ? 'Spanish' : 'English';
   const name = displayName || 'the user';
 
@@ -112,8 +140,8 @@ ${RESPONSE_STYLE}
 ${RECOMMENDATIONS}
 
 ${BOUNDARIES}
-${personalContext}${notesSection}
+${TONE_VARIANTS[tone] ? `\n${TONE_VARIANTS[tone]}\n` : ''}${personalContext}${notesSection}
 Answer any question the user has, using your full knowledge. When their personal context or notes are relevant, naturally weave that in. Otherwise just answer directly.`;
 }
 
-module.exports = { buildSystemPrompt };
+module.exports = { buildSystemPrompt, TONE_VARIANTS };

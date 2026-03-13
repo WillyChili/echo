@@ -121,7 +121,7 @@ export default function EditProfilePage() {
   const initials = user?.email?.[0]?.toUpperCase() || '?';
 
   return (
-    <div className="h-full overflow-y-auto">
+    <div className="flex-1 min-h-0 overflow-y-auto">
     <div className="px-4 py-8">
       {/* Title */}
       <h1 className="text-base font-semibold text-foreground text-center mb-7">{t('edit_profile_title')}</h1>

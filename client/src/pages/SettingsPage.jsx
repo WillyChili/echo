@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { authFetch } from '../lib/api';
 import { supabase } from '../lib/supabase';
 import { useProfile } from '../context/ProfileContext';
+import { useTheme } from '../context/ThemeContext';
 import { useTranslation } from '../hooks/useTranslation';
 import UpgradeModal from '../components/UpgradeModal';
 import { Capacitor } from '@capacitor/core';
 
 export default function SettingsPage() {
   const { t } = useTranslation();
+  const { theme, setTheme } = useTheme();
   const { echoTone: profileEchoTone, setEchoTone: setProfileEchoTone, isSubscribed } = useProfile();
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal]   = useState(false);
@@ -142,6 +144,32 @@ export default function SettingsPage() {
     <div className="max-w-xl mx-auto px-4 py-10">
       <h1 className="text-lg font-semibold text-foreground mb-1">{t('settings_title')}</h1>
       <p className="text-sm text-muted-foreground mb-8">{t('settings_subtitle')}</p>
+
+      {/* Appearance */}
+      <div className="bg-card border border-border/60 rounded-2xl p-6 mb-4">
+        <h2 className="text-sm font-medium text-foreground mb-1">{t('settings_appearance_title')}</h2>
+        <p className="text-xs text-muted-foreground mb-4">{t('settings_appearance_desc')}</p>
+        <div className="flex gap-2">
+          {[
+            { key: 'dark',   labelKey: 'settings_theme_dark' },
+            { key: 'light',  labelKey: 'settings_theme_light' },
+            { key: 'system', labelKey: 'settings_theme_system' },
+          ].map((opt) => (
+            <button
+              key={opt.key}
+              type="button"
+              onClick={() => setTheme(opt.key)}
+              className={`flex-1 py-2 rounded-xl text-xs font-medium transition-colors select-none ${
+                theme === opt.key
+                  ? 'border border-mint bg-mint/15 text-mint'
+                  : 'bg-secondary text-muted-foreground active:opacity-70'
+              }`}
+            >
+              {t(opt.labelKey)}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {/* Subscription plan */}
       <div className={`bg-card rounded-2xl p-6 mb-4 ${isSubscribed ? 'border-2 border-mint/40' : 'border border-border/60'}`}>

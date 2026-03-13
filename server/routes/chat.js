@@ -3,43 +3,10 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const freemium = require('../middleware/freemium');
 const supabase = require('../supabase');
+const { buildSystemPrompt } = require('../echo-soul');
 
 const CLAUDE_API_URL = 'https://api.anthropic.com/v1/messages';
 const DEFAULT_MODEL = 'claude-haiku-4-5-20251001';
-
-function buildSystemPrompt(notes, language, bio, displayName) {
-  const lang = language === 'es' ? 'Spanish' : 'English';
-  const name = displayName || 'the user';
-
-  const today = new Date().toLocaleDateString(language === 'es' ? 'es-AR' : 'en-US', {
-    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-  });
-
-  // Personal context block
-  const contextLines = [];
-  if (displayName) contextLines.push(`Name: ${displayName}`);
-  if (bio && bio.trim()) contextLines.push(`About them: ${bio.trim()}`);
-  const personalContext = contextLines.length > 0
-    ? `\nPersonal context about ${name}:\n${contextLines.join('\n')}\n`
-    : '';
-
-  const notesSection = notes && notes.length > 0
-    ? `\nTheir notes (${notes.length} total):\n\n` + notes
-        .slice()
-        .sort((a, b) => (a.date < b.date ? -1 : 1))
-        .map((n) => `[${n.date}]\n${n.content}`)
-        .join('\n\n---\n\n')
-    : '';
-
-  return `You are Echo, a personal AI assistant for ${name}. Today is ${today}.
-
-You MUST write your ENTIRE response in ${lang} only. Do NOT use any other language.
-You MUST NOT use the em dash character. Use commas, periods, or colons instead.
-Keep responses concise: 2 to 4 sentences unless a longer answer is clearly needed.
-Do not identify yourself as an AI unless directly asked.
-${personalContext}${notesSection}
-Answer any question the user has, using your full knowledge. When their personal context or notes are relevant to the question, naturally weave that in. Otherwise just answer directly.`;
-}
 
 // All chat routes require authentication
 router.use(auth);

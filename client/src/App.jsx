@@ -34,7 +34,7 @@ function ProtectedRoutes() {
       <Nav />
       {/* Spacer that matches the fixed Nav height (h-14 + status bar safe area) */}
       <div style={{ height: 'calc(3.5rem + env(safe-area-inset-top))', flexShrink: 0 }} />
-      <main className="flex-1 flex flex-col">
+      <main className="flex-1 flex flex-col overflow-hidden">
         <Routes>
           <Route path="/"         element={<TodayPage />} />
           <Route path="/chat"     element={<ChatPage />} />

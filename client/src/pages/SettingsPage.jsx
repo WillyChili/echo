@@ -138,6 +138,7 @@ export default function SettingsPage() {
 
   return (
     <>
+    <div className="h-full overflow-y-auto">
     <div className="max-w-xl mx-auto px-4 py-10">
       <h1 className="text-lg font-semibold text-foreground mb-1">{t('settings_title')}</h1>
       <p className="text-sm text-muted-foreground mb-8">{t('settings_subtitle')}</p>
@@ -295,6 +296,7 @@ export default function SettingsPage() {
           {t('settings_delete_btn')}
         </button>
       </div>
+    </div>
     </div>
 
     {showUpgradeModal && <UpgradeModal onClose={() => setShowUpgradeModal(false)} />}

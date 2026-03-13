@@ -477,6 +477,7 @@ export default function TodayPage() {
         </div>
       )}
 
+      <div className="h-full overflow-y-auto">
       <div
         className="max-w-2xl mx-auto w-full px-4 py-8 flex flex-col gap-6"
         onTouchStart={handleTouchStart}
@@ -683,6 +684,7 @@ export default function TodayPage() {
             <div ref={sentinelRef} className="h-4" />
           )}
         </div>
+      </div>
       </div>
     </>
   );

@@ -593,7 +593,7 @@ export default function TodayPage() {
                 onClick={() => setCalendarOpen(o => !o)}
                 className="flex items-center gap-1.5 group"
               >
-                <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                <h2 className="text-[20px] font-semibold text-foreground">
                   {selectedDate === todayDate ? t('today_notes_header') : formatDateShort(selectedDate, language)}
                 </h2>
                 <CalendarIcon className="w-3.5 h-3.5 text-mint opacity-60 group-hover:opacity-100 transition-opacity" />

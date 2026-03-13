@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 @layer base {
+  /* Dark mode (default) */
   :root {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
@@ -22,9 +23,61 @@
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 14.9%;
     --input: 0 0% 14.9%;
-    --ring: 162 56% 51%;   /* EAI-15: focus rings in mint green */
+    --ring: 162 56% 51%;
     --radius: 1rem;
     --mint: 162 56% 51%;
+  }
+
+  /* Light mode */
+  html.light {
+    --background: 0 0% 98%;
+    --foreground: 0 0% 9%;
+    --card: 0 0% 94%;
+    --card-foreground: 0 0% 9%;
+    --popover: 0 0% 94%;
+    --popover-foreground: 0 0% 9%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 88%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 88%;
+    --muted-foreground: 0 0% 40%;
+    --accent: 0 0% 88%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 80%;
+    --input: 0 0% 80%;
+    --ring: 162 56% 40%;
+    --radius: 1rem;
+    --mint: 162 56% 38%;
+  }
+
+  /* System: respect OS preference when no explicit class is set */
+  @media (prefers-color-scheme: light) {
+    html:not(.dark):not(.light) {
+      --background: 0 0% 98%;
+      --foreground: 0 0% 9%;
+      --card: 0 0% 94%;
+      --card-foreground: 0 0% 9%;
+      --popover: 0 0% 94%;
+      --popover-foreground: 0 0% 9%;
+      --primary: 0 0% 9%;
+      --primary-foreground: 0 0% 98%;
+      --secondary: 0 0% 88%;
+      --secondary-foreground: 0 0% 9%;
+      --muted: 0 0% 88%;
+      --muted-foreground: 0 0% 40%;
+      --accent: 0 0% 88%;
+      --accent-foreground: 0 0% 9%;
+      --destructive: 0 84.2% 60.2%;
+      --destructive-foreground: 0 0% 98%;
+      --border: 0 0% 80%;
+      --input: 0 0% 80%;
+      --ring: 162 56% 40%;
+      --radius: 1rem;
+      --mint: 162 56% 38%;
+    }
   }
 
   html, body {

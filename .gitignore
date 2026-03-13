@@ -8,3 +8,4 @@ dist/
 *.pem
 *.exe
 *.log
+.mcp.json

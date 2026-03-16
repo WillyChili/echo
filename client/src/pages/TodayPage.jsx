@@ -525,7 +525,17 @@ export default function TodayPage() {
               rows={4}
               className="text-base pb-11"
             />
-            <span className={`absolute bottom-[14px] left-5 text-xs transition-opacity duration-300 pointer-events-none ${
+            {/* Speech language toggle — bottom left of textarea */}
+            {isSupported && (
+              <button
+                type="button"
+                onClick={toggleSpeechLang}
+                className="absolute bottom-2 left-2 text-xs font-medium px-2.5 py-1 rounded-full bg-muted text-muted-foreground active:bg-muted/60 transition-colors select-none"
+              >
+                {speechLang === 'es' ? '🎙 ES' : '🎙 EN'}
+              </button>
+            )}
+            <span className={`absolute bottom-[14px] left-16 text-xs transition-opacity duration-300 pointer-events-none ${
               saveStatus === 'saving' ? 'text-muted-foreground opacity-100'
               : saveStatus === 'saved'  ? 'text-mint opacity-100'
               : 'opacity-0'
@@ -582,18 +592,7 @@ export default function TodayPage() {
                 <WaveAnimation heights={[...barHeights].reverse()} />
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              {isRecording && <span className="text-xs text-mint animate-pulse tracking-wide">{t('today_listening')}</span>}
-              {isSupported && (
-                <button
-                  type="button"
-                  onClick={toggleSpeechLang}
-                  className="text-xs font-medium px-2.5 py-1 rounded-full bg-muted text-muted-foreground active:bg-muted/60 transition-colors select-none"
-                >
-                  {speechLang === 'es' ? 'ES' : 'EN'}
-                </button>
-              )}
-            </div>
+            {isRecording && <span className="text-xs text-mint animate-pulse tracking-wide">{t('today_listening')}</span>}
             {micError && <span className="text-xs text-red-400">{micError}</span>}
           </div>
         </div>

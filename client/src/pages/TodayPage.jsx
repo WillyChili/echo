@@ -226,8 +226,8 @@ export default function TodayPage() {
     setContent(base + sep + sessionText);
   }, []);
 
-  const { isRecording, isSupported, startRecording, stopRecording, error: speechError } =
-    useSpeech(handleTranscript, language);
+  const { isRecording, isSupported, startRecording, stopRecording, error: speechError, speechLang, toggleSpeechLang } =
+    useSpeech(handleTranscript);
 
   const barHeights = useAudioVisualizer(false, 9); // disabled - conflicts with SpeechRecognition on Android
 
@@ -582,7 +582,18 @@ export default function TodayPage() {
                 <WaveAnimation heights={[...barHeights].reverse()} />
               </div>
             </div>
-            {isRecording && <span className="text-xs text-mint animate-pulse tracking-wide">{t('today_listening')}</span>}
+            <div className="flex items-center gap-3">
+              {isRecording && <span className="text-xs text-mint animate-pulse tracking-wide">{t('today_listening')}</span>}
+              {isSupported && (
+                <button
+                  type="button"
+                  onClick={toggleSpeechLang}
+                  className="text-xs font-medium px-2.5 py-1 rounded-full bg-muted text-muted-foreground active:bg-muted/60 transition-colors select-none"
+                >
+                  {speechLang === 'es' ? 'ES' : 'EN'}
+                </button>
+              )}
+            </div>
             {micError && <span className="text-xs text-red-400">{micError}</span>}
           </div>
         </div>

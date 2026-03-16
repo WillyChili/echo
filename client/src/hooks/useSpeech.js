@@ -10,19 +10,33 @@ function normalizeTranscript(text) {
     .replace(/(^|[.?!]\s+)([a-záéíóúüñ])/gi, (_, prefix, letter) => prefix + letter.toUpperCase());
 }
 
+const STORAGE_KEY = 'echo_speech_lang';
+
 export function useSpeech(onTranscript) {
   const { t, language } = useTranslation();
   const [isRecording, setIsRecording] = useState(false);
   const [error, setError] = useState(null);
   const recognitionRef = useRef(null);
 
-  // Text accumulated across completed utterance sessions
+  // Speech language is independent of UI language — persisted in localStorage
+  const [speechLang, setSpeechLang] = useState(() => {
+    return localStorage.getItem(STORAGE_KEY) || language || 'es';
+  });
+
+  const toggleSpeechLang = useCallback(() => {
+    setSpeechLang(prev => {
+      const next = prev === 'es' ? 'en' : 'es';
+      localStorage.setItem(STORAGE_KEY, next);
+      return next;
+    });
+  }, []);
+
   const committedTextRef = useRef('');
-  // Last text reported in the current session (committed on onend)
   const lastSessionTextRef = useRef('');
-  // Stable ref to the SpeechRecognition class (set once on startRecording)
   const speechClassRef = useRef(null);
-  // Count silent restarts in a row — stop after too many to prevent infinite loops
+  // Stable ref so startSession always reads the latest speechLang without re-creating
+  const speechLangRef = useRef(speechLang);
+  speechLangRef.current = speechLang;
   const silentRestartCountRef = useRef(0);
   const MAX_SILENT_RESTARTS = 6;
 
@@ -30,26 +44,23 @@ export function useSpeech(onTranscript) {
     typeof window !== 'undefined' &&
     ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
 
-  // Creates a FRESH SpeechRecognition instance every call – avoids stale
-  // event.results from a previous session being re-read on restart.
   const startSession = useCallback(() => {
     const SpeechRecognitionClass = speechClassRef.current;
     if (!SpeechRecognitionClass) return;
 
     const r = new SpeechRecognitionClass();
-    r.continuous = false;    // one utterance at a time → clean result list each session
-    r.interimResults = true; // show text while speaking
-    r.lang = language === 'es' ? 'es-419' : 'en-US'; // follows profile language setting
+    r.continuous = false;
+    r.interimResults = true;
+    r.lang = speechLangRef.current === 'es' ? 'es-419' : 'en-US';
     r.maxAlternatives = 1;
 
     r.onresult = (event) => {
       let sessionText = '';
       for (let i = 0; i < event.results.length; i++) {
-        const t = event.results[i][0].transcript.trim();
-        if (t) sessionText += (sessionText ? ' ' : '') + t;
+        const txt = event.results[i][0].transcript.trim();
+        if (txt) sessionText += (sessionText ? ' ' : '') + txt;
       }
       lastSessionTextRef.current = sessionText;
-      // User spoke — reset the silent restart counter
       if (sessionText) silentRestartCountRef.current = 0;
 
       const committed = committedTextRef.current;
@@ -62,14 +73,11 @@ export function useSpeech(onTranscript) {
         setError(t('mic_blocked'));
         setIsRecording(false);
         recognitionRef.current = null;
-        return;
       }
-      // no-speech / aborted / network → onend will handle restart
     };
 
     r.onend = () => {
       if (recognitionRef.current === r) {
-        // Commit this session's final text before creating the next session
         const finalText = lastSessionTextRef.current;
         if (finalText) {
           committedTextRef.current = committedTextRef.current
@@ -77,20 +85,16 @@ export function useSpeech(onTranscript) {
             : finalText;
           silentRestartCountRef.current = 0;
         } else {
-          // Nothing was spoken this session
           silentRestartCountRef.current += 1;
         }
         lastSessionTextRef.current = '';
 
-        // Stop auto-restarting after too many silent cycles (user probably stopped talking)
         if (silentRestartCountRef.current >= MAX_SILENT_RESTARTS) {
           recognitionRef.current = null;
           setIsRecording(false);
           return;
         }
 
-        // Delay before restarting — 250ms is safer on Android to let the previous
-        // session fully clean up (avoids InvalidStateError from calling start() too fast)
         setTimeout(() => {
           if (recognitionRef.current === r) startSession();
         }, 250);
@@ -99,13 +103,10 @@ export function useSpeech(onTranscript) {
       }
     };
 
-    // Set ref BEFORE start so onend sees the reference immediately
     recognitionRef.current = r;
     try {
       r.start();
     } catch (err) {
-      // InvalidStateError can happen if start() is called before the previous session
-      // fully terminated. Retry once after a longer delay instead of giving up.
       if (err?.name === 'InvalidStateError' && recognitionRef.current === r) {
         setTimeout(() => {
           if (recognitionRef.current === r) {
@@ -119,20 +120,18 @@ export function useSpeech(onTranscript) {
       setError(t('mic_error'));
       setIsRecording(false);
     }
-  }, [onTranscript, t, language]);
+  }, [onTranscript, t]);
 
   const startRecording = useCallback(async (onStart) => {
     if (!isSupported) {
       setError(t('mic_error'));
       return;
     }
-
     setError(null);
     committedTextRef.current = '';
     lastSessionTextRef.current = '';
     silentRestartCountRef.current = 0;
     speechClassRef.current = window.SpeechRecognition || window.webkitSpeechRecognition;
-
     if (onStart) onStart();
     setIsRecording(true);
     startSession();
@@ -140,7 +139,7 @@ export function useSpeech(onTranscript) {
 
   const stopRecording = useCallback(() => {
     const rec = recognitionRef.current;
-    recognitionRef.current = null; // signal onend NOT to restart
+    recognitionRef.current = null;
     try { rec?.stop(); } catch {}
     committedTextRef.current = '';
     lastSessionTextRef.current = '';
@@ -148,5 +147,5 @@ export function useSpeech(onTranscript) {
     setIsRecording(false);
   }, []);
 
-  return { isRecording, isSupported, startRecording, stopRecording, error };
+  return { isRecording, isSupported, startRecording, stopRecording, error, speechLang, toggleSpeechLang };
 }

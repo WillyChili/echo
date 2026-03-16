@@ -46,8 +46,8 @@ export default function ChatPage() {
     setInput(base + sep + sessionText);
   }, []);
 
-  const { isRecording, isSupported, startRecording, stopRecording, error: speechError } =
-    useSpeech(handleTranscript, language);
+  const { isRecording, isSupported, startRecording, stopRecording, error: speechError, speechLang, toggleSpeechLang } =
+    useSpeech(handleTranscript);
 
   useEffect(() => {
     if (speechError) setMicError(speechError);
@@ -261,6 +261,15 @@ export default function ChatPage() {
               className="flex-1 bg-card border border-input rounded-2xl px-4 py-[10px] text-sm text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-ring leading-relaxed h-11 transition-colors squircle"
               style={{ overflowY: 'hidden' }}
             />
+            {isSupported && (
+              <button
+                type="button"
+                onClick={toggleSpeechLang}
+                className="text-xs font-medium px-2.5 py-1 rounded-full bg-muted text-muted-foreground active:bg-muted/60 transition-colors shrink-0 select-none"
+              >
+                {speechLang === 'es' ? 'ES' : 'EN'}
+              </button>
+            )}
             <MicButton
               isRecording={isRecording}
               isSupported={isSupported}

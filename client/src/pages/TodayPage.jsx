@@ -587,22 +587,21 @@ export default function TodayPage() {
           </div>
         </div>
 
-        {/* ── Bottom section: notes list with its own scroll ── */}
-        <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-8">
-        <div className="max-w-2xl mx-auto w-full">
-        {/* Notes section with calendar picker */}
-        <div className={`${selectionMode ? 'pb-24' : ''}`}>
-          <div className="relative" ref={calendarRef}>
-            <div className="flex items-center justify-between mb-3">
-              <button
-                onClick={() => setCalendarOpen(o => !o)}
-                className="flex items-center gap-1.5 group"
-              >
+        {/* ── Notes header: fixed, never scrolls ── */}
+        <div className="flex-shrink-0 px-4 pt-2 pb-2" ref={calendarRef}>
+          <div className="max-w-2xl mx-auto w-full">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
                 <h2 className="text-[20px] font-semibold text-foreground">
                   {selectedDate === todayDate ? t('today_notes_header') : formatDateShort(selectedDate, language)}
                 </h2>
-                <CalendarIcon className="w-3.5 h-3.5 text-mint opacity-60 group-hover:opacity-100 transition-opacity" />
-              </button>
+                <button
+                  onClick={() => setCalendarOpen(o => !o)}
+                  className="flex items-center justify-center w-7 h-7 rounded-full bg-mint/15 active:bg-mint/30 transition-colors"
+                >
+                  <CalendarIcon className="w-3.5 h-3.5 text-mint" />
+                </button>
+              </div>
               {selectedDate !== todayDate ? (
                 <button
                   onClick={() => setSelectedDate(todayDate)}
@@ -629,6 +628,12 @@ export default function TodayPage() {
               />
             )}
           </div>
+        </div>
+
+        {/* ── Notes list: only this scrolls ── */}
+        <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-8">
+        <div className="max-w-2xl mx-auto w-full">
+        <div className={`${selectionMode ? 'pb-24' : ''}`}>
 
           {displayedNotes.length > 0 ? (
             <ul className="flex flex-col gap-2">

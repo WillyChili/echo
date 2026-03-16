@@ -29,8 +29,8 @@ function ProtectedRoutes() {
   if (!displayName) return <OnboardingPage />;
   return (
     <div
-      className="h-screen flex flex-col bg-background overflow-hidden"
-      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+      className="flex flex-col bg-background overflow-hidden"
+      style={{ height: '100dvh', paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       <Nav />
       {/* Spacer that matches the fixed Nav height (h-14 + status bar safe area) */}

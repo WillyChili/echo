@@ -246,8 +246,8 @@ export default function ChatPage() {
         </div>
       </div>
 
-      {/* Input area */}
-      <div className="border-t border-border/60 bg-background/80 backdrop-blur-sm px-4 py-4">
+      {/* Input area — sticky keeps it anchored when keyboard appears on Android */}
+      <div className="border-t border-border/60 bg-background/80 backdrop-blur-sm px-4 py-4 flex-shrink-0" style={{ position: 'sticky', bottom: 0 }}>
         <div className="max-w-2xl mx-auto">
           {micError && <p className="text-xs text-red-400 mb-2">{micError}</p>}
           <div className="flex items-center gap-2">

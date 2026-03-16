@@ -480,116 +480,118 @@ export default function TodayPage() {
         </div>
       )}
 
-      <div className="flex-1 min-h-0 overflow-y-auto">
-      <div
-        className="max-w-2xl mx-auto w-full px-4 py-8 flex flex-col gap-6"
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-      >
-        {refreshing && (
-          <div className="flex justify-center -mt-4 mb-0">
-            <span className="text-xs text-mint animate-pulse">↓</span>
-          </div>
-        )}
+      <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
 
-        {/* Header — EAI-19: personalized greeting */}
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            {viewingDate ? (
-              <>
-                <h1 className="text-2xl font-semibold text-foreground leading-tight">{formatDate(viewingDate, language)}</h1>
-                <p className="text-muted-foreground text-xs mt-0.5">{t('today_editing_past')}</p>
-              </>
-            ) : (
-              <>
-                <p className="text-xs text-muted-foreground mb-0.5">{formatDate(todayDate, language)}</p>
-                <h1 className="text-2xl font-semibold text-foreground leading-tight">
-                  {t('today_greeting_hey')}{displayName ? <>, <span className="capitalize">{displayName}</span></> : ''}
-                </h1>
-              </>
-            )}
-          </div>
-          {/* Show "New note" only when editing an existing note — Save/Clear cover the writing case */}
-          {!isNewEntry && (
-            <Button variant="outline" size="sm" onClick={handleNewNote}>{t('today_new_note')}</Button>
+        {/* ── Top section: always visible, never scrolls ── */}
+        <div
+          className="flex-shrink-0 max-w-2xl mx-auto w-full px-4 pt-8 pb-4 flex flex-col gap-6"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
+          {refreshing && (
+            <div className="flex justify-center -mt-4 mb-0">
+              <span className="text-xs text-mint animate-pulse">↓</span>
+            </div>
           )}
-        </div>
 
-        {/* Textarea with Save button inside (EAI-38) */}
-        <div className="relative">
-          <Textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder={isNewEntry ? t('today_placeholder_new') : t('today_placeholder_edit')}
-            rows={8}
-            className="text-base pb-11"
-          />
-          <span className={`absolute bottom-[14px] left-5 text-xs transition-opacity duration-300 pointer-events-none ${
-            saveStatus === 'saving' ? 'text-muted-foreground opacity-100'
-            : saveStatus === 'saved'  ? 'text-mint opacity-100'
-            : 'opacity-0'
-          }`}>
-            {saveStatus === 'saving' ? t('today_saving') : t('today_saved')}
-          </span>
-          {/* Clear + Save — flex row so spacing adapts to any language's text length */}
-          <div className="absolute bottom-2 right-2 flex items-center gap-2">
-            {content.trim() && (
-              <button
-                type="button"
-                onClick={() => { setContent(''); setSaveStatus(''); localStorage.removeItem('echo_draft_content'); localStorage.removeItem('echo_draft_note_id'); localStorage.removeItem('echo_draft_viewing_date'); }}
-                className="text-xs text-muted-foreground active:opacity-60 transition-opacity select-none"
-              >
-                {t('today_clear')}
-              </button>
+          {/* Header — EAI-19: personalized greeting */}
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              {viewingDate ? (
+                <>
+                  <h1 className="text-2xl font-semibold text-foreground leading-tight">{formatDate(viewingDate, language)}</h1>
+                  <p className="text-muted-foreground text-xs mt-0.5">{t('today_editing_past')}</p>
+                </>
+              ) : (
+                <>
+                  <p className="text-xs text-muted-foreground mb-0.5">{formatDate(todayDate, language)}</p>
+                  <h1 className="text-2xl font-semibold text-foreground leading-tight">
+                    {t('today_greeting_hey')}{displayName ? <>, <span className="capitalize">{displayName}</span></> : ''}
+                  </h1>
+                </>
+              )}
+            </div>
+            {!isNewEntry && (
+              <Button variant="outline" size="sm" onClick={handleNewNote}>{t('today_new_note')}</Button>
             )}
-            <Button
-              size="sm"
-              onClick={saveAndNew}
-              disabled={!content.trim() || saveStatus === 'saving'}
+          </div>
+
+          {/* Textarea with Save button inside (EAI-38) */}
+          <div className="relative">
+            <Textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder={isNewEntry ? t('today_placeholder_new') : t('today_placeholder_edit')}
+              rows={8}
+              className="text-base pb-11"
+            />
+            <span className={`absolute bottom-[14px] left-5 text-xs transition-opacity duration-300 pointer-events-none ${
+              saveStatus === 'saving' ? 'text-muted-foreground opacity-100'
+              : saveStatus === 'saved'  ? 'text-mint opacity-100'
+              : 'opacity-0'
+            }`}>
+              {saveStatus === 'saving' ? t('today_saving') : t('today_saved')}
+            </span>
+            <div className="absolute bottom-2 right-2 flex items-center gap-2">
+              {content.trim() && (
+                <button
+                  type="button"
+                  onClick={() => { setContent(''); setSaveStatus(''); localStorage.removeItem('echo_draft_content'); localStorage.removeItem('echo_draft_note_id'); localStorage.removeItem('echo_draft_viewing_date'); }}
+                  className="text-xs text-muted-foreground active:opacity-60 transition-opacity select-none"
+                >
+                  {t('today_clear')}
+                </button>
+              )}
+              <Button
+                size="sm"
+                onClick={saveAndNew}
+                disabled={!content.trim() || saveStatus === 'saving'}
+              >
+                {t('today_save')}
+              </Button>
+            </div>
+          </div>
+
+          {/* Ask Echo button */}
+          {!isNewEntry && content.trim() && (
+            <button
+              type="button"
+              onClick={() => navigate('/chat', { state: { prefill: content.trim() } })}
+              className="flex items-center gap-2 self-start text-sm font-medium text-mint active:opacity-60 transition-opacity select-none"
             >
-              {t('today_save')}
-            </Button>
+              {t('today_ask_echo')}
+            </button>
+          )}
+
+          {/* Mic + waves */}
+          <div className="flex flex-col items-center gap-4 py-2">
+            <div className="flex items-center justify-center gap-6">
+              <div className={`transition-opacity duration-300 ${isRecording ? 'opacity-100' : 'opacity-0'}`}>
+                <WaveAnimation heights={barHeights} />
+              </div>
+              <div className="relative flex items-center justify-center">
+                {isRecording && <SpinningRing />}
+                <MicButton
+                  isRecording={isRecording}
+                  isSupported={isSupported}
+                  onToggle={toggleMic}
+                  size="home"
+                />
+              </div>
+              <div className={`transition-opacity duration-300 ${isRecording ? 'opacity-100' : 'opacity-0'}`}>
+                <WaveAnimation heights={[...barHeights].reverse()} />
+              </div>
+            </div>
+            {isRecording && <span className="text-xs text-mint animate-pulse tracking-wide">{t('today_listening')}</span>}
+            {micError && <span className="text-xs text-red-400">{micError}</span>}
           </div>
         </div>
 
-        {/* Ask Echo button — shown when a saved note is open in the editor */}
-        {/* EAI-44: removed avatar icon, keep text only */}
-        {!isNewEntry && content.trim() && (
-          <button
-            type="button"
-            onClick={() => navigate('/chat', { state: { prefill: content.trim() } })}
-            className="flex items-center gap-2 self-start text-sm font-medium text-mint active:opacity-60 transition-opacity select-none"
-          >
-            {t('today_ask_echo')}
-          </button>
-        )}
-
-        {/* EAI-13: Big centered mic (w-28) + EAI-14: spinning ring + waves */}
-        <div className="flex flex-col items-center gap-4 py-2">
-          <div className="flex items-center justify-center gap-6">
-            <div className={`transition-opacity duration-300 ${isRecording ? 'opacity-100' : 'opacity-0'}`}>
-              <WaveAnimation heights={barHeights} />
-            </div>
-            {/* EAI-13: mic container with EAI-14 ring */}
-            <div className="relative flex items-center justify-center">
-              {isRecording && <SpinningRing />}
-              <MicButton
-                isRecording={isRecording}
-                isSupported={isSupported}
-                onToggle={toggleMic}
-                size="home"
-              />
-            </div>
-            <div className={`transition-opacity duration-300 ${isRecording ? 'opacity-100' : 'opacity-0'}`}>
-              <WaveAnimation heights={[...barHeights].reverse()} />
-            </div>
-          </div>
-          {isRecording && <span className="text-xs text-mint animate-pulse tracking-wide">{t('today_listening')}</span>}
-          {micError && <span className="text-xs text-red-400">{micError}</span>}
-        </div>
-
+        {/* ── Bottom section: notes list with its own scroll ── */}
+        <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-8">
+        <div className="max-w-2xl mx-auto w-full">
         {/* Notes section with calendar picker */}
-        <div className={`mt-6 ${selectionMode ? 'pb-24' : ''}`}>
+        <div className={`${selectionMode ? 'pb-24' : ''}`}>
           <div className="relative" ref={calendarRef}>
             <div className="flex items-center justify-between mb-3">
               <button
@@ -688,7 +690,8 @@ export default function TodayPage() {
             <div ref={sentinelRef} className="h-4" />
           )}
         </div>
-      </div>
+        </div>
+        </div>
       </div>
     </>
   );

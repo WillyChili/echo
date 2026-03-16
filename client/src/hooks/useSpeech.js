@@ -39,7 +39,8 @@ export function useSpeech(onTranscript) {
     const r = new SpeechRecognitionClass();
     r.continuous = false;    // one utterance at a time → clean result list each session
     r.interimResults = true; // show text while speaking
-    r.lang = (typeof navigator !== 'undefined' && navigator.language) || 'en-US'; // device locale, independent of app UI language
+    // Do NOT set r.lang — letting the platform default enables Android's multilingual
+    // speech engine which auto-detects ES/EN without locking to any UI language setting.
     r.maxAlternatives = 1;
 
     r.onresult = (event) => {

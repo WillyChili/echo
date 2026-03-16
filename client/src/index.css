@@ -84,12 +84,16 @@
     @apply bg-background text-foreground font-sans antialiased;
     margin: 0;
     padding: 0;
-    min-height: 100vh;
-    padding-bottom: env(safe-area-inset-bottom);
+    height: 100dvh;
+    overflow: hidden;
     -webkit-user-select: none;
     user-select: none;
-    /* Prevent rubber-band overscroll from letting content bleed behind the fixed nav */
     overscroll-behavior: none;
+  }
+
+  #root {
+    height: 100%;
+    overflow: hidden;
   }
 
   textarea, input {

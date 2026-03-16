@@ -2,14 +2,13 @@ import { useState, useEffect } from 'react';
 import { authFetch } from '../lib/api';
 import { supabase } from '../lib/supabase';
 import { useProfile } from '../context/ProfileContext';
+import { useTheme } from '../context/ThemeContext';
 import { useTranslation } from '../hooks/useTranslation';
-import UpgradeModal from '../components/UpgradeModal';
-import { Capacitor } from '@capacitor/core';
 
 export default function SettingsPage() {
   const { t } = useTranslation();
-  const { echoTone: profileEchoTone, setEchoTone: setProfileEchoTone, isSubscribed } = useProfile();
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const { theme, setTheme } = useTheme();
+  const { echoTone: profileEchoTone, setEchoTone: setProfileEchoTone } = useProfile();
   const [showDeleteModal, setShowDeleteModal]   = useState(false);
   const [deleting, setDeleting]                 = useState(false);
   const [deleteError, setDeleteError]           = useState(null);
@@ -43,7 +42,6 @@ export default function SettingsPage() {
   }, []);
 
   const handleToneSelect = async (tone) => {
-    if (!isSubscribed) { setShowUpgradeModal(true); return; }
     if (toneLoading || tone === echoTone) return;
     setEchoTone(tone);
     setToneLoading(true);
@@ -63,7 +61,6 @@ export default function SettingsPage() {
 
   const handleDigestSave = async (e) => {
     e.preventDefault();
-    if (!isSubscribed) { setShowUpgradeModal(true); return; }
     const freq   = Math.max(1, Math.min(365, Number(digestFreq)   || 7));
     const window = Math.max(1, Math.min(365, Number(digestWindow) || 7));
     setDigestLoading(true);
@@ -143,43 +140,29 @@ export default function SettingsPage() {
       <h1 className="text-lg font-semibold text-foreground mb-1">{t('settings_title')}</h1>
       <p className="text-sm text-muted-foreground mb-8">{t('settings_subtitle')}</p>
 
-      {/* Subscription plan */}
-      <div className={`bg-card rounded-2xl p-6 mb-4 ${isSubscribed ? 'border-2 border-mint/40' : 'border border-border/60'}`}>
-        <h2 className="text-sm font-medium text-foreground mb-1">{t('settings_plan_title')}</h2>
-        <p className="text-xs text-muted-foreground mb-4">{t('settings_plan_desc')}</p>
-        <div className="flex items-center justify-between">
-          {/* Badge */}
-          <div className="flex items-center gap-1.5">
-            {isSubscribed ? (
-              <>
-                <span className="text-xs font-semibold uppercase tracking-widest text-mint">{t('pricing_pro_name')}</span>
-                <span className="text-xs text-mint">✓</span>
-              </>
-            ) : (
-              <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">{t('pricing_free_name')}</span>
-            )}
-          </div>
-          {/* Action */}
-          {isSubscribed ? (
+      {/* Appearance */}
+      <div className="bg-card border border-border/60 rounded-2xl p-6 mb-4">
+        <h2 className="text-sm font-medium text-foreground mb-1">{t('settings_appearance_title')}</h2>
+        <p className="text-xs text-muted-foreground mb-4">{t('settings_appearance_desc')}</p>
+        <div className="flex gap-2">
+          {[
+            { key: 'dark',   labelKey: 'settings_theme_dark' },
+            { key: 'light',  labelKey: 'settings_theme_light' },
+            { key: 'system', labelKey: 'settings_theme_system' },
+          ].map((opt) => (
             <button
-              onClick={() => {
-                const url = Capacitor.isNativePlatform()
-                  ? 'market://subscriptions?package=com.willychili.echo'
-                  : 'https://play.google.com/store/account/subscriptions';
-                window.open(url, '_system');
-              }}
-              className="text-xs text-muted-foreground underline active:opacity-70 transition-opacity"
+              key={opt.key}
+              type="button"
+              onClick={() => setTheme(opt.key)}
+              className={`flex-1 py-2 rounded-xl text-xs font-medium transition-colors select-none ${
+                theme === opt.key
+                  ? 'border border-mint bg-mint/15 text-mint'
+                  : 'bg-secondary text-muted-foreground active:opacity-70'
+              }`}
             >
-              {t('settings_plan_manage')}
+              {t(opt.labelKey)}
             </button>
-          ) : (
-            <button
-              onClick={() => setShowUpgradeModal(true)}
-              className="text-xs font-semibold text-mint active:opacity-70 transition-opacity"
-            >
-              {t('nav_subscribe')}
-            </button>
-          )}
+          ))}
         </div>
       </div>
 
@@ -198,7 +181,7 @@ export default function SettingsPage() {
               onClick={() => handleToneSelect(opt.key)}
               disabled={toneLoading}
               className={`flex-1 py-2 rounded-xl text-xs font-medium transition-colors select-none disabled:opacity-50 ${
-                isSubscribed && echoTone === opt.key
+                echoTone === opt.key
                   ? 'border border-mint bg-mint/15 text-mint'
                   : 'bg-secondary text-muted-foreground active:opacity-70'
               }`}
@@ -222,11 +205,8 @@ export default function SettingsPage() {
               min="1"
               max="365"
               value={digestFreq}
-              readOnly={!isSubscribed}
-              onClick={!isSubscribed ? () => setShowUpgradeModal(true) : undefined}
               onChange={(e) => { setDigestSaved(false); setDigestFreq(e.target.value); }}
               className="w-16 bg-background border border-input rounded-xl px-3 py-2 text-sm text-foreground text-center focus:outline-none focus:ring-2 focus:ring-ring"
-              style={!isSubscribed ? { cursor: 'pointer' } : undefined}
             />
             <span className="text-sm text-muted-foreground">{t('settings_digest_frequency_unit')}</span>
           </div>
@@ -238,11 +218,8 @@ export default function SettingsPage() {
               min="1"
               max="365"
               value={digestWindow}
-              readOnly={!isSubscribed}
-              onClick={!isSubscribed ? () => setShowUpgradeModal(true) : undefined}
               onChange={(e) => { setDigestSaved(false); setDigestWindow(e.target.value); }}
               className="w-16 bg-background border border-input rounded-xl px-3 py-2 text-sm text-foreground text-center focus:outline-none focus:ring-2 focus:ring-ring"
-              style={!isSubscribed ? { cursor: 'pointer' } : undefined}
             />
             <span className="text-sm text-muted-foreground">{t('settings_digest_window_unit')}</span>
           </div>
@@ -250,14 +227,14 @@ export default function SettingsPage() {
           {/* Email toggle */}
           <div
             className="flex items-center justify-between cursor-pointer select-none"
-            onClick={() => { if (isSubscribed) setDigestEmailEnabled((v) => !v); else setShowUpgradeModal(true); }}
+            onClick={() => setDigestEmailEnabled((v) => !v)}
           >
             <div>
               <p className="text-sm text-foreground">{t('settings_digest_email_label')}</p>
               <p className="text-xs text-muted-foreground mt-0.5">{t('settings_digest_email_desc')}</p>
             </div>
-            <div className={`ml-4 shrink-0 w-10 h-6 rounded-full flex items-center px-0.5 transition-colors ${isSubscribed && digestEmailEnabled ? 'bg-mint' : 'bg-border/50'} ${!isSubscribed ? 'opacity-40' : ''}`}>
-              <div className={`w-5 h-5 rounded-full bg-white shadow transition-transform ${isSubscribed && digestEmailEnabled ? 'translate-x-4' : 'translate-x-0'}`} />
+            <div className={`ml-4 shrink-0 w-10 h-6 rounded-full flex items-center px-0.5 transition-colors ${digestEmailEnabled ? 'bg-mint' : 'bg-border/50'}`}>
+              <div className={`w-5 h-5 rounded-full bg-white shadow transition-transform ${digestEmailEnabled ? 'translate-x-4' : 'translate-x-0'}`} />
             </div>
           </div>
 
@@ -298,8 +275,6 @@ export default function SettingsPage() {
       </div>
     </div>
     </div>
-
-    {showUpgradeModal && <UpgradeModal onClose={() => setShowUpgradeModal(false)} />}
 
     {showDeleteModal && (
       <div className="fixed inset-0 z-50 flex items-center justify-center px-4">

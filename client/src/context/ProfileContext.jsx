@@ -16,7 +16,7 @@ export function ProfileProvider({ children }) {
   const [bio, setBio] = useState('');
   const [echoTone, setEchoTone] = useState('warm');
   const [profileLoading, setProfileLoading] = useState(true);
-  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(true); // Subscription temporarily disabled — all users get pro
   const [chatsUsedToday, setChatsUsedToday] = useState(0);
   const [dailyChatsResetDate, setDailyChatsResetDate] = useState(null);
 
@@ -43,15 +43,8 @@ export function ProfileProvider({ children }) {
         }
         if ('bio' in d) setBio(d.bio || '');
         if ('echo_tone' in d) setEchoTone(d.echo_tone || 'warm');
-        if ('is_subscribed' in d) setIsSubscribed(!!d.is_subscribed);
-        // Sync with RevenueCat on native
-        if (Capacitor.isNativePlatform()) {
-          try {
-            const { customerInfo } = await Purchases.getCustomerInfo();
-            const hasPro = !!customerInfo.entitlements.active['Echo Pro'];
-            setIsSubscribed(hasPro);
-          } catch (e) { /* fallback to DB value */ }
-        }
+        // Subscription temporarily disabled — all users get pro
+        setIsSubscribed(true);
         if ('daily_chats_used' in d) {
           const today = new Date().toISOString().slice(0, 10);
           // Reset local counter if the DB date is stale

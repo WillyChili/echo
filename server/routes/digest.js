@@ -4,6 +4,7 @@ const supabase = require('../supabase');
 const auth = require('../middleware/auth');
 const { Resend } = require('resend');
 const { sendPushToUser } = require('./push');
+const { TONE_VARIANTS } = require('../echo-soul');
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
@@ -121,12 +122,7 @@ router.get('/', async (req, res) => {
     const tone = profile?.echo_tone || 'warm';
     const bio  = (profile?.bio || '').trim();
 
-    const toneGuide =
-      tone === 'direct'
-        ? 'Be clear and direct. No filler. Get to the point.'
-        : tone === 'curious'
-        ? 'Be thoughtful and curious. End with one reflection question.'
-        : 'Be warm and encouraging. Acknowledge their efforts.';
+    const toneGuide = TONE_VARIANTS[tone] || TONE_VARIANTS['warm'];
 
     const bioSection = bio ? `\nAbout this person:\n${bio}\n` : '';
 

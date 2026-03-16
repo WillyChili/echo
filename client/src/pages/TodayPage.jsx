@@ -522,7 +522,7 @@ export default function TodayPage() {
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder={isNewEntry ? t('today_placeholder_new') : t('today_placeholder_edit')}
-              rows={8}
+              rows={4}
               className="text-base pb-11"
             />
             <span className={`absolute bottom-[14px] left-5 text-xs transition-opacity duration-300 pointer-events-none ${

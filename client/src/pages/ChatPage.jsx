@@ -205,7 +205,7 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="flex-1 flex flex-col min-h-0">
+    <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
 
       {/* Notice bar */}
       <div className="px-4 py-2.5 border-b border-border/60">
@@ -247,7 +247,7 @@ export default function ChatPage() {
       </div>
 
       {/* Input area — sticky keeps it anchored when keyboard appears on Android */}
-      <div className="border-t border-border/60 bg-background/80 backdrop-blur-sm px-4 py-4 flex-shrink-0" style={{ position: 'sticky', bottom: 0 }}>
+      <div className="border-t border-border/60 bg-background/80 backdrop-blur-sm px-4 py-4 flex-shrink-0">
         <div className="max-w-2xl mx-auto">
           {micError && <p className="text-xs text-red-400 mb-2">{micError}</p>}
           <div className="flex items-center gap-2">

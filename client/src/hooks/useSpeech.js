@@ -1,21 +1,17 @@
 import { useState, useRef, useCallback } from 'react';
 import { useTranslation } from './useTranslation';
 
-const LOCALE_MAP = { en: 'en-US', es: 'es-ES' };
-
-// Resolve the BCP-47 locale for speech recognition.
-// Priority: (1) app language the user explicitly chose in Echo settings,
-// (2) device/browser language as a fallback, (3) en-US as last resort.
-// navigator.language is unreliable inside a Capacitor WebView and can return
-// the wrong locale, so we always prefer the user's explicit selection first.
-function getVoiceLang(appLanguage) {
-  if (appLanguage && LOCALE_MAP[appLanguage]) return LOCALE_MAP[appLanguage];
-  const deviceLang = typeof navigator !== 'undefined' ? navigator.language : '';
-  return deviceLang || 'en-US';
+// Normalize transcript: lowercase everything, re-capitalize only sentence starters.
+// Prevents random mid-sentence caps returned by the Web Speech API.
+function normalizeTranscript(text) {
+  if (!text) return text;
+  return text
+    .toLowerCase()
+    .replace(/(^|[.?!]\s+)([a-záéíóúüñ])/gi, (_, prefix, letter) => prefix + letter.toUpperCase());
 }
 
 export function useSpeech(onTranscript) {
-  const { t, language } = useTranslation();
+  const { t } = useTranslation();
   const [isRecording, setIsRecording] = useState(false);
   const [error, setError] = useState(null);
   const recognitionRef = useRef(null);
@@ -43,7 +39,7 @@ export function useSpeech(onTranscript) {
     const r = new SpeechRecognitionClass();
     r.continuous = false;    // one utterance at a time → clean result list each session
     r.interimResults = true; // show text while speaking
-    r.lang = getVoiceLang(language); // app language first, then device locale
+    r.lang = (typeof navigator !== 'undefined' && navigator.language) || 'en-US'; // device locale, independent of app UI language
     r.maxAlternatives = 1;
 
     r.onresult = (event) => {
@@ -58,7 +54,7 @@ export function useSpeech(onTranscript) {
 
       const committed = committedTextRef.current;
       const total = committed ? committed + ' ' + sessionText : sessionText;
-      onTranscript(total.trim());
+      onTranscript(normalizeTranscript(total.trim()));
     };
 
     r.onerror = (e) => {
@@ -123,7 +119,7 @@ export function useSpeech(onTranscript) {
       setError(t('mic_error'));
       setIsRecording(false);
     }
-  }, [onTranscript, t, language]);
+  }, [onTranscript, t]);
 
   const startRecording = useCallback(async (onStart) => {
     if (!isSupported) {

@@ -11,7 +11,7 @@ function normalizeTranscript(text) {
 }
 
 export function useSpeech(onTranscript) {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const [isRecording, setIsRecording] = useState(false);
   const [error, setError] = useState(null);
   const recognitionRef = useRef(null);
@@ -39,7 +39,7 @@ export function useSpeech(onTranscript) {
     const r = new SpeechRecognitionClass();
     r.continuous = false;    // one utterance at a time → clean result list each session
     r.interimResults = true; // show text while speaking
-    r.lang = navigator.language || 'es-419'; // device system language, independent of app UI language
+    r.lang = language === 'es' ? 'es-419' : 'en-US'; // follows profile language setting
     r.maxAlternatives = 1;
 
     r.onresult = (event) => {
@@ -119,7 +119,7 @@ export function useSpeech(onTranscript) {
       setError(t('mic_error'));
       setIsRecording(false);
     }
-  }, [onTranscript, t]);
+  }, [onTranscript, t, language]);
 
   const startRecording = useCallback(async (onStart) => {
     if (!isSupported) {

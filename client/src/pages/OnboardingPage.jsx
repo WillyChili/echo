@@ -19,7 +19,8 @@ const PARTICLES = [
   { angle: '315deg',  r: '84px', duration: '3.8s', size: 4, opacity: 0.8 },
 ];
 
-function ParticleBurst() {
+function ParticleBurst({ lang = 'en' }) {
+  const t = (key) => translations[lang]?.[key] ?? translations.en[key] ?? key;
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -51,6 +52,12 @@ function ParticleBurst() {
           style={{ width: `${progress}%`, transition: 'width 3200ms ease-out' }}
         />
       </div>
+      <p
+        className="mt-6 text-xs text-muted-foreground text-center"
+        style={{ opacity: progress > 0 ? 1 : 0, transition: 'opacity 1s ease 1s' }}
+      >
+        {t('onboarding_loading_hint')}
+      </p>
     </div>
   );
 }
@@ -141,7 +148,7 @@ export default function OnboardingPage() {
   };
 
   // ── Loading screen ──────────────────────────────────────────────────────────
-  if (step === 4) return <ParticleBurst />;
+  if (step === 4) return <ParticleBurst lang={lang} />;
 
   const slideStyle = {
     animation: `${direction === 'right' ? 'slide-in-right' : 'slide-in-left'} 0.28s ease-out both`,

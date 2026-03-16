@@ -10,7 +10,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { useTranslation } from '../hooks/useTranslation.js';
 import { useProfile } from '../context/ProfileContext.jsx';
 
-const LOCALE_MAP = { en: 'en-US', es: 'es-ES' };
+const LOCALE_MAP = { en: 'en-US', es: 'es-AR' };
 
 function formatDate(dateStr, language = 'en') {
   const [year, month, day] = dateStr.split('-').map(Number);
@@ -102,7 +102,7 @@ function CalendarIcon({ className }) {
   );
 }
 
-function MiniCalendar({ year, month, today, selectedDate, noteDates, onSelectDate, onPrevMonth, onNextMonth, onClose }) {
+function MiniCalendar({ year, month, today, selectedDate, noteDates, onSelectDate, onPrevMonth, onNextMonth, onClose, language }) {
   const todayYear = parseInt(today.split('-')[0]);
   const todayMonth = parseInt(today.split('-')[1]) - 1;
   const canGoNext = year < todayYear || (year === todayYear && month < todayMonth);
@@ -114,7 +114,10 @@ function MiniCalendar({ year, month, today, selectedDate, noteDates, onSelectDat
   for (let i = 0; i < firstDay; i++) cells.push(null);
   for (let d = 1; d <= daysInMonth; d++) cells.push(d);
 
-  const monthLabel = new Date(year, month, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  const monthLabel = new Date(year, month, 1).toLocaleDateString(
+    language === 'es' ? 'es-AR' : 'en-US',
+    { month: 'long', year: 'numeric' }
+  );
 
   return (
     <>
@@ -620,6 +623,7 @@ export default function TodayPage() {
                 onPrevMonth={handlePrevMonth}
                 onNextMonth={handleNextMonth}
                 onClose={() => setCalendarOpen(false)}
+                language={language}
               />
             )}
           </div>

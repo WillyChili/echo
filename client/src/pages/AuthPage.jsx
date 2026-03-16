@@ -95,7 +95,7 @@ export default function AuthPage() {
     }, 2000);
   };
 
-  const resetForm = () => { setError(null); setMessage(null); };
+  const resetForm = () => { setError(null); setMessage(null); setEmail(''); setPassword(''); };
 
   const handleSubmit = async (e) => {
     e.preventDefault();

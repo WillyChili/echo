@@ -286,7 +286,7 @@ export default function ChatPage() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={t('chat_placeholder')}
+              placeholder={location.state?.prefill ? t('chat_placeholder_note') : t('chat_placeholder')}
               rows={1}
               className="flex-1 bg-card border border-input rounded-2xl px-4 py-[10px] text-sm text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-ring leading-relaxed h-11 transition-colors squircle"
               style={{ overflowY: 'hidden' }}

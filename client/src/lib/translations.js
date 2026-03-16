@@ -11,8 +11,7 @@ const translations = {
 
     // TodayPage
     today_greeting_hey: 'Hey',
-    today_greeting_suffix: "what's on your mind?",
-    today_editing_past: 'Editing past note',
+    today_editing_past: 'Viewing past note',
     today_new_note: '+ New note',
     today_placeholder_new: "What's on your mind...",
     today_placeholder_edit: 'Edit this note...',
@@ -23,7 +22,7 @@ const translations = {
     today_past_notes: 'Past notes',
     today_notes_header: "Today's notes",
     today_no_notes_date: 'No notes for this day.',
-    today_hold_to_select: 'Hold to select',
+    today_hold_to_select: 'Hold a note to select',
     today_no_notes: 'Your daily notes will appear here. Tap the calendar to browse previous days.',
     today_selected: 'selected',
     today_cancel: 'Cancel',
@@ -32,11 +31,12 @@ const translations = {
     today_back_to_today: 'Back to today',
 
     // ChatPage
-    chat_initial_message: "Hey! I'm Echo 👋 I learn from your notes and get to know you over time. Write about anything you want: a recipe you love, a reminder, an idea, a goal, how your day went. The more you share, the more I get to know you!",
+    chat_initial_message: "Hey! I'm Echo 👋 I learn from your notes and grow with you over time. What's on your mind?",
     chat_notice: 'Echo learns from your notes. Keep writing!',
     chat_listening: 'Listening... speak naturally',
-    chat_placeholder: 'Say something...',
-    chat_error_server: "Can't reach the server right now. Make sure it's running.",
+    chat_placeholder: 'Ask Echo anything...',
+    chat_placeholder_note: 'Ask Echo about this note...',
+    chat_error_server: "Can't connect right now. Check your connection and try again.",
     chat_error_generic: 'Something went wrong. Try again in a moment.',
     chat_loading_more: 'Loading…',
     chat_today: 'Today',
@@ -54,7 +54,7 @@ const translations = {
     pricing_free_price: 'Free',
     pricing_pro_name: 'Pro',
     pricing_current_plan: 'Current plan',
-    pricing_upgrade: 'Subscribe',
+    pricing_upgrade: 'Get Pro',
     pricing_feat_chats_free: '10 chats / day',
     pricing_feat_chats_pro: 'Unlimited chats',
     pricing_feat_notes: 'Unlimited notes',
@@ -73,6 +73,7 @@ const translations = {
     auth_redirecting: 'Redirecting…',
     auth_or: 'or',
     auth_google: 'Continue with Google',
+    auth_continue_google: 'Continue with Google',
     auth_confirm_email: 'Check your email to confirm your account.',
     auth_no_account: "Don't have an account?",
     auth_have_account: 'Already have an account?',
@@ -103,7 +104,7 @@ const translations = {
     edit_profile_saved: 'Saved ✓',
     edit_profile_bio: 'Bio',
     edit_profile_bio_placeholder: 'Tell Echo a bit about yourself',
-    edit_profile_photo_error: 'Could not upload photo. Make sure the "avatars" bucket exists in Supabase Storage.',
+    edit_profile_photo_error: 'Could not upload photo. Try again or use a smaller image.',
 
     // OnboardingPage
     onboarding_intro_title: "Hi, I'm Echo.",
@@ -115,38 +116,18 @@ const translations = {
     onboarding_back: 'Back',
     onboarding_finish: "Let's go!",
     onboarding_notes_title: "Share. I'm listening.",
-    onboarding_notes_body: "I'll read everything you share, learn from it, and answer based on what you've shared.",
+    onboarding_notes_body: "Write what's on your mind — a recipe, an idea, how your day went. I'll learn from it and bring it up when it matters.",
     onboarding_echo_title: 'Meet Echo',
     onboarding_echo_body: "Echo reads your notes and learns about you over time. Ask it anything. It'll always respond based on what you've shared.",
 
-    // AuthPage
-    auth_tagline: 'Your personal AI reflection',
-    auth_sign_in: 'Sign in',
-    auth_create_account: 'Create account',
-    auth_email: 'Email',
-    auth_password: 'Password',
-    auth_loading: 'Loading…',
-    auth_or: 'or',
-    auth_redirecting: 'Redirecting…',
-    auth_continue_google: 'Continue with Google',
-    auth_no_account: "Don't have an account?",
-    auth_have_account: 'Already have an account?',
-    auth_sign_up: 'Sign up',
-    auth_confirm_email: 'Check your email to confirm your account.',
-
-    // MicButton / useSpeech
     mic_not_supported: 'Speech recognition not supported in this browser',
     mic_stop: 'Stop recording',
     mic_start: 'Start voice input',
     mic_blocked: 'Microphone blocked.',
     mic_error: 'Could not start recognition.',
 
-    // TodayPage extra
-    today_back_to_today: 'Back to today',
-
-    // OnboardingPage extra
     onboarding_name_subtitle: 'Echo will use this to address you.',
-    onboarding_back: 'Back',
+    onboarding_loading_hint: "You can customize Echo's personality in Settings.",
 
     // SubscriptionPage
     subscription_title: 'Subscription',
@@ -216,8 +197,7 @@ const translations = {
 
     // TodayPage
     today_greeting_hey: 'Hola',
-    today_greeting_suffix: '¿qué tienes en mente?',
-    today_editing_past: 'Editando nota pasada',
+    today_editing_past: 'Nota del pasado',
     today_new_note: '+ Nueva nota',
     today_placeholder_new: '¿Qué tienes en mente?',
     today_placeholder_edit: 'Editar esta nota...',
@@ -228,7 +208,7 @@ const translations = {
     today_past_notes: 'Notas pasadas',
     today_notes_header: 'Notas de hoy',
     today_no_notes_date: 'Sin notas para este día.',
-    today_hold_to_select: 'Mantén para seleccionar',
+    today_hold_to_select: 'Mantén una nota para seleccionar',
     today_no_notes: 'Aquí verás tus notas diarias. Usá el calendario para ver días anteriores.',
     today_selected: 'seleccionados',
     today_cancel: 'Cancelar',
@@ -237,11 +217,12 @@ const translations = {
     today_back_to_today: 'Volver a hoy',
 
     // ChatPage
-    chat_initial_message: '¡Hola! Soy Echo 👋 Aprendo de tus notas y te voy conociendo con el tiempo. Podés escribir lo que quieras: una receta que te gusta, un recordatorio, una idea, un objetivo, cómo te fue hoy. ¡Cuanto más compartís, mejor te conozco!',
+    chat_initial_message: '¡Hola! Soy Echo 👋 Aprendo de tus notas y te voy conociendo. ¿Qué tenés en mente?',
     chat_notice: 'Echo aprende de tus notas. ¡Sigue escribiendo!',
     chat_listening: 'Escuchando... habla con naturalidad',
-    chat_placeholder: 'Di algo...',
-    chat_error_server: 'No se puede conectar con el servidor. Asegúrate de que está en funcionamiento.',
+    chat_placeholder: 'Preguntale algo a Echo...',
+    chat_placeholder_note: 'Preguntale a Echo sobre esta nota...',
+    chat_error_server: 'No se puede conectar ahora. Revisá tu conexión e intentá de nuevo.',
     chat_error_generic: 'Algo salió mal. Intentá de nuevo en un momento.',
     chat_loading_more: 'Cargando…',
     chat_today: 'Hoy',
@@ -259,7 +240,7 @@ const translations = {
     pricing_free_price: 'Gratis',
     pricing_pro_name: 'Pro',
     pricing_current_plan: 'Plan actual',
-    pricing_upgrade: 'Suscribirme',
+    pricing_upgrade: 'Obtener Pro',
     pricing_feat_chats_free: '10 chats / día',
     pricing_feat_chats_pro: 'Chats ilimitados',
     pricing_feat_notes: 'Notas ilimitadas',
@@ -278,6 +259,7 @@ const translations = {
     auth_redirecting: 'Redirigiendo…',
     auth_or: 'o',
     auth_google: 'Continuar con Google',
+    auth_continue_google: 'Continuar con Google',
     auth_confirm_email: 'Revisá tu email para confirmar tu cuenta.',
     auth_no_account: '¿No tenés cuenta?',
     auth_have_account: '¿Ya tenés cuenta?',
@@ -308,7 +290,7 @@ const translations = {
     edit_profile_saved: 'Guardado ✓',
     edit_profile_bio: 'Bio',
     edit_profile_bio_placeholder: 'Contale a Echo un poco sobre vos',
-    edit_profile_photo_error: 'No se pudo subir la foto. Asegúrate de que el bucket "avatars" existe en Supabase Storage.',
+    edit_profile_photo_error: 'No se pudo subir la foto. Intentá de nuevo o usá una imagen más pequeña.',
 
     // OnboardingPage
     onboarding_intro_title: 'Hola, soy Echo.',
@@ -320,7 +302,7 @@ const translations = {
     onboarding_back: 'Volver',
     onboarding_finish: '¡Vamos!',
     onboarding_notes_title: 'Compartí. Te escucho.',
-    onboarding_notes_body: 'Leo todo lo que compartís, aprendo de eso y respondo basándome en lo que compartiste.',
+    onboarding_notes_body: 'Escribí lo que tengas en mente — una receta, una idea, cómo te fue hoy. Aprendo de eso y lo traigo cuando importa.',
     onboarding_echo_title: 'Conocé a Echo',
     onboarding_echo_body: 'Echo lee tus notas y te va conociendo con el tiempo. Preguntale lo que quieras. Siempre va a responder basándose en lo que compartiste.',
     onboarding_loading_1: 'Configurando el idioma...',
@@ -328,21 +310,7 @@ const translations = {
     onboarding_loading_3: 'Personalizando tu experiencia...',
     onboarding_loading_4: 'Echo está listo.',
     onboarding_name_subtitle: 'Echo te va a llamar por este nombre.',
-
-    // AuthPage
-    auth_tagline: 'Tu reflexión personal con IA',
-    auth_sign_in: 'Iniciar sesión',
-    auth_create_account: 'Crear cuenta',
-    auth_email: 'Email',
-    auth_password: 'Contraseña',
-    auth_loading: 'Cargando…',
-    auth_or: 'o',
-    auth_redirecting: 'Redirigiendo…',
-    auth_continue_google: 'Continuar con Google',
-    auth_no_account: '¿No tenés cuenta?',
-    auth_have_account: '¿Ya tenés cuenta?',
-    auth_sign_up: 'Registrate',
-    auth_confirm_email: 'Revisá tu email para confirmar tu cuenta.',
+    onboarding_loading_hint: 'Podés personalizar la personalidad de Echo en Ajustes.',
 
     // MicButton / useSpeech
     mic_not_supported: 'Reconocimiento de voz no soportado en este navegador',
@@ -350,9 +318,6 @@ const translations = {
     mic_start: 'Iniciar voz',
     mic_blocked: 'Micrófono bloqueado.',
     mic_error: 'No se pudo iniciar el reconocimiento.',
-
-    // TodayPage extra
-    today_back_to_today: 'Volver a hoy',
 
     // SettingsPage
     // SubscriptionPage

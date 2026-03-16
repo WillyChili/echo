@@ -261,7 +261,7 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          {digestSaved && <p className="text-xs text-green-400">{t('settings_digest_saved')}</p>}
+          {digestSaved && <p className="text-xs text-mint">{t('settings_digest_saved')}</p>}
 
           <button
             type="submit"

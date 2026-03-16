@@ -19,6 +19,8 @@ export default function UpgradeModal({ limit, onClose }) {
       if (pkg) {
         await Purchases.purchasePackage({ aPackage: pkg });
         await refreshProfile();
+      } else {
+        console.warn('No packages available');
       }
     } catch (e) {
       if (!e.userCancelled) console.error('Purchase failed', e);
@@ -75,6 +77,11 @@ export default function UpgradeModal({ limit, onClose }) {
           {/* Divider */}
           <div className="h-px bg-gradient-to-r from-transparent via-mint/20 to-transparent mb-5" />
 
+          {/* Free plan note */}
+          <p className="text-xs text-muted-foreground/70 mb-4">
+            {t('pricing_free_name')}: {t('pricing_feat_chats_free')} · {t('pricing_feat_digest_free')}
+          </p>
+
           {/* Features */}
           <ul className="flex flex-col gap-3 mb-7">
             <Feature label={t('pricing_feat_chats_pro')} />
@@ -89,7 +96,7 @@ export default function UpgradeModal({ limit, onClose }) {
             className="w-full h-13 py-3.5 rounded-2xl bg-mint text-background text-base font-bold tracking-wide transition-opacity active:opacity-75 shadow-lg"
             style={{ boxShadow: '0 4px 24px rgba(44,213,156,0.30)' }}
           >
-            {t('pricing_upgrade')} — $5/mo
+            {t('pricing_upgrade')}
           </button>
 
           {/* Maybe later */}

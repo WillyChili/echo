@@ -6,12 +6,12 @@ import './index.css';
 import { Purchases } from '@revenuecat/purchases-capacitor';
 import { Capacitor } from '@capacitor/core';
 
-// RevenueCat — initialize on native platforms only
-if (Capacitor.isNativePlatform()) {
-  Purchases.configure({
-    apiKey: 'test_saRmVunoRuVHLuBFMQQVblsmLrL',
-  });
-}
+// RevenueCat — TODO: uncomment with production key from app.revenuecat.com
+// if (Capacitor.isNativePlatform()) {
+//   Purchases.configure({
+//     apiKey: 'YOUR_PRODUCTION_KEY_HERE',
+//   });
+// }
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

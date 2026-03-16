@@ -10,15 +10,6 @@ export function AuthProvider({ children }) {
   const [oauthError, setOauthError] = useState(null);
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession()
-      .then(({ data: { session } }) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-      })
-      .catch((e) => console.error('getSession failed:', e))
-      .finally(() => setLoading(false));
-
     // Listen for auth changes (login, logout, token refresh)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_OUT') {
@@ -26,14 +17,31 @@ export function AuthProvider({ children }) {
         setSession(null);
         setUser(null);
       } else if (event === 'TOKEN_REFRESHED') {
-        // Update tokens silently — don't touch user state so we don't
-        // re-trigger profile fetches and show a loading spinner on app resume
         setSession(session);
       } else {
         setSession(session);
         setUser(session?.user ?? null);
       }
     });
+
+    // Handle PKCE OAuth redirect: exchange ?code= for a session
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    if (code) {
+      window.history.replaceState({}, '', window.location.pathname);
+      supabase.auth.exchangeCodeForSession(code)
+        .catch((e) => console.error('exchangeCodeForSession error:', e))
+        .finally(() => setLoading(false));
+    } else {
+      // Normal load: get existing session
+      supabase.auth.getSession()
+        .then(({ data: { session } }) => {
+          setSession(session);
+          setUser(session?.user ?? null);
+        })
+        .catch((e) => console.error('getSession failed:', e))
+        .finally(() => setLoading(false));
+    }
 
     return () => subscription.unsubscribe();
   }, []);

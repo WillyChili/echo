@@ -257,12 +257,17 @@ export default function ChatPage() {
             <textarea
               ref={inputRef}
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+              onChange={(e) => {
+                setInput(e.target.value);
+                const el = e.target;
+                el.style.height = 'auto';
+                el.style.height = Math.min(el.scrollHeight, 88) + 'px'; // max ~3 lines
+              }}
               onKeyDown={handleKeyDown}
               placeholder={location.state?.prefill ? t('chat_placeholder_note') : t('chat_placeholder')}
               rows={1}
               className="flex-1 bg-card border border-input rounded-2xl px-4 py-[10px] text-sm text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-ring leading-relaxed h-11 transition-colors squircle"
-              style={{ overflowY: 'hidden' }}
+              style={{ overflowY: 'auto', maxHeight: '88px' }}
             />
             {isSupported && (
               <button

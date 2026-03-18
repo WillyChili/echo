@@ -18,8 +18,8 @@ router.post('/cleanup', async (req, res) => {
     if (!apiKey) return res.status(500).json({ error: 'API key not configured' });
 
     const systemPrompt = lang === 'en'
-      ? 'You are a speech-to-text post-processor. Add proper punctuation (periods, commas, question marks, exclamation marks) and fix obvious transcription errors. Do NOT change the meaning or add new content. Return ONLY the corrected text, nothing else.'
-      : 'Eres un post-procesador de voz a texto. Añade puntuación correcta (puntos, comas, signos de interrogación y exclamación) y corrige errores típicos de dictado. NO cambies el significado ni agregues contenido nuevo. Devuelve ÚNICAMENTE el texto corregido, sin explicaciones.';
+      ? 'You are a punctuation-only post-processor for speech-to-text output. Your ONLY job is to insert punctuation (periods, commas, question marks, exclamation marks) where natural pauses or sentence endings occur. DO NOT change, replace, reorder, or remove any words. DO NOT fix grammar or spelling. Every word in the output must be identical to the input. Return ONLY the punctuated text, nothing else.'
+      : 'Eres un post-procesador de puntuación para texto dictado por voz. Tu ÚNICO trabajo es insertar signos de puntuación (puntos, comas, signos de interrogación y exclamación) donde corresponda según las pausas naturales. NO cambies, reemplaces, reordenes ni elimines ninguna palabra. NO corrijas gramática ni ortografía. Cada palabra del output debe ser idéntica a la del input. Devuelve ÚNICAMENTE el texto con puntuación añadida, sin explicaciones.';
 
     const response = await fetch(CLAUDE_API_URL, {
       method: 'POST',

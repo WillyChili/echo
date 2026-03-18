@@ -4,6 +4,7 @@ import MicButton from '../components/MicButton.jsx';
 import { useSpeech } from '../hooks/useSpeech.js';
 import { cn } from '@/lib/utils';
 import { authFetch } from '../lib/api.js';
+import { cleanupSpeechText } from '../lib/speechCleanup.js';
 import { useTranslation } from '../hooks/useTranslation.js';
 import { useProfile } from '../context/ProfileContext.jsx';
 
@@ -46,8 +47,10 @@ export default function ChatPage() {
     setInput(base + sep + sessionText);
   }, []);
 
-  const { isRecording, isSupported, startRecording, stopRecording, error: speechError, speechLang, toggleSpeechLang } =
-    useSpeech(handleTranscript);
+  const { isRecording, isCleaning, isSupported, startRecording, stopRecording, error: speechError, speechLang, toggleSpeechLang } =
+    useSpeech(handleTranscript, {
+      cleanupFn: (text) => cleanupSpeechText(text, speechLang),
+    });
 
   useEffect(() => {
     if (speechError) setMicError(speechError);
@@ -279,9 +282,9 @@ export default function ChatPage() {
             <button
               type="button"
               onClick={send}
-              disabled={!input.trim() || isLoading}
+              disabled={!input.trim() || isLoading || isCleaning}
               className={`rounded-full shrink-0 h-11 w-11 flex items-center justify-center transition-colors duration-150 focus:outline-none select-none ${
-                input.trim() && !isLoading
+                input.trim() && !isLoading && !isCleaning
                   ? 'bg-mint text-background active:bg-mint/70'
                   : 'bg-mint/20 text-mint/50 cursor-default'
               }`}
@@ -291,6 +294,9 @@ export default function ChatPage() {
           </div>
           {isRecording && (
             <p className="text-xs text-mint mt-2 text-center animate-pulse">{t('chat_listening')}</p>
+          )}
+          {isCleaning && (
+            <p className="text-xs text-mint/70 mt-2 text-center animate-pulse">{t('speech_cleaning')}</p>
           )}
         </div>
       </div>

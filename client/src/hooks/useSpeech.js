@@ -12,9 +12,11 @@ function normalizeTranscript(text) {
 
 const STORAGE_KEY = 'echo_speech_lang';
 
-export function useSpeech(onTranscript) {
+export function useSpeech(onTranscript, options = {}) {
+  const { cleanupFn } = options;
   const { t, language } = useTranslation();
   const [isRecording, setIsRecording] = useState(false);
+  const [isCleaning, setIsCleaning] = useState(false);
   const [error, setError] = useState(null);
   const recognitionRef = useRef(null);
 
@@ -137,15 +139,31 @@ export function useSpeech(onTranscript) {
     startSession();
   }, [isSupported, startSession]);
 
-  const stopRecording = useCallback(() => {
+  const stopRecording = useCallback(async () => {
     const rec = recognitionRef.current;
     recognitionRef.current = null;
     try { rec?.stop(); } catch {}
+
+    const rawText = [committedTextRef.current, lastSessionTextRef.current]
+      .filter(Boolean).join(' ').trim();
+
     committedTextRef.current = '';
     lastSessionTextRef.current = '';
     silentRestartCountRef.current = 0;
     setIsRecording(false);
-  }, []);
 
-  return { isRecording, isSupported, startRecording, stopRecording, error, speechLang, toggleSpeechLang };
+    if (cleanupFn && rawText) {
+      setIsCleaning(true);
+      try {
+        const cleaned = await cleanupFn(rawText);
+        onTranscript(normalizeTranscript(cleaned));
+      } catch {
+        // keep raw text already shown in the textarea
+      } finally {
+        setIsCleaning(false);
+      }
+    }
+  }, [cleanupFn, onTranscript]);
+
+  return { isRecording, isCleaning, isSupported, startRecording, stopRecording, error, speechLang, toggleSpeechLang };
 }

@@ -6,6 +6,7 @@ import { Textarea } from '../components/ui/textarea.jsx';
 import { useSpeech } from '../hooks/useSpeech.js';
 import { useAudioVisualizer } from '../hooks/useAudioVisualizer.js';
 import { authFetch } from '../lib/api.js';
+import { cleanupSpeechText } from '../lib/speechCleanup.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useTranslation } from '../hooks/useTranslation.js';
 import { useProfile } from '../context/ProfileContext.jsx';
@@ -226,8 +227,10 @@ export default function TodayPage() {
     setContent(base + sep + sessionText);
   }, []);
 
-  const { isRecording, isSupported, startRecording, stopRecording, error: speechError, speechLang, toggleSpeechLang } =
-    useSpeech(handleTranscript);
+  const { isRecording, isCleaning, isSupported, startRecording, stopRecording, error: speechError, speechLang, toggleSpeechLang } =
+    useSpeech(handleTranscript, {
+      cleanupFn: (text) => cleanupSpeechText(text, speechLang),
+    });
 
   const barHeights = useAudioVisualizer(false, 9); // disabled - conflicts with SpeechRecognition on Android
 
@@ -555,7 +558,7 @@ export default function TodayPage() {
               <Button
                 size="sm"
                 onClick={saveAndNew}
-                disabled={!content.trim() || saveStatus === 'saving'}
+                disabled={!content.trim() || saveStatus === 'saving' || isCleaning}
               >
                 {t('today_save')}
               </Button>
@@ -593,6 +596,7 @@ export default function TodayPage() {
               </div>
             </div>
             {isRecording && <span className="text-xs text-mint animate-pulse tracking-wide">{t('today_listening')}</span>}
+            {isCleaning && <span className="text-xs text-mint/70 animate-pulse tracking-wide">{t('speech_cleaning')}</span>}
             {micError && <span className="text-xs text-red-400">{micError}</span>}
           </div>
         </div>

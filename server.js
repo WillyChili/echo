@@ -10,6 +10,7 @@ const profileRouter  = require('./server/routes/profile');
 const digestRouter   = require('./server/routes/digest');
 const pushRouter     = require('./server/routes/push');
 const accountRouter  = require('./server/routes/account');
+const speechRouter   = require('./server/routes/speech');
 
 const path = require('path');
 
@@ -110,6 +111,7 @@ app.use('/api/profile',  profileRouter);
 app.use('/api/digest',   digestRouter);
 app.use('/api/push',     pushRouter);
 app.use('/api/account',  accountRouter);
+app.use('/api/speech',   speechRouter);
 
 // Health check
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));

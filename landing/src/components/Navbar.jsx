@@ -93,12 +93,14 @@ export default function Navbar() {
 
         {/* Desktop CTA */}
         <div className="hidden md:block">
-          <button
-            disabled
-            className="px-4 py-1.5 rounded-lg border border-white/[0.10] bg-white/[0.04] text-white/40 text-sm font-medium cursor-not-allowed"
+          <a
+            href="https://play.google.com/store/apps/details?id=com.willychili.echo"
+            target="_blank"
+            rel="noreferrer"
+            className="px-4 py-1.5 rounded-lg bg-[#2CD59C]/10 border border-[#2CD59C]/30 text-[#2CD59C] text-sm font-medium hover:bg-[#2CD59C]/20 hover:border-[#2CD59C]/50 transition-all"
           >
-            Get it on Play Store
-          </button>
+            Download Free
+          </a>
         </div>
 
         {/* Mobile hamburger */}
@@ -147,12 +149,14 @@ export default function Navbar() {
               </button>
             );
           })}
-          <button
-            disabled
-            className="mt-4 w-full py-2.5 rounded-xl border border-white/[0.08] bg-white/[0.03] text-white/35 text-sm cursor-not-allowed"
+          <a
+            href="https://play.google.com/store/apps/details?id=com.willychili.echo"
+            target="_blank"
+            rel="noreferrer"
+            className="mt-4 flex items-center justify-center w-full py-2.5 rounded-xl bg-[#2CD59C]/10 border border-[#2CD59C]/30 text-[#2CD59C] text-sm font-medium hover:bg-[#2CD59C]/20 transition-all"
           >
-            Get it on Play Store
-          </button>
+            Download Free
+          </a>
         </div>
       </div>
     </nav>

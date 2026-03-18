@@ -1,6 +1,7 @@
 import EchoLogo from '../assets/echo-logo.svg';
 import DitherCanvas from './DitherCanvas';
 
+const PLAY_STORE = 'https://play.google.com/store/apps/details?id=com.willychili.echo';
 
 export default function Hero() {
   const scrollTo = id => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
@@ -8,16 +9,16 @@ export default function Hero() {
   return (
     <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
 
-      {/* Dither + paper shader */}
+      {/* Dither shader background */}
       <div className="absolute inset-0 opacity-50">
         <DitherCanvas pixelSize={2} />
       </div>
 
-      {/* Gradient overlay — dark top/bottom, lets dither breathe in the middle */}
+      {/* Gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-b
         from-[#070707]/85 via-black/40 to-[#070707]/90" />
 
-      {/* Dot grid overlay */}
+      {/* Dot grid */}
       <div className="absolute inset-0 dot-grid opacity-[0.22]" />
 
       {/* Glow orbs */}
@@ -30,7 +31,7 @@ export default function Hero() {
 
         {/* Badge */}
         <div className="fade-up inline-flex items-center gap-2 px-5 py-2.5 rounded-full
-          bg-white/[0.07] border border-white/[0.15] text-white/70
+          bg-white/[0.07] border border-white/[0.15] text-white/75
           text-sm font-medium tracking-wide mb-8 backdrop-blur-sm">
           <span className="dot-pulse w-2 h-2 rounded-full bg-[#2CD59C]" />
           Personal AI Reflection · Android
@@ -47,29 +48,31 @@ export default function Hero() {
         {/* Subtitle */}
         <p className="fade-up-2 text-lg md:text-xl text-white/80 max-w-[38rem] mx-auto mb-10 leading-[1.7]">
           Share your thoughts, a recipe, an idea, or how your day went.
-          Echo learns from them, grows with you, and brings them back when it matters most.
+          Echo learns from them, grows with you, and brings them back when it matters.
         </p>
 
         {/* CTAs */}
         <div className="fade-up-3 flex flex-col sm:flex-row items-center justify-center gap-3 mb-16">
 
-          {/* Primary — solid, coming soon */}
-          <button
-            disabled
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl
+          {/* Primary */}
+          <a
+            href={PLAY_STORE}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-xl
               bg-[#2CD59C] text-[#070707] font-bold text-sm
-              opacity-55 cursor-not-allowed"
+              hover:bg-[#34e8a8] active:scale-95 transition-all duration-150 shadow-lg shadow-[#2CD59C]/20"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
               <path d="M3.18 23.76c.33.18.7.24 1.06.2l12.76-11.4-2.76-2.76L3.18 23.76zm17.6-13.37L17.9 8.74l-3.06 3.06 3.06 3.06 2.9-1.66a1.65 1.65 0 000-2.81zM1.16 1.26a1.64 1.64 0 00-.16.72v19.04c0 .26.06.51.16.72l.1.1L13.1 9.9v-.3L1.26 1.16l-.1.1zm7.42 8.88L5.22 6.78l-.12.12 12.76 11.4.12-.12-9.4-8.04z"/>
             </svg>
-            Coming to Play Store
-          </button>
+            Get it on Android
+          </a>
 
           {/* Secondary */}
           <button
             onClick={() => scrollTo('product')}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl
+            className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl
               border border-white/25 text-white/85
               hover:text-white hover:border-white/45 hover:bg-white/[0.05]
               transition-all text-sm font-medium backdrop-blur-sm"
@@ -85,7 +88,7 @@ export default function Hero() {
 
       {/* Scroll hint */}
       <div className="absolute bottom-7 left-1/2 -translate-x-1/2 z-10 animate-bounce opacity-55 flex flex-col items-center gap-1">
-        <span className="text-white/40 text-[10px] tracking-[0.12em] uppercase font-medium select-none">Scroll</span>
+        <span className="text-white/50 text-[10px] tracking-[0.12em] uppercase font-medium select-none">Scroll</span>
         <svg className="w-4 h-4 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7"/>
         </svg>

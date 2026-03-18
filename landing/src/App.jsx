@@ -1,9 +1,10 @@
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Marquee from './components/Marquee';
+import Solution from './components/Solution';
 import Product from './components/Product';
 import Features from './components/Features';
-import Solution from './components/Solution';
+import Trust from './components/Trust';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 
@@ -17,6 +18,7 @@ export default function App() {
         <Solution />
         <Product />
         <Features />
+        <Trust />
         <Contact />
       </main>
       <Footer />

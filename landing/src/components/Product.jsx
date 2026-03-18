@@ -42,7 +42,6 @@ const STEPS = [
 export default function Product() {
   return (
     <section id="product" className="relative py-28 px-6 border-t border-white/[0.05]">
-      {/* Subtle dot grid */}
       <div className="absolute inset-0 dot-grid opacity-20 pointer-events-none" />
 
       <div className="relative max-w-5xl mx-auto">
@@ -53,28 +52,26 @@ export default function Product() {
               style={{ fontSize: 'clamp(1.9rem, 5vw, 3rem)' }}>
             Three steps. That is all.
           </h2>
-          <p className="text-white/60 text-lg max-w-md mx-auto leading-relaxed">
+          <p className="text-white/65 text-lg max-w-md mx-auto leading-relaxed">
             No setup. No prompts. Just write and go.
           </p>
         </AnimateIn>
 
-        {/* Steps with connector */}
+        {/* Steps */}
         <div className="relative grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Connector line (desktop) */}
           <div className="hidden md:block absolute top-12 left-[calc(16.66%+24px)] right-[calc(16.66%+24px)] h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 
           {STEPS.map((step, i) => (
             <AnimateIn key={i} delay={i * 150}>
               <div className="card p-7 group h-full">
-                {/* Top row */}
                 <div className="flex items-center justify-between mb-6">
                   <div className="w-11 h-11 rounded-xl bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-[#2CD59C] group-hover:border-[#2CD59C]/30 group-hover:bg-[#2CD59C]/10 transition-all">
                     {step.icon}
                   </div>
-                  <span className="font-mono text-xs text-white/25">{step.num}</span>
+                  <span className="font-mono text-xs text-white/35">{step.num}</span>
                 </div>
 
-                <span className="inline-block px-2.5 py-0.5 rounded-full bg-white/[0.04] border border-white/[0.07] text-white/45 text-xs font-medium mb-3">
+                <span className="inline-block px-2.5 py-0.5 rounded-full bg-white/[0.04] border border-white/[0.08] text-white/55 text-xs font-medium mb-3">
                   {step.detail}
                 </span>
 

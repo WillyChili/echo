@@ -119,7 +119,7 @@ export default function Features() {
               style={{ fontSize: 'clamp(1.9rem, 5vw, 3rem)' }}>
             Built around how you actually think
           </h2>
-          <p className="text-white/60 text-lg max-w-sm mx-auto">
+          <p className="text-white/65 text-lg max-w-sm mx-auto">
             Capture fast. Review often. Echo remembers everything in between.
           </p>
         </AnimateIn>
@@ -137,7 +137,7 @@ export default function Features() {
               <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-[#2CD59C] transition-colors">
                 Voice & Text Notes
               </h3>
-              <p className="text-base text-white/65 leading-relaxed">
+              <p className="text-base text-white/70 leading-relaxed">
                 Capture ideas however they come. Type freely or speak naturally. Echo listens either way.
               </p>
             </div>
@@ -153,7 +153,7 @@ export default function Features() {
               <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-[#2CD59C] transition-colors">
                 AI Chat
               </h3>
-              <p className="text-base text-white/65 leading-relaxed">
+              <p className="text-base text-white/70 leading-relaxed">
                 Ask Echo anything about your notes. It answers from your own words.
               </p>
             </div>
@@ -180,7 +180,7 @@ export default function Features() {
               <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-[#2CD59C] transition-colors">
                 Weekly Digest
               </h3>
-              <p className="text-base text-white/65 leading-relaxed">
+              <p className="text-base text-white/70 leading-relaxed">
                 A curated summary of your notes, delivered on a schedule you choose.
               </p>
             </div>
@@ -198,7 +198,7 @@ export default function Features() {
               <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-[#2CD59C] transition-colors">
                 Custom Personality
               </h3>
-              <p className="text-base text-white/65 leading-relaxed">
+              <p className="text-base text-white/70 leading-relaxed">
                 Warm, Direct, or Curious. Tune how Echo sounds so it truly feels like yours.
               </p>
               <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-[#2CD59C]/10 rounded-full blur-2xl pointer-events-none" />
@@ -226,7 +226,7 @@ export default function Features() {
               <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-[#2CD59C] transition-colors">
                 Email Summaries
               </h3>
-              <p className="text-base text-white/65 leading-relaxed">
+              <p className="text-base text-white/70 leading-relaxed">
                 Get your weekly digest straight in your inbox.
               </p>
             </div>
@@ -242,7 +242,7 @@ export default function Features() {
               <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-[#2CD59C] transition-colors">
                 Bilingual
               </h3>
-              <p className="text-base text-white/65 leading-relaxed">
+              <p className="text-base text-white/70 leading-relaxed">
                 Fully available in English and Español. Echo speaks your language.
               </p>
             </div>

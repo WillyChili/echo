@@ -232,7 +232,9 @@ export default function TodayPage() {
       cleanupFn: (text) => cleanupSpeechText(text, speechLang),
     });
 
-  const barHeights = useAudioVisualizer(false, 9); // disabled - conflicts with SpeechRecognition on Android
+  // Enable visualizer on web only — on Android two simultaneous mic streams conflict
+  const isAndroid = window.Capacitor?.getPlatform?.() === 'android';
+  const barHeights = useAudioVisualizer(isRecording && !isAndroid, 9);
 
   useEffect(() => { if (speechError) setMicError(speechError); }, [speechError]);
 

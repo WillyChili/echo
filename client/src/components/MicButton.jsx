@@ -6,20 +6,26 @@ import { useTranslation } from '../hooks/useTranslation';
  *   isRecording   boolean
  *   isSupported   boolean
  *   onToggle      () => void
- *   size?         'sm' | 'md' | 'lg'  (default 'md')
+ *   size?         'sm' | 'md' | 'lg' | 'home'  (default 'md')
+ *   isCleaning?   boolean  — shows spinner while post-processing
  */
-export default function MicButton({ isRecording, isSupported, onToggle, size = 'md' }) {
+export default function MicButton({ isRecording, isSupported, onToggle, size = 'md', isCleaning = false }) {
   const { t } = useTranslation();
   const sizeClass =
     size === 'sm'   ? 'w-9 h-9' :
     size === 'lg'   ? 'w-28 h-28' :
-    size === 'home' ? 'w-[90px] h-[90px]' :  // EAI-40: 80% of lg (112px)
+    size === 'home' ? 'w-[90px] h-[90px]' :
     'w-11 h-11';
 
   const iconClass =
     size === 'sm'   ? 'w-4 h-4' :
     size === 'lg'   ? 'w-10 h-10' :
-    size === 'home' ? 'w-8 h-8' :             // EAI-40: 80% of lg icon
+    size === 'home' ? 'w-8 h-8' :
+    'w-5 h-5';
+
+  const spinnerClass =
+    size === 'home' ? 'w-8 h-8' :
+    size === 'lg'   ? 'w-10 h-10' :
     'w-5 h-5';
 
   if (!isSupported) {
@@ -34,16 +40,30 @@ export default function MicButton({ isRecording, isSupported, onToggle, size = '
     );
   }
 
+  if (isCleaning) {
+    return (
+      <button
+        disabled
+        className={`${sizeClass} rounded-full flex items-center justify-center bg-mint/20 text-mint cursor-wait select-none`}
+        title="..."
+      >
+        <SpinnerIcon className={spinnerClass} />
+      </button>
+    );
+  }
+
   return (
     <button
       onClick={onToggle}
       title={isRecording ? t('mic_stop') : t('mic_start')}
       className={[
         sizeClass,
-        'rounded-full flex items-center justify-center transition-colors duration-150 focus:outline-none select-none',
+        'rounded-full flex items-center justify-center transition-all duration-150 focus:outline-none select-none active:scale-95',
         isRecording
           ? 'bg-mint text-background mic-recording active:bg-mint/80'
-          : 'bg-secondary text-muted-foreground active:bg-secondary/60 active:text-foreground',
+          : size === 'home'
+            ? 'bg-mint/15 text-mint active:bg-mint/25'
+            : 'bg-secondary text-muted-foreground active:bg-secondary/60 active:text-foreground',
       ].join(' ')}
     >
       {isRecording ? <StopIcon className={iconClass} /> : <MicIcon className={iconClass} />}
@@ -64,6 +84,14 @@ function StopIcon({ className = 'w-4 h-4' }) {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={className}>
       <rect x="6" y="6" width="12" height="12" rx="2" />
+    </svg>
+  );
+}
+
+function SpinnerIcon({ className = 'w-5 h-5' }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" className={`${className} animate-spin`}>
+      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeDasharray="31.4 62.8" />
     </svg>
   );
 }

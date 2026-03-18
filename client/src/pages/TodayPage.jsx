@@ -589,6 +589,7 @@ export default function TodayPage() {
                   isSupported={isSupported}
                   onToggle={toggleMic}
                   size="home"
+                  isCleaning={isCleaning}
                 />
               </div>
               <div className={`transition-opacity duration-300 ${isRecording ? 'opacity-100' : 'opacity-0'}`}>

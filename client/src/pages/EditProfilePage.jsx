@@ -6,6 +6,25 @@ import { useProfile } from '../context/ProfileContext';
 import { useTranslation } from '../hooks/useTranslation';
 import { usePushNotifications } from '../hooks/usePushNotifications';
 
+// ── Compress image before upload (max 200×200, JPEG 80%) ─────────────────────
+function compressImage(file, maxSize = 200, quality = 0.8) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const canvas = document.createElement('canvas');
+      const scale = Math.min(maxSize / img.width, maxSize / img.height, 1);
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob((blob) => resolve(blob), 'image/jpeg', quality);
+    };
+    img.src = url;
+  });
+}
+
 // ── Individual field card (Instagram-style) ──────────────────────────────────
 function Field({ label, children }) {
   return (
@@ -63,8 +82,9 @@ export default function EditProfilePage() {
     setError(null);
     try {
       const path = `${user.id}/avatar`;
-      const contentType = file.type || 'image/jpeg';
-      const arrayBuffer = await file.arrayBuffer();
+      const compressed = await compressImage(file);
+      const contentType = 'image/jpeg';
+      const arrayBuffer = await compressed.arrayBuffer();
       const { error: uploadError } = await supabase.storage
         .from('avatars')
         .upload(path, arrayBuffer, { upsert: true, contentType });

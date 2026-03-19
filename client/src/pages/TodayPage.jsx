@@ -195,6 +195,7 @@ export default function TodayPage() {
   const [content, setContent] = useState(() => localStorage.getItem('echo_draft_content') || '');
   const [notes, setNotes] = useState([]);
   const [saveStatus, setSaveStatus] = useState('');
+  const isSavingRef = useRef(false);
   const [micError, setMicError] = useState(null);
   const [viewingDate, setViewingDate] = useState(() => localStorage.getItem('echo_draft_viewing_date') || null);
 
@@ -332,7 +333,8 @@ export default function TodayPage() {
 
   // ── Save on demand (tap "Guardar") → archive note + fresh editor ─────────
   const saveAndNew = useCallback(async () => {
-    if (!content.trim()) return;
+    if (!content.trim() || isSavingRef.current) return;
+    isSavingRef.current = true;
     setSaveStatus('saving');
     try {
       let res;
@@ -360,7 +362,12 @@ export default function TodayPage() {
           setViewingDate(null);
         }, 600);
       }
-    } catch (e) { console.error('Save failed:', e); setSaveStatus(''); }
+    } catch (e) {
+      console.error('Save failed:', e);
+      setSaveStatus('');
+    } finally {
+      isSavingRef.current = false;
+    }
   }, [content, currentNoteId, todayDate, fetchAllNotes]);
 
   // ── Open a past note into the editor ─────────────────────────────────────
@@ -495,7 +502,7 @@ export default function TodayPage() {
         >
           {refreshing && (
             <div className="flex justify-center -mt-4 mb-0">
-              <span className="text-xs text-mint animate-pulse">↓</span>
+              <div className="w-5 h-5 rounded-full border-2 border-mint/30 border-t-mint animate-spin" />
             </div>
           )}
 
@@ -540,13 +547,7 @@ export default function TodayPage() {
                 {speechLang === 'es' ? '🎙 ES' : '🎙 EN'}
               </button>
             )}
-            <span className={`absolute bottom-[14px] left-16 text-xs transition-opacity duration-300 pointer-events-none ${
-              saveStatus === 'saving' ? 'text-muted-foreground opacity-100'
-              : saveStatus === 'saved'  ? 'text-mint opacity-100'
-              : 'opacity-0'
-            }`}>
-              {saveStatus === 'saving' ? t('today_saving') : t('today_saved')}
-            </span>
+
             <div className="absolute bottom-2 right-2 flex items-center gap-2">
               {content.trim() && (
                 <button
@@ -673,7 +674,7 @@ export default function TodayPage() {
                       className={`w-full text-left px-4 py-3 rounded-2xl border squircle cursor-pointer select-none ${
                         isSelected ? 'border-mint bg-mint/10'
                         : isActive  ? 'border-mint bg-mint/5'
-                        : 'border-border/50 bg-card/40'
+                        : 'border-border/80 bg-card/80'
                       }`}
                     >
                       <div className="flex items-center justify-between gap-3">
@@ -714,6 +715,7 @@ export default function TodayPage() {
         </div>
         </div>
         </div>
+
       </div>
     </>
   );

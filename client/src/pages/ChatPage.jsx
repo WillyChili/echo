@@ -32,6 +32,7 @@ export default function ChatPage() {
   const [isLoadingMore, setIsLoadingMore]     = useState(false);
   const [hasMore, setHasMore]                 = useState(false);
   const [micError, setMicError]               = useState(null);
+  const [hasNotes, setHasNotes]               = useState(false);
 
   const bottomRef    = useRef(null);
   const inputRef     = useRef(null);
@@ -77,6 +78,15 @@ export default function ChatPage() {
         setMessages(msgs);
         setHasMore(data.hasMore || false);
         if (msgs.length > 0) oldestTsRef.current = msgs[0].created_at;
+
+        // Check if user has notes (for dynamic welcome message)
+        try {
+          const notesRes = await authFetch('/api/notes');
+          if (notesRes.ok) {
+            const notesData = await notesRes.json();
+            setHasNotes(Array.isArray(notesData) && notesData.length > 0);
+          }
+        } catch { /* silent */ }
 
         // Check if a new digest is ready (non-blocking)
         try {
@@ -231,7 +241,7 @@ export default function ChatPage() {
           )}
 
           {showWelcome && (
-            <MessageBubble msg={{ role: 'echo', text: t('chat_initial_message') }} />
+            <MessageBubble msg={{ role: 'echo', text: hasNotes ? t('chat_welcome_with_notes') : t('chat_welcome_no_notes') }} />
           )}
 
           {renderMessages()}

@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
-const freemium = require('../middleware/freemium');
 const supabase = require('../supabase');
 const { buildSystemPrompt } = require('../echo-soul');
 
@@ -12,7 +11,7 @@ const DEFAULT_MODEL = 'claude-haiku-4-5-20251001';
 router.use(auth);
 
 // POST /api/chat
-router.post('/', freemium, async (req, res) => {
+router.post('/', async (req, res) => {
   try {
     const { userMessage, notes, language } = req.body;
 
@@ -59,7 +58,7 @@ router.post('/', freemium, async (req, res) => {
       },
       body: JSON.stringify({
         model: DEFAULT_MODEL,
-        max_tokens: 300,
+        max_tokens: 500,
         system: systemPrompt,
         messages: contextMessages,
       }),

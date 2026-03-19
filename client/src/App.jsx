@@ -1,8 +1,28 @@
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import { useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ProfileProvider, useProfile } from './context/ProfileContext';
 import { ThemeProvider } from './context/ThemeContext';
+
+class ErrorBoundary extends React.Component {
+  state = { hasError: false };
+  static getDerivedStateFromError() { return { hasError: true }; }
+  componentDidCatch(err, info) { console.error('ErrorBoundary:', err, info); }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen flex flex-col items-center justify-center bg-background p-8 text-center">
+          <p className="text-foreground text-lg font-medium mb-2">Something went wrong</p>
+          <p className="text-muted-foreground text-sm mb-6">Echo ran into an unexpected error.</p>
+          <button onClick={() => window.location.reload()} className="bg-mint text-background px-6 py-2.5 rounded-xl text-sm font-medium active:opacity-70 transition-opacity">
+            Reload
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 import Nav from './components/Nav.jsx';
 import TodayPage from './pages/TodayPage.jsx';
 import ChatPage from './pages/ChatPage.jsx';
@@ -36,13 +56,15 @@ function ProtectedRoutes() {
       {/* Spacer that matches the fixed Nav height (h-14 + status bar safe area) */}
       <div style={{ height: 'calc(3.5rem + env(safe-area-inset-top))', flexShrink: 0 }} />
       <main className="flex-1 flex flex-col overflow-hidden">
-        <Routes>
-          <Route path="/"         element={<TodayPage />} />
-          <Route path="/chat"     element={<ChatPage />} />
-          <Route path="/settings"      element={<SettingsPage />} />
-          <Route path="/edit-profile"  element={<EditProfilePage />} />
-          <Route path="*"             element={<Navigate to="/" replace />} />
-        </Routes>
+        <ErrorBoundary>
+          <Routes>
+            <Route path="/"         element={<TodayPage />} />
+            <Route path="/chat"     element={<ChatPage />} />
+            <Route path="/settings"      element={<SettingsPage />} />
+            <Route path="/edit-profile"  element={<EditProfilePage />} />
+            <Route path="*"             element={<Navigate to="/" replace />} />
+          </Routes>
+        </ErrorBoundary>
       </main>
     </div>
   );

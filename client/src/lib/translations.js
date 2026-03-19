@@ -32,6 +32,9 @@ const translations = {
 
     // ChatPage
     chat_initial_message: "Hey! I'm Echo 👋 I learn from your notes and grow with you over time. What's on your mind?",
+    chat_welcome_with_notes: "Hey! I've been reading your notes. Ask me anything, or I can share what I noticed 👋",
+    chat_welcome_no_notes: "Hey! I'm Echo 👋 Start writing notes and I'll get to know you over time. What's on your mind?",
+    chat_error_timeout: "Echo is taking too long. Try again.",
     chat_notice: 'Echo learns from your notes. Keep writing!',
     chat_listening: 'Listening... speak naturally',
     speech_cleaning: 'Improving your text...',
@@ -109,7 +112,7 @@ const translations = {
 
     // OnboardingPage
     onboarding_intro_title: "Hi, I'm Echo.",
-    onboarding_intro_body: "Share your thoughts with me. I'll learn from them, reflect them back, and get to know you over time.",
+    onboarding_intro_body: "Your space to think out loud. Take notes, chat with me, and little by little we build something that's yours.",
     onboarding_name_title: 'What should I call you?',
     onboarding_name_sub: "Let's make this personal.",
     onboarding_name_placeholder: 'Your name',
@@ -117,7 +120,7 @@ const translations = {
     onboarding_back: 'Back',
     onboarding_finish: "Let's go!",
     onboarding_notes_title: "Share. I'm listening.",
-    onboarding_notes_body: "Write what's on your mind — a recipe, an idea, how your day went. I'll learn from it and bring it up when it matters.",
+    onboarding_notes_body: "Write what's on your mind. A recipe, an idea, how your day went. I'll learn from it and bring it up when it matters.",
     onboarding_echo_title: 'Meet Echo',
     onboarding_echo_body: "Echo reads your notes and learns about you over time. Ask it anything. It'll always respond based on what you've shared.",
 
@@ -224,6 +227,9 @@ const translations = {
 
     // ChatPage
     chat_initial_message: '¡Hola! Soy Echo 👋 Aprendo de tus notas y te voy conociendo. ¿Qué tenés en mente?',
+    chat_welcome_with_notes: '¡Hola! Estuve leyendo tus notas. Preguntame lo que quieras, o te cuento lo que noté 👋',
+    chat_welcome_no_notes: '¡Hola! Soy Echo 👋 Empezá a escribir notas y te voy a ir conociendo. ¿Qué tenés en mente?',
+    chat_error_timeout: 'Echo está tardando demasiado. Intentá de nuevo.',
     chat_notice: 'Echo aprende de tus notas. ¡Sigue escribiendo!',
     chat_listening: 'Escuchando... habla con naturalidad',
     speech_cleaning: 'Mejorando tu texto...',
@@ -301,7 +307,7 @@ const translations = {
 
     // OnboardingPage
     onboarding_intro_title: 'Hola, soy Echo.',
-    onboarding_intro_body: 'Compartí tus pensamientos conmigo. Aprendo de ellos, te los devuelvo y te voy conociendo.',
+    onboarding_intro_body: 'Tu espacio para pensar en voz alta. Anotá, chateá conmigo, y poco a poco vamos construyendo algo tuyo.',
     onboarding_name_title: '¿Cómo te llamo?',
     onboarding_name_sub: 'Hagamos esto personal.',
     onboarding_name_placeholder: 'Tu nombre',
@@ -309,7 +315,7 @@ const translations = {
     onboarding_back: 'Volver',
     onboarding_finish: '¡Vamos!',
     onboarding_notes_title: 'Compartí. Te escucho.',
-    onboarding_notes_body: 'Escribí lo que tengas en mente — una receta, una idea, cómo te fue hoy. Aprendo de eso y lo traigo cuando importa.',
+    onboarding_notes_body: 'Escribí lo que tengas en mente. Una receta, una idea, cómo te fue hoy. Aprendo de eso y lo traigo cuando importa.',
     onboarding_echo_title: 'Conocé a Echo',
     onboarding_echo_body: 'Echo lee tus notas y te va conociendo con el tiempo. Preguntale lo que quieras. Siempre va a responder basándose en lo que compartiste.',
     onboarding_loading_1: 'Configurando el idioma...',

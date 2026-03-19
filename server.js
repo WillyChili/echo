@@ -81,8 +81,8 @@ app.get('/auth/callback', (req, res) => {
   @keyframes pulse{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1);opacity:1}}
 </style>
 </head><body>
-<h1>Signed in!</h1>
-<p>Return to the Echo app to continue.</p>
+<h1>Signing in...</h1>
+<p>Taking you back to Echo automatically.</p>
 <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
 </body></html>`);
 });
@@ -139,6 +139,33 @@ cron.schedule('0 9 * * *', async () => {
     console.log(`[cron] Sent reminders to ${(users || []).length} users.`);
   } catch (err) {
     console.error('[cron] Daily reminder error:', err);
+  }
+});
+
+// ── Auto-digest cron (8 PM UTC daily) ─────────────────────────────────────────
+const { generateDigestForUser } = require('./server/routes/digest');
+
+cron.schedule('0 20 * * *', async () => {
+  console.log('[cron] Running auto-digest check...');
+  try {
+    const { data: users, error } = await supabaseAdmin
+      .from('profiles')
+      .select('id');
+
+    if (error) { console.error('[cron] Error fetching users for digest:', error); return; }
+
+    let generated = 0;
+    for (const user of users || []) {
+      try {
+        const result = await generateDigestForUser(user.id);
+        if (result) generated++;
+      } catch (err) {
+        console.error(`[cron] Digest error for user ${user.id}:`, err);
+      }
+    }
+    console.log(`[cron] Auto-digest done. Generated ${generated} digests for ${(users || []).length} users.`);
+  } catch (err) {
+    console.error('[cron] Auto-digest error:', err);
   }
 });
 

@@ -1,20 +1,24 @@
 import { useState, useEffect } from 'react';
-import EchoLogo from '../assets/echo-logo.svg';
-
-const NAV_LINKS = [
-  { label: 'Solution',   href: 'solution' },
-  { label: 'Product',    href: 'product'  },
-  { label: 'Features',   href: 'features' },
-  { label: 'Contact Us', href: 'contact'  },
-];
+import EchoIcon from './EchoIcon';
+import { useLang } from '../context/LangContext';
+import { translations } from '../lib/translations';
 
 const scrollTo = (id) =>
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
 
 export default function Navbar() {
-  const [scrolled,       setScrolled]       = useState(false);
-  const [open,           setOpen]           = useState(false);
-  const [activeSection,  setActiveSection]  = useState('');
+  const { lang, setLang }    = useLang();
+  const T                    = translations[lang].nav;
+  const [scrolled, setScrolled]           = useState(false);
+  const [open, setOpen]                   = useState(false);
+  const [activeSection, setActiveSection] = useState('');
+
+  const NAV_LINKS = [
+    { label: T.solution, href: 'solution' },
+    { label: T.product,  href: 'product'  },
+    { label: T.features, href: 'features' },
+    { label: T.contact,  href: 'contact'  },
+  ];
 
   /* ── Scroll detection ───────────────────────────────── */
   useEffect(() => {
@@ -25,7 +29,7 @@ export default function Navbar() {
 
   /* ── Active section via IntersectionObserver ────────── */
   useEffect(() => {
-    const ids = NAV_LINKS.map(l => l.href);
+    const ids = ['solution', 'product', 'features', 'contact'];
     const observers = ids.map(id => {
       const el = document.getElementById(id);
       if (!el) return null;
@@ -46,6 +50,20 @@ export default function Navbar() {
     return () => window.removeEventListener('resize', fn);
   }, []);
 
+  /* ── Language toggle ─────────────────────────────────── */
+  const LangToggle = ({ mobile = false }) => (
+    <button
+      onClick={() => setLang(lang === 'en' ? 'es' : 'en')}
+      aria-label="Toggle language"
+      className={`flex items-center gap-1 text-xs font-semibold tracking-wide rounded-md px-2 py-1 transition-all
+        ${mobile ? 'border border-white/[0.08] bg-white/[0.04]' : 'hover:bg-white/[0.06]'}`}
+    >
+      <span style={{ color: lang === 'en' ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.30)' }}>EN</span>
+      <span className="text-white/20">·</span>
+      <span style={{ color: lang === 'es' ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.30)' }}>ES</span>
+    </button>
+  );
+
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
       scrolled
@@ -59,11 +77,7 @@ export default function Navbar() {
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           className="flex items-center gap-2.5 group"
         >
-          <img
-            src={EchoLogo}
-            alt="Echo"
-            className="w-6 h-6 group-hover:drop-shadow-[0_0_8px_rgba(44,213,156,0.55)] transition-all duration-300"
-          />
+          <EchoIcon size={26} className="group-hover:drop-shadow-[0_0_8px_rgba(44,213,156,0.55)] transition-all duration-300" />
           <span className="font-semibold text-white text-[15px] tracking-[-0.01em]">Echo</span>
         </button>
 
@@ -81,7 +95,6 @@ export default function Navbar() {
                 onMouseLeave={e => { if (!isActive) e.currentTarget.style.color = 'rgba(255,255,255,0.50)'; }}
               >
                 {l.label}
-                {/* Active dot indicator */}
                 <span
                   className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#2CD59C] transition-all duration-300"
                   style={{ opacity: isActive ? 1 : 0, transform: `translateX(-50%) scale(${isActive ? 1 : 0.5})` }}
@@ -91,39 +104,40 @@ export default function Navbar() {
           })}
         </div>
 
-        {/* Desktop CTA */}
-        <div className="hidden md:block">
-          <a
-            href="https://play.google.com/store/apps/details?id=com.willychili.echo"
-            target="_blank"
-            rel="noreferrer"
-            className="px-4 py-1.5 rounded-lg bg-[#2CD59C]/10 border border-[#2CD59C]/30 text-[#2CD59C] text-sm font-medium hover:bg-[#2CD59C]/20 hover:border-[#2CD59C]/50 transition-all"
+        {/* Desktop right: lang toggle + CTA */}
+        <div className="hidden md:flex items-center gap-3">
+          <LangToggle />
+          <span
+            className="px-4 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white/30 text-sm font-medium cursor-not-allowed select-none"
           >
-            Download Free
-          </a>
+            {T.download}
+          </span>
         </div>
 
-        {/* Mobile hamburger */}
-        <button
-          className="md:hidden p-1.5 text-white/50 hover:text-white transition-colors"
-          onClick={() => setOpen(o => !o)}
-          aria-label={open ? 'Close menu' : 'Open menu'}
-        >
-          <svg
-            className="w-5 h-5 transition-transform duration-300"
-            style={{ transform: open ? 'rotate(45deg)' : 'rotate(0deg)' }}
-            fill="none" stroke="currentColor" viewBox="0 0 24 24"
+        {/* Mobile: lang toggle + hamburger */}
+        <div className="md:hidden flex items-center gap-2">
+          <LangToggle mobile />
+          <button
+            className="p-1.5 text-white/50 hover:text-white transition-colors"
+            onClick={() => setOpen(o => !o)}
+            aria-label={open ? 'Close menu' : 'Open menu'}
           >
-            {open ? (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12"/>
-            ) : (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16"/>
-            )}
-          </svg>
-        </button>
+            <svg
+              className="w-5 h-5 transition-transform duration-300"
+              style={{ transform: open ? 'rotate(45deg)' : 'rotate(0deg)' }}
+              fill="none" stroke="currentColor" viewBox="0 0 24 24"
+            >
+              {open ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12"/>
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16"/>
+              )}
+            </svg>
+          </button>
+        </div>
       </div>
 
-      {/* Mobile drawer — always rendered, animated via max-height */}
+      {/* Mobile drawer */}
       <div
         className="md:hidden overflow-hidden bg-[#090909]/96 backdrop-blur-xl border-b border-white/[0.06] transition-all duration-300 ease-out"
         style={{ maxHeight: open ? '320px' : '0px', opacity: open ? 1 : 0 }}
@@ -149,14 +163,11 @@ export default function Navbar() {
               </button>
             );
           })}
-          <a
-            href="https://play.google.com/store/apps/details?id=com.willychili.echo"
-            target="_blank"
-            rel="noreferrer"
-            className="mt-4 flex items-center justify-center w-full py-2.5 rounded-xl bg-[#2CD59C]/10 border border-[#2CD59C]/30 text-[#2CD59C] text-sm font-medium hover:bg-[#2CD59C]/20 transition-all"
+          <span
+            className="mt-4 flex items-center justify-center w-full py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white/30 text-sm font-medium cursor-not-allowed select-none"
           >
-            Download Free
-          </a>
+            {T.download}
+          </span>
         </div>
       </div>
     </nav>

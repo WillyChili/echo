@@ -23,7 +23,8 @@ const translations = {
     today_notes_header: 'Notes',
     today_no_notes_date: 'No notes for this day.',
     today_hold_to_select: 'Hold a note to select',
-    today_no_notes: 'Your daily notes will appear here. Tap the calendar to browse previous days.',
+    today_no_notes: 'Your notes will show up here.',
+    today_no_notes_hint: 'Write your first thought above and tap Save.',
     today_selected: 'selected',
     today_cancel: 'Cancel',
     today_delete: 'Delete',
@@ -182,6 +183,15 @@ const translations = {
     // Notes → Ask Echo
     today_ask_echo: 'Ask Echo about this',
     today_clear: 'Clear',
+    today_first_note: 'Your first note! Echo is getting to know you.',
+
+    // Error boundary
+    error_boundary_title: 'Something went wrong',
+    error_boundary_desc: 'Echo ran into an unexpected error.',
+    error_boundary_reload: 'Reload',
+
+    // Auth timeout
+    auth_timeout: 'Login timed out. Please try again.',
 
     // Delete account
     settings_delete_title: 'Account',
@@ -218,7 +228,8 @@ const translations = {
     today_notes_header: 'Notas',
     today_no_notes_date: 'Sin notas para este día.',
     today_hold_to_select: 'Mantén una nota para seleccionar',
-    today_no_notes: 'Aquí verás tus notas diarias. Usá el calendario para ver días anteriores.',
+    today_no_notes: 'Tus notas van a aparecer acá.',
+    today_no_notes_hint: 'Escribí tu primer pensamiento arriba y tocá Guardar.',
     today_selected: 'seleccionados',
     today_cancel: 'Cancelar',
     today_delete: 'Eliminar',
@@ -381,6 +392,15 @@ const translations = {
     // Notes → Ask Echo
     today_ask_echo: 'Consultarle a Echo sobre esto',
     today_clear: 'Limpiar',
+    today_first_note: 'Tu primera nota! Echo te está conociendo.',
+
+    // Error boundary
+    error_boundary_title: 'Algo salió mal',
+    error_boundary_desc: 'Echo tuvo un error inesperado.',
+    error_boundary_reload: 'Recargar',
+
+    // Auth timeout
+    auth_timeout: 'El login expiró. Intentá de nuevo.',
 
     // Delete account
     settings_delete_title: 'Cuenta',

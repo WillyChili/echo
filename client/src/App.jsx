@@ -1,8 +1,9 @@
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import React, { useRef, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ProfileProvider, useProfile } from './context/ProfileContext';
 import { ThemeProvider } from './context/ThemeContext';
+import translations from './lib/translations';
 
 class ErrorBoundary extends React.Component {
   state = { hasError: false };
@@ -10,12 +11,14 @@ class ErrorBoundary extends React.Component {
   componentDidCatch(err, info) { console.error('ErrorBoundary:', err, info); }
   render() {
     if (this.state.hasError) {
+      const lang = localStorage.getItem('echo_lang') || 'en';
+      const t = (key) => translations[lang]?.[key] ?? translations.en[key] ?? key;
       return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-background p-8 text-center">
-          <p className="text-foreground text-lg font-medium mb-2">Something went wrong</p>
-          <p className="text-muted-foreground text-sm mb-6">Echo ran into an unexpected error.</p>
+          <p className="text-foreground text-lg font-medium mb-2">{t('error_boundary_title')}</p>
+          <p className="text-muted-foreground text-sm mb-6">{t('error_boundary_desc')}</p>
           <button onClick={() => window.location.reload()} className="bg-mint text-background px-6 py-2.5 rounded-xl text-sm font-medium active:opacity-70 transition-opacity">
-            Reload
+            {t('error_boundary_reload')}
           </button>
         </div>
       );
@@ -41,6 +44,7 @@ function Spinner() {
 
 function ProtectedRoutes() {
   const { displayName, profileLoading } = useProfile();
+  const location = useLocation();
   // Only block with spinner on first load (no cached data yet).
   // On app resume / token refresh, displayName is already in localStorage
   // so we let the profile re-fetch happen silently in the background.
@@ -55,7 +59,7 @@ function ProtectedRoutes() {
       <Nav />
       {/* Spacer that matches the fixed Nav height (h-14 + status bar safe area) */}
       <div style={{ height: 'calc(3.5rem + env(safe-area-inset-top))', flexShrink: 0 }} />
-      <main className="flex-1 flex flex-col overflow-hidden">
+      <main key={location.pathname} className="flex-1 flex flex-col overflow-hidden page-transition">
         <ErrorBoundary>
           <Routes>
             <Route path="/"         element={<TodayPage />} />

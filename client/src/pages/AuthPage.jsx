@@ -70,7 +70,7 @@ export default function AuthPage() {
       if (attempts > 300) { // 10 min max
         clearInterval(pollRef.current);
         localStorage.removeItem('echo_pending_session_id');
-        setError('Login timed out. Please try again.');
+        setError(t('auth_timeout'));
         setGoogleLoading(false);
         return;
       }

@@ -240,6 +240,33 @@ export default function ChatPage() {
             </div>
           )}
 
+          {isLoadingHistory && (
+            <div className="flex flex-col gap-4">
+              {/* Echo skeleton */}
+              <div className="flex items-start gap-2">
+                <div className="w-7 h-7 rounded-full bg-muted animate-pulse shrink-0 mt-0.5" />
+                <div className="bg-secondary/70 border border-border/40 rounded-2xl rounded-tl-sm px-4 py-3 animate-pulse" style={{ width: '65%' }}>
+                  <div className="h-3 w-full bg-muted rounded mb-2" />
+                  <div className="h-3 w-3/4 bg-muted rounded" />
+                </div>
+              </div>
+              {/* User skeleton */}
+              <div className="flex justify-end">
+                <div className="bg-mint/10 rounded-2xl rounded-tr-sm px-4 py-3 animate-pulse" style={{ width: '50%' }}>
+                  <div className="h-3 w-full bg-mint/20 rounded" />
+                </div>
+              </div>
+              {/* Echo skeleton */}
+              <div className="flex items-start gap-2">
+                <div className="w-7 h-7 rounded-full bg-muted animate-pulse shrink-0 mt-0.5" />
+                <div className="bg-secondary/70 border border-border/40 rounded-2xl rounded-tl-sm px-4 py-3 animate-pulse" style={{ width: '55%' }}>
+                  <div className="h-3 w-full bg-muted rounded mb-2" />
+                  <div className="h-3 w-2/3 bg-muted rounded" />
+                </div>
+              </div>
+            </div>
+          )}
+
           {showWelcome && (
             <MessageBubble msg={{ role: 'echo', text: hasNotes ? t('chat_welcome_with_notes') : t('chat_welcome_no_notes') }} />
           )}

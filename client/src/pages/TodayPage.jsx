@@ -194,9 +194,11 @@ export default function TodayPage() {
   const [currentNoteId, setCurrentNoteId] = useState(() => localStorage.getItem('echo_draft_note_id') || null);
   const [content, setContent] = useState(() => localStorage.getItem('echo_draft_content') || '');
   const [notes, setNotes] = useState([]);
+  const [notesLoading, setNotesLoading] = useState(true);
   const [saveStatus, setSaveStatus] = useState('');
   const isSavingRef = useRef(false);
   const [micError, setMicError] = useState(null);
+  const [showCelebration, setShowCelebration] = useState(false);
   const [viewingDate, setViewingDate] = useState(() => localStorage.getItem('echo_draft_viewing_date') || null);
 
   // Calendar date picker
@@ -250,7 +252,9 @@ export default function TodayPage() {
     try {
       const res = await authFetch('/api/notes');
       if (res.ok) setNotes(await res.json());
-    } catch { /* ignore */ }
+    } catch { /* ignore */ } finally {
+      setNotesLoading(false);
+    }
   }, []);
 
   useEffect(() => { fetchAllNotes(); }, [fetchAllNotes]);
@@ -350,11 +354,16 @@ export default function TodayPage() {
         });
       }
       if (res.ok) {
+        const wasFirstNote = notes.length === 0 && !currentNoteId;
         setSaveStatus('saved');
         fetchAllNotes();
         localStorage.removeItem('echo_draft_content');
         localStorage.removeItem('echo_draft_note_id');
         localStorage.removeItem('echo_draft_viewing_date');
+        if (wasFirstNote) {
+          setShowCelebration(true);
+          setTimeout(() => setShowCelebration(false), 3200);
+        }
         setTimeout(() => {
           setSaveStatus('');
           setContent('');
@@ -506,6 +515,13 @@ export default function TodayPage() {
             </div>
           )}
 
+          {showCelebration && (
+            <div className="celebrate-toast flex items-center gap-2.5 self-center px-4 py-2.5 rounded-2xl bg-mint/15 border border-mint/30 -mt-2 mb-0">
+              <span className="text-lg">&#10024;</span>
+              <span className="text-sm text-mint font-medium">{t('today_first_note')}</span>
+            </div>
+          )}
+
           {/* Header — EAI-19: personalized greeting */}
           <div className="flex items-start justify-between gap-4">
             <div>
@@ -653,14 +669,23 @@ export default function TodayPage() {
         <div className="max-w-2xl mx-auto w-full">
         <div className={`${selectionMode ? 'pb-24' : ''}`}>
 
-          {displayedNotes.length > 0 ? (
+          {notesLoading ? (
+            <div className="flex flex-col gap-2">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="px-4 py-3 rounded-2xl border border-border/80 bg-card/80 animate-pulse">
+                  <div className="h-3 w-32 bg-muted rounded mb-2" />
+                  <div className="h-3.5 w-3/4 bg-muted rounded" />
+                </div>
+              ))}
+            </div>
+          ) : displayedNotes.length > 0 ? (
             <ul className="flex flex-col gap-2">
-              {visibleNotes.map((note) => {
+              {visibleNotes.map((note, idx) => {
                 const isSelected = selectedIds.has(note.id);
                 const isActive = currentNoteId === note.id;
                 const isPressing = pressingId === note.id;
                 return (
-                  <li key={note.id}>
+                  <li key={note.id} className="note-item" style={{ animationDelay: `${Math.min(idx * 0.04, 0.3)}s` }}>
                     <div
                       onPointerDown={() => handlePressStart(note.id)}
                       onPointerUp={() => handlePressEnd(note)}
@@ -704,9 +729,24 @@ export default function TodayPage() {
               })}
             </ul>
           ) : (
-            <p className="text-muted-foreground text-sm text-center py-4">
-              {selectedDate === todayDate ? t('today_no_notes') : t('today_no_notes_date')}
-            </p>
+            <div className="flex flex-col items-center justify-center py-10 px-4">
+              {selectedDate === todayDate ? (
+                <>
+                  <div className="w-14 h-14 rounded-2xl bg-mint/10 border border-mint/20 flex items-center justify-center mb-4">
+                    <svg className="w-7 h-7 text-mint/70" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                      <polyline points="14 2 14 8 20 8"/>
+                      <line x1="12" y1="13" x2="12" y2="17"/>
+                      <line x1="10" y1="15" x2="14" y2="15"/>
+                    </svg>
+                  </div>
+                  <p className="text-muted-foreground text-sm font-medium">{t('today_no_notes')}</p>
+                  <p className="text-muted-foreground/60 text-xs mt-1">{t('today_no_notes_hint')}</p>
+                </>
+              ) : (
+                <p className="text-muted-foreground text-sm">{t('today_no_notes_date')}</p>
+              )}
+            </div>
           )}
           {/* Infinite scroll sentinel — only when showing all notes and there are more to load */}
           {selectedDate === todayDate && visibleCount < displayedNotes.length && (

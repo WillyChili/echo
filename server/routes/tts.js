@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 
-const VOICE_ID = process.env.ELEVENLABS_VOICE_ID || '21m00Tcm4TlvDq8ikWAM'; // Rachel
+const VOICE_ID = process.env.ELEVENLABS_VOICE_ID || 'DXFkLCBUTmvXpp2QwZjA';
 
 router.post('/', auth, async (req, res) => {
   const { text } = req.body;

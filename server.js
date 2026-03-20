@@ -11,6 +11,7 @@ const digestRouter   = require('./server/routes/digest');
 const pushRouter     = require('./server/routes/push');
 const accountRouter  = require('./server/routes/account');
 const speechRouter   = require('./server/routes/speech');
+const ttsRouter      = process.env.ELEVENLABS_ENABLED === 'true' ? require('./server/routes/tts') : null;
 
 const path = require('path');
 
@@ -112,6 +113,7 @@ app.use('/api/digest',   digestRouter);
 app.use('/api/push',     pushRouter);
 app.use('/api/account',  accountRouter);
 app.use('/api/speech',   speechRouter);
+if (ttsRouter) app.use('/api/tts', ttsRouter);
 
 // Health check
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));

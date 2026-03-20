@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { authFetch } from '../lib/api.js';
 
-export function useElevenLabs() {
+export function useElevenLabs(language = 'en') {
   const [isPlaying, setIsPlaying] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(() => {
     return localStorage.getItem('echo_voice_enabled') === 'true';
@@ -33,7 +33,7 @@ export function useElevenLabs() {
       setIsPlaying(true);
       const res = await authFetch('/api/tts', {
         method: 'POST',
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ text, language }),
       });
 
       if (!res.ok) { setIsPlaying(false); return; }

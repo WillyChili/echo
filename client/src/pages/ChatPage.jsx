@@ -54,7 +54,7 @@ export default function ChatPage() {
       cleanupFn: (text) => cleanupSpeechText(text, speechLang),
     });
 
-  const { voiceEnabled, toggleVoice, speak, isPlaying } = useElevenLabs();
+  const { voiceEnabled, toggleVoice, speak, isPlaying } = useElevenLabs(language);
 
   useEffect(() => {
     if (speechError) setMicError(speechError);

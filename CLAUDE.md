@@ -160,6 +160,11 @@ VITE_SUPABASE_ANON_KEY=eyJ...
 - **RevenueCat production key:** Configure at `app.revenuecat.com` → Project Settings → API Keys. Replace `'YOUR_PRODUCTION_KEY_HERE'` in `client/src/main.jsx`. Also check `UpgradeModal.jsx` and `ProfileContext.jsx`.
 - **Play Store AAB:** Must regenerate with `echo-release-v2.keystore` (old keystore SHA1 `A5:79:DC` won't work after upload key reset).
 - **Cloudflare tunnel URL:** Changes on every `cloudflared` restart. Update Supabase redirect URLs if needed.
+- **Google OAuth login fails for new users:** Si un usuario no puede loguearse con Google, verificar que su URL de acceso esté whitelisteada en Supabase > Authentication > URL Configuration > Redirect URLs.
+
+## Branches en espera (no mergear a main)
+
+- **`claude/check-undeployed-changes-4Hmlf`** — Cambios del frontend que están en evaluación. No mergear a main todavía. El APK se construye siempre desde main, así que estos cambios no llegan a la app mientras no se mergeen.
 
 ---
 

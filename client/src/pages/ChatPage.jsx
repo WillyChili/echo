@@ -44,6 +44,7 @@ export default function ChatPage() {
   const inputSnapshotRef = useRef('');
 
   const handleTranscript = useCallback((sessionText) => {
+    if (inputSnapshotRef.current === null) return; // sent already, ignore late cleanup
     const base = inputSnapshotRef.current;
     const sep = base && !base.endsWith(' ') ? ' ' : '';
     setInput(base + sep + sessionText);
@@ -158,7 +159,10 @@ export default function ChatPage() {
     const text = input.trim();
     if (!text || isLoading) return;
 
-    if (isRecording) stopRecording();
+    if (isRecording) {
+      inputSnapshotRef.current = null; // prevent async cleanup from re-populating input
+      stopRecording();
+    }
     setInput('');
     setMessages((prev) => [...prev, { role: 'user', text, date: today }]);
     setIsLoading(true);

@@ -16,7 +16,7 @@ export default function Contact() {
           </p>
 
           <a
-            href="mailto:hello@echoapp.ai"
+            href="mailto:justechoapp@gmail.com"
             className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-xl bg-[#2CD59C] text-black font-semibold hover:bg-[#34e8a8] active:scale-95 transition-all text-sm shadow-lg shadow-[#2CD59C]/20"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

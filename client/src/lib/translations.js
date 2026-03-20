@@ -125,6 +125,11 @@ const translations = {
     onboarding_echo_title: 'Meet Echo',
     onboarding_echo_body: "Echo reads your notes and learns about you over time. Ask it anything. It'll always respond based on what you've shared.",
 
+    tts_speaking: 'Echo is speaking...',
+    tts_loading: 'Loading voice...',
+    tts_play: 'Listen to this message',
+    tts_stop: 'Stop playback',
+
     mic_not_supported: 'Speech recognition not supported in this browser',
     mic_stop: 'Stop recording',
     mic_start: 'Start voice input',
@@ -335,6 +340,11 @@ const translations = {
     onboarding_loading_4: 'Echo está listo.',
     onboarding_name_subtitle: 'Echo te va a llamar por este nombre.',
     onboarding_loading_hint: 'Podés personalizar la personalidad de Echo en Ajustes.',
+
+    tts_speaking: 'Echo esta hablando...',
+    tts_loading: 'Cargando voz...',
+    tts_play: 'Escuchar este mensaje',
+    tts_stop: 'Detener reproduccion',
 
     // MicButton / useSpeech
     mic_not_supported: 'Reconocimiento de voz no soportado en este navegador',

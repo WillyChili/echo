@@ -45,6 +45,9 @@ const translations = {
     chat_loading_more: 'Loading…',
     chat_today: 'Today',
     chat_yesterday: 'Yesterday',
+    voice_enable: 'Enable voice',
+    voice_disable: 'Disable voice',
+    voice_playing: 'Echo is speaking...',
     chat_usage_badge: '{used}/{limit} chats today',
     chat_limit_reset: 'Resets at midnight',
 
@@ -240,6 +243,9 @@ const translations = {
     chat_loading_more: 'Cargando…',
     chat_today: 'Hoy',
     chat_yesterday: 'Ayer',
+    voice_enable: 'Activar voz',
+    voice_disable: 'Desactivar voz',
+    voice_playing: 'Echo está hablando...',
     chat_usage_badge: '{used}/{limit} chats hoy',
     chat_limit_reset: 'Se resetea a las 00:00',
 

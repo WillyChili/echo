@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import MicButton from '../components/MicButton.jsx';
 import { useSpeech } from '../hooks/useSpeech.js';
+import { useElevenLabs } from '../hooks/useElevenLabs.js';
 import { cn } from '@/lib/utils';
 import { authFetch } from '../lib/api.js';
 import { cleanupSpeechText } from '../lib/speechCleanup.js';
@@ -52,6 +53,8 @@ export default function ChatPage() {
     useSpeech(handleTranscript, {
       cleanupFn: (text) => cleanupSpeechText(text, speechLang),
     });
+
+  const { voiceEnabled, toggleVoice, speak, isPlaying } = useElevenLabs();
 
   useEffect(() => {
     if (speechError) setMicError(speechError);
@@ -180,6 +183,7 @@ export default function ChatPage() {
         ]);
       } else {
         setMessages((prev) => [...prev, { role: 'echo', text: data.reply, date: today }]);
+        if (voiceEnabled) speak(data.reply);
       }
     } catch {
       setMessages((prev) => [
@@ -221,13 +225,26 @@ export default function ChatPage() {
     <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
 
       {/* Notice bar */}
-      <div className="px-4 py-2.5 border-b border-border/60">
-        <p className="text-xs text-center max-w-2xl mx-auto">
+      <div className="px-4 py-2.5 border-b border-border/60 flex items-center justify-between gap-2 max-w-2xl mx-auto w-full">
+        <p className="text-xs flex-1 text-center">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-mint/50 bg-mint/10 text-mint font-medium">
             <span className="w-1.5 h-1.5 rounded-full bg-mint shrink-0" />
             {t('chat_notice')}
           </span>
         </p>
+        <button
+          type="button"
+          onClick={toggleVoice}
+          title={voiceEnabled ? t('voice_disable') : t('voice_enable')}
+          className={cn(
+            'shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-colors',
+            voiceEnabled
+              ? 'bg-mint/20 text-mint border border-mint/40'
+              : 'bg-muted text-muted-foreground border border-border/40'
+          )}
+        >
+          {voiceEnabled ? <SpeakerOnIcon /> : <SpeakerOffIcon />}
+        </button>
       </div>
 
       {/* Messages */}
@@ -313,6 +330,12 @@ export default function ChatPage() {
           {isCleaning && (
             <p className="text-xs text-mint/70 mt-2 text-center animate-pulse">{t('speech_cleaning')}</p>
           )}
+          {isPlaying && (
+            <p className="text-xs text-mint mt-2 text-center flex items-center justify-center gap-1.5">
+              <SoundWaveIcon />
+              {t('voice_playing')}
+            </p>
+          )}
         </div>
       </div>
 
@@ -388,5 +411,29 @@ function ThinkingDots() {
         />
       ))}
     </div>
+  );
+}
+
+function SpeakerOnIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+      <path d="M10 3.75a.75.75 0 0 0-1.264-.546L4.703 7H3.167a.75.75 0 0 0-.7.48A6.985 6.985 0 0 0 2 10c0 .887.165 1.737.468 2.52.111.29.39.48.7.48h1.535l4.033 3.796A.75.75 0 0 0 10 16.25V3.75ZM15.95 5.05a.75.75 0 0 0-1.06 1.061 5.5 5.5 0 0 1 0 7.778.75.75 0 0 0 1.06 1.06 7 7 0 0 0 0-9.899ZM13.829 7.172a.75.75 0 0 0-1.061 1.06 2.5 2.5 0 0 1 0 3.536.75.75 0 0 0 1.06 1.06 4 4 0 0 0 0-5.656Z" />
+    </svg>
+  );
+}
+
+function SpeakerOffIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+      <path d="M9.547 3.062A.75.75 0 0 1 10 3.75v12.5a.75.75 0 0 1-1.264.546L4.703 13H3.167a.75.75 0 0 1-.7-.48A6.985 6.985 0 0 1 2 10c0-.887.165-1.737.468-2.52a.75.75 0 0 1 .7-.48h1.535l4.033-3.796a.75.75 0 0 1 .811-.142ZM13.28 7.22a.75.75 0 1 0-1.06 1.06L13.94 10l-1.72 1.72a.75.75 0 0 0 1.06 1.06L15 11.06l1.72 1.72a.75.75 0 1 0 1.06-1.06L16.06 10l1.72-1.72a.75.75 0 0 0-1.06-1.06L15 8.94l-1.72-1.72Z" />
+    </svg>
+  );
+}
+
+function SoundWaveIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
+      <path d="M10 3.75a.75.75 0 0 0-1.264-.546L4.703 7H3.167a.75.75 0 0 0-.7.48A6.985 6.985 0 0 0 2 10c0 .887.165 1.737.468 2.52.111.29.39.48.7.48h1.535l4.033 3.796A.75.75 0 0 0 10 16.25V3.75ZM15.95 5.05a.75.75 0 0 0-1.06 1.061 5.5 5.5 0 0 1 0 7.778.75.75 0 0 0 1.06 1.06 7 7 0 0 0 0-9.899ZM13.829 7.172a.75.75 0 0 0-1.061 1.06 2.5 2.5 0 0 1 0 3.536.75.75 0 0 0 1.06 1.06 4 4 0 0 0 0-5.656Z" />
+    </svg>
   );
 }

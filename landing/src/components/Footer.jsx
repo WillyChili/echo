@@ -1,4 +1,4 @@
-import EchoLogo from '../assets/echo-logo.svg';
+import EchoIcon from './EchoIcon';
 import { useLang } from '../context/LangContext';
 import { translations } from '../lib/translations';
 
@@ -32,7 +32,7 @@ export default function Footer() {
 
           {/* Brand */}
           <div className="flex items-center gap-3.5">
-            <img src={EchoLogo} alt="Echo" className="w-7 h-7 opacity-85" />
+            <EchoIcon size={28} />
             <div>
               <p className="font-semibold text-white text-[15px]">Echo</p>
               <p className="text-white/45 text-xs mt-0.5">{T.tagline}</p>

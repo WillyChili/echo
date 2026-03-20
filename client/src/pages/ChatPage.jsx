@@ -194,7 +194,7 @@ export default function ChatPage() {
       setIsLoading(false);
       setTimeout(() => inputRef.current?.focus(), 50);
     }
-  }, [input, isLoading, isRecording, stopRecording, language, today]);
+  }, [input, isLoading, isRecording, stopRecording, language, today, voiceEnabled, speak]);
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {

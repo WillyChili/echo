@@ -169,21 +169,20 @@
   /* ── Marquee ─────────────────────────────────────── */
   @keyframes marquee {
     from { transform: translateX(0); }
-    to   { transform: translateX(-100%); }
+    to   { transform: translateX(-50%); }
   }
-  .marquee-inner {
+  .marquee-wrap {
+    display: flex;
+    width: max-content;
     animation: marquee 35s linear infinite;
     flex-shrink: 0;
-    min-width: 100%;
   }
-  .marquee-inner-2 {
-    animation: marquee 35s linear infinite;
-    animation-delay: -17.5s;
+  .marquee-inner, .marquee-inner-2 {
+    display: flex;
+    align-items: center;
     flex-shrink: 0;
-    min-width: 100%;
   }
-  .marquee-wrap:hover .marquee-inner,
-  .marquee-wrap:hover .marquee-inner-2 { animation-play-state: paused; }
+  .marquee-wrap:hover { animation-play-state: paused; }
 
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {

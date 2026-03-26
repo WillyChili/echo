@@ -25,7 +25,7 @@ export default function Marquee() {
       <div className="absolute inset-y-0 left-0  w-24 bg-gradient-to-r from-[#0A0A0A] to-transparent z-10 pointer-events-none" />
       <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-[#0A0A0A] to-transparent z-10 pointer-events-none" />
 
-      <div className="marquee-wrap flex">
+      <div className="marquee-wrap">
         <Row items={items} />
         <div className="marquee-inner-2 flex items-center">
           {items.map((item, i) => (

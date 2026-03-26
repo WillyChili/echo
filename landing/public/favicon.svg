@@ -1,0 +1,12 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="echo-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="1.2" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+  <circle cx="12" cy="12" r="10.5" stroke="#2CD59C" stroke-width="1" stroke-opacity="0.25" filter="url(#echo-glow)" />
+  <circle cx="12" cy="12" r="7"   stroke="#2CD59C" stroke-width="1.1" stroke-opacity="0.55" filter="url(#echo-glow)" />
+  <circle cx="12" cy="12" r="3.8" stroke="#2CD59C" stroke-width="1.2" stroke-opacity="0.85" filter="url(#echo-glow)" />
+  <circle cx="12" cy="12" r="1.6" fill="#2CD59C" filter="url(#echo-glow)" />
+</svg>

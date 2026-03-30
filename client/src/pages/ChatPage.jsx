@@ -171,7 +171,13 @@ export default function ChatPage() {
       let notes = [];
       try {
         const notesRes = await authFetch('/api/notes');
-        if (notesRes.ok) notes = await notesRes.json();
+        if (notesRes.ok) {
+          const allNotes = await notesRes.json();
+          const cutoff = new Date();
+          cutoff.setDate(cutoff.getDate() - 14);
+          const cutoffStr = cutoff.toISOString().split('T')[0];
+          notes = allNotes.filter(n => n.date >= cutoffStr);
+        }
       } catch { /* proceed without notes */ }
 
       const res  = await authFetch('/api/chat', {

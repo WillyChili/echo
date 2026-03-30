@@ -121,7 +121,7 @@ function buildSystemPrompt(notes, language, bio, displayName, tone) {
     : '';
 
   const notesSection = notes && notes.length > 0
-    ? `\nTheir notes (${notes.length} total):\n\n` + notes
+    ? `\nPast journal entries from ${name} (${notes.length} notes). These are HISTORICAL entries — do NOT treat them as the user's current state:\n\n` + notes
         .slice()
         .sort((a, b) => (a.date < b.date ? -1 : 1))
         .map((n) => `[${n.date}]\n${n.content}`)

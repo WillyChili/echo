@@ -16,9 +16,10 @@ const LOCALE_MAP = { en: 'en-US', es: 'es-AR' };
 function formatDate(dateStr, language = 'en') {
   const [year, month, day] = dateStr.split('-').map(Number);
   const locale = LOCALE_MAP[language] || 'en-US';
-  return new Date(year, month - 1, day).toLocaleDateString(locale, {
+  const str = new Date(year, month - 1, day).toLocaleDateString(locale, {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
   });
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 function formatDateShort(dateStr, language = 'en') {
@@ -524,10 +525,10 @@ export default function TodayPage() {
                 </>
               ) : (
                 <>
-                  <p className="text-xs text-muted-foreground mb-0.5">{formatDate(todayDate, language)}</p>
                   <h1 className="text-2xl font-semibold text-foreground leading-tight">
                     {t('today_greeting_hey')}{displayName ? <>, <span className="capitalize">{displayName}</span></> : ''}
                   </h1>
+                  <p className="text-xs text-muted-foreground mt-0.5">{formatDate(todayDate, language)}</p>
                 </>
               )}
             </div>

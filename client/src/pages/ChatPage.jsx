@@ -2,7 +2,6 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import MicButton from '../components/MicButton.jsx';
 import { useSpeech } from '../hooks/useSpeech.js';
-import { useTTS } from '../hooks/useTTS.js';
 import { cn } from '@/lib/utils';
 import { authFetch } from '../lib/api.js';
 import { cleanupSpeechText } from '../lib/speechCleanup.js';
@@ -54,9 +53,6 @@ export default function ChatPage() {
     useSpeech(handleTranscript, {
       cleanupFn: (text) => cleanupSpeechText(text, speechLang),
     });
-
-  // ── TTS ──────────────────────────────────────────────────────────────────
-  const { speak, stop: stopTTS, isSpeaking, speakingText, isLoadingTTS } = useTTS();
 
   useEffect(() => {
     if (speechError) setMicError(speechError);
@@ -230,10 +226,6 @@ export default function ChatPage() {
 
   const showWelcome = messages.length === 0 && !isLoading && !isLoadingHistory;
 
-  const handleSpeak = useCallback((text) => {
-    speak(text, language);
-  }, [speak, language]);
-
   // ── Render messages with date separators ─────────────────────────────────
   const renderMessages = () => {
     let lastDate = null;
@@ -249,10 +241,6 @@ export default function ChatPage() {
         <MessageBubble
           key={i}
           msg={msg}
-          onSpeak={handleSpeak}
-          onStopSpeak={stopTTS}
-          isSpeaking={isSpeaking && speakingText === msg.text}
-          isLoadingTTS={isLoadingTTS && speakingText === msg.text}
           t={t}
         />
       );
@@ -313,10 +301,6 @@ export default function ChatPage() {
           {showWelcome && (
             <MessageBubble
               msg={{ role: 'echo', text: hasNotes ? t('chat_welcome_with_notes') : t('chat_welcome_no_notes') }}
-              onSpeak={handleSpeak}
-              onStopSpeak={stopTTS}
-              isSpeaking={isSpeaking && speakingText === (hasNotes ? t('chat_welcome_with_notes') : t('chat_welcome_no_notes'))}
-              isLoadingTTS={isLoadingTTS && speakingText === (hasNotes ? t('chat_welcome_with_notes') : t('chat_welcome_no_notes'))}
               t={t}
             />
           )}
@@ -416,7 +400,7 @@ function DateSeparator({ date, today, language, t }) {
   );
 }
 
-function MessageBubble({ msg, onSpeak, onStopSpeak, isSpeaking, isLoadingTTS, t }) {
+function MessageBubble({ msg, t }) {
   const isUser = msg.role === 'user';
 
   if (isUser) {
@@ -430,49 +414,18 @@ function MessageBubble({ msg, onSpeak, onStopSpeak, isSpeaking, isLoadingTTS, t 
   }
 
   return (
-    <div className="flex flex-col">
-      <div className="flex items-start gap-2">
-        <EchoAvatar />
-        <div
-          className={cn(
-            'max-w-[76%] rounded-2xl rounded-tl-sm px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap squircle',
-            msg.isError
-              ? 'bg-destructive/20 border border-destructive/40 text-red-300'
-              : 'bg-secondary/70 border border-border/40 text-foreground'
-          )}
-        >
-          {msg.text}
-        </div>
-        {!msg.isError && (
-          <button
-            type="button"
-            onClick={() => isSpeaking ? onStopSpeak() : onSpeak(msg.text)}
-            className={cn(
-              'shrink-0 mt-1.5 p-1 rounded-full transition-colors',
-              isSpeaking || isLoadingTTS
-                ? 'text-mint'
-                : 'text-muted-foreground/40 hover:text-muted-foreground/70 active:text-mint'
-            )}
-            aria-label={isSpeaking ? t?.('tts_stop') : t?.('tts_play')}
-          >
-            {isLoadingTTS ? (
-              <LoadingSpinner />
-            ) : isSpeaking ? (
-              <StopIcon />
-            ) : (
-              <SpeakerIcon />
-            )}
-          </button>
+    <div className="flex items-start gap-2">
+      <EchoAvatar />
+      <div
+        className={cn(
+          'max-w-[76%] rounded-2xl rounded-tl-sm px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap squircle',
+          msg.isError
+            ? 'bg-destructive/20 border border-destructive/40 text-red-300'
+            : 'bg-secondary/70 border border-border/40 text-foreground'
         )}
+      >
+        {msg.text}
       </div>
-      {(isSpeaking || isLoadingTTS) && (
-        <div className="flex items-center gap-2 ml-9 mt-1.5 mb-0.5">
-          <SoundWaveAnimation active={isSpeaking} />
-          <span className="text-xs text-mint/70">
-            {isLoadingTTS ? t?.('tts_loading') : t?.('tts_speaking')}
-          </span>
-        </div>
-      )}
     </div>
   );
 }
@@ -499,45 +452,3 @@ function ThinkingDots() {
   );
 }
 
-function SpeakerIcon() {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-      <path d="M10.5 3.75a.75.75 0 0 0-1.264-.546L5.203 7H2.667a.75.75 0 0 0-.7.48A6.985 6.985 0 0 0 1.5 10c0 .887.165 1.737.468 2.52.111.29.39.48.7.48h2.535l4.033 3.796A.75.75 0 0 0 10.5 16.25V3.75ZM13.929 5.009a.75.75 0 0 0-.158 1.049 4.97 4.97 0 0 1 0 5.884.75.75 0 0 0 1.207.892 6.47 6.47 0 0 0 0-7.667.75.75 0 0 0-1.049-.158Z" />
-    </svg>
-  );
-}
-
-function StopIcon() {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-      <path fillRule="evenodd" d="M2 10a8 8 0 1 1 16 0 8 8 0 0 1-16 0Zm5-2.25A.75.75 0 0 1 7.75 7h4.5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-.75.75h-4.5a.75.75 0 0 1-.75-.75v-4.5Z" clipRule="evenodd" />
-    </svg>
-  );
-}
-
-function LoadingSpinner() {
-  return (
-    <svg className="w-4 h-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
-      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-    </svg>
-  );
-}
-
-function SoundWaveAnimation({ active }) {
-  const bars = [0, 1, 2, 3, 4];
-  return (
-    <div className="flex items-center gap-[2px] h-4">
-      {bars.map((i) => (
-        <span
-          key={i}
-          className="w-[2px] rounded-full bg-mint/60 origin-bottom"
-          style={{
-            height: active ? undefined : '4px',
-            animation: active ? `soundWave 1.2s ease-in-out ${i * 0.15}s infinite` : 'none',
-          }}
-        />
-      ))}
-    </div>
-  );
-}

@@ -130,14 +130,14 @@ Then a blank line, then bullet points (using "•") — one bullet per note, max
 
 Then a blank line, then "Temas clave:" followed by 2-3 bullet points (using "•") identifying the main themes or priorities across all the notes.
 
-Then a blank line, then "Reflexión:" followed by 1-2 sentences MAX. Warm, respectful, and direct — like a trusted colleague who knows you well. Pick ONE concrete thing from the notes and say something honest about it. You can end with a short question if it genuinely adds something, but it's not required.
+Then a blank line, then "Reflexión:" followed by 1-2 sentences MAX. Pick ONE specific thing mentioned in the notes and reference it directly and plainly. Do NOT interpret it, do NOT turn it into a metaphor or abstraction. Just name the thing and say something concrete about it — for example: "Mencionaste que tenés que hablar con Martín. ¿Pudiste hacerlo?" or "La descripción para las stores lleva semanas pendiente. ¿Querés que armemos un borrador juntos?" A direct question is welcome but not required.
 
 Rules:
 - Use exactly the section labels shown: "Temas clave:" and "Reflexión:"
 - The Reflexión is 1-2 sentences only. Never more.
-- Respectful and clear tone — no slang, no idioms, no informal expressions
-- No life lessons, no meta-analysis, no motivational language
-- Reference something specific from the notes — never speak in abstractions
+- NEVER use metaphors, abstractions, or psychological framing ("el miedo se disfrazó", "momentum", "patrón", etc.)
+- NEVER use motivational language or life lessons
+- Always name the specific topic, task, or event from the notes — not a generalization of it
 - Do NOT use ${nameRef}'s name in the Reflexión
 - Do NOT repeat the same observation or question from the previous digest
 ${toneGuide}`;

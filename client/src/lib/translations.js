@@ -139,13 +139,6 @@ const translations = {
     onboarding_name_subtitle: 'Echo will use this to address you.',
     onboarding_loading_hint: "You can customize Echo's personality in Settings.",
 
-    // SubscriptionPage
-    subscription_title: 'Subscription',
-    subscription_subtitle: 'Choose the plan that works best for you.',
-    subscription_current_plan: 'Current plan',
-    subscription_upgrade: 'Upgrade to Pro',
-    subscription_coming_soon: 'Coming soon',
-
     // SettingsPage
     settings_title: 'Settings',
     settings_subtitle: 'Manage your Echo preferences.',
@@ -355,13 +348,6 @@ const translations = {
     mic_error: 'No se pudo iniciar el reconocimiento.',
 
     // SettingsPage
-    // SubscriptionPage
-    subscription_title: 'Suscripción',
-    subscription_subtitle: 'Elegí el plan que mejor se adapte a vos.',
-    subscription_current_plan: 'Plan actual',
-    subscription_upgrade: 'Mejorar a Pro',
-    subscription_coming_soon: 'Próximamente',
-
     settings_title: 'Ajustes',
     settings_subtitle: 'Administra tus preferencias de Echo.',
     settings_appearance_title: 'Apariencia',

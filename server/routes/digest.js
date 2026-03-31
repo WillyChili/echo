@@ -130,15 +130,14 @@ Then a blank line, then bullet points (using "•") — one bullet per note, max
 
 Then a blank line, then "Temas clave:" followed by 2-3 bullet points (using "•"). Each bullet names a concrete topic, task, or situation that appears in the notes — not an abstract interpretation of them. For example: "Seguimiento pendiente con inversores", "Conversación con Martín sin resolver", "Vuelta al gimnasio". No metaphors, no abstract labels.
 
-Then a blank line, then "Reflexión:" followed by exactly 1-2 sentences. Pick one specific thing from the notes — a task, conversation, event, or situation — and say something concrete about it. A question is welcome if it is practical and tied to that specific thing.
+Then a blank line, then "Reflexión:" followed by 2-3 sentences that give a general overview of the week based on the notes as a whole. Mention 2 or more topics from the notes — what was happening, what's pending, what moved forward. You can close with a practical question or offer of help if it feels natural, but it's not required.
 
 These are examples of the correct style for the Reflexión:
-- "Mencionaste que tenías que hablar con Martín sobre el proyecto. ¿Pudiste hacerlo?"
-- "La descripción para las stores lleva varias semanas pendiente. ¿Querés que te ayude a arrancar con un borrador?"
-- "El follow-up con métricas para los inversores lo tenés pendiente. ¿Querés organizarlo juntos?"
-- "Volviste al gimnasio esta semana después de tres semanas."
+- "Fue una semana con bastante en movimiento: la demo con inversores fue bien y el gimnasio volvió a aparecer. Lo que sigue pendiente es el follow-up con métricas y la descripción de las stores. ¿Querés arrancar con alguno de los dos?"
+- "Entre la conversación con Martín, la vuelta al gimnasio y el tema del contador, tuviste una semana variada. La demo fue un punto alto. El follow-up con inversores es lo que queda por resolver."
+- "Tuviste avances concretos esta semana: la demo resultó bien y retomaste el gimnasio. Lo que está pendiente es la descripción para las stores y el follow-up con métricas."
 
-Do NOT assume reasons, motivations, or emotions behind what the user wrote. Do NOT say things like "you know why", "the fear is...", "you've been avoiding it because...". Just state the fact from the note and, if relevant, offer concrete help.
+Do NOT assume reasons, motivations, or emotions behind what the user wrote. Do NOT say things like "you know why", "the fear is...", "you've been avoiding it because...". Just describe what happened and what sigue pendiente, naturally and without judgment.
 
 Rules:
 - Use exactly the section labels shown: "Temas clave:" and "Reflexión:"

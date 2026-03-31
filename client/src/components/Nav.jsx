@@ -78,22 +78,27 @@ export default function Nav() {
       className="fixed top-0 left-0 right-0 z-10 border-b border-border/60 bg-background"
       style={{ paddingTop: 'env(safe-area-inset-top)' }}
     >
-      <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
+      <div className="max-w-2xl mx-auto px-4 h-14 relative flex items-center">
+        {/* Left: logo */}
         <img
           src={echoLogo}
-          className="w-10 h-10 select-none cursor-pointer active:opacity-60 transition-opacity"
+          className="w-10 h-10 select-none cursor-pointer active:opacity-60 transition-opacity absolute left-4"
           alt="echo"
           onClick={() => navigate('/')}
         />
-        <div className="flex items-center gap-1">
+
+        {/* Center: tabs */}
+        <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1">
           <NavLink to="/" end className={linkClass}>{t('nav_today')}</NavLink>
           <NavLink to="/chat" className={linkClass}>{t('nav_echo')}</NavLink>
-          <div className="relative ml-2">
-            <Avatar email={user?.email} avatarUrl={avatarUrl} onClick={() => setOpen((o) => !o)} />
-            {open && (
-              <DropdownMenu onClose={() => setOpen(false)} />
-            )}
-          </div>
+        </div>
+
+        {/* Right: avatar */}
+        <div className="absolute right-4 relative">
+          <Avatar email={user?.email} avatarUrl={avatarUrl} onClick={() => setOpen((o) => !o)} />
+          {open && (
+            <DropdownMenu onClose={() => setOpen(false)} />
+          )}
         </div>
       </div>
     </nav>

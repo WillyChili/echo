@@ -11,47 +11,27 @@ const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KE
 const CLAUDE_API_URL = 'https://api.anthropic.com/v1/messages';
 const DEFAULT_MODEL  = 'claude-haiku-4-5-20251001';
 
-// Converts structured digest text to a styled HTML email body
+// Converts prose digest text to a styled HTML email body
 function buildDigestEmail(text, lang) {
   const footerNote = lang === 'Spanish'
     ? 'Este es tu resumen periódico de Echo.'
     : 'This is your periodic digest from Echo.';
 
-  const lines = text.split('\n');
-  let bodyHtml = '';
-  let inBullets = false;
+  const paragraphs = text
+    .split(/\n{2,}/)
+    .map(p => p.trim())
+    .filter(Boolean);
 
-  for (const raw of lines) {
-    const line = raw.trim();
-
-    if (!line) {
-      if (inBullets) { bodyHtml += '</ul>'; inBullets = false; }
-      continue;
-    }
-
-    if (line.startsWith('📅')) {
-      // Day header
-      if (inBullets) { bodyHtml += '</ul>'; inBullets = false; }
-      const label = line.replace('📅', '').trim();
-      bodyHtml += `<p style="margin:24px 0 8px;font-size:13px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#6b7280;border-bottom:1px solid #f0f0f0;padding-bottom:6px">${esc(label)}</p>`;
-
-    } else if (line.startsWith('•')) {
-      // Bullet point
-      if (!inBullets) { bodyHtml += '<ul style="margin:4px 0 4px 0;padding-left:20px;color:#374151">'; inBullets = true; }
-      bodyHtml += `<li style="margin:5px 0;font-size:15px;line-height:1.5">${esc(line.replace(/^•\s*/, ''))}</li>`;
-
-    } else if (line.endsWith(':') && line.length < 60) {
-      // Section header like "Temas clave:" or "Reflection:"
-      if (inBullets) { bodyHtml += '</ul>'; inBullets = false; }
-      bodyHtml += `<p style="margin:24px 0 8px;font-size:13px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#6b7280">${esc(line.slice(0, -1))}</p>`;
-
-    } else {
-      // Reflection / free text paragraph
-      if (inBullets) { bodyHtml += '</ul>'; inBullets = false; }
-      bodyHtml += `<p style="margin:10px 0;font-size:15px;line-height:1.7;color:#374151;font-style:italic">${esc(line)}</p>`;
-    }
-  }
-  if (inBullets) bodyHtml += '</ul>';
+  const bodyHtml = paragraphs
+    .map((p, i) => {
+      // Last paragraph is the question — render it slightly distinct
+      const isQuestion = i === paragraphs.length - 1 && p.includes('?');
+      const style = isQuestion
+        ? 'margin:24px 0 0;font-size:15px;line-height:1.7;color:#374151;font-style:italic'
+        : 'margin:0 0 18px;font-size:15px;line-height:1.7;color:#374151';
+      return `<p style="${style}">${esc(p)}</p>`;
+    })
+    .join('');
 
   return `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;color:#1a1a1a;background:#ffffff">
     <p style="font-size:11px;font-weight:800;letter-spacing:0.12em;color:#9ca3af;text-transform:uppercase;margin:0 0 28px">Echo</p>
@@ -111,44 +91,51 @@ async function generateDigestForUser(userId) {
   const lang = (profile?.language || 'en') === 'es' ? 'Spanish' : 'English';
   const tone = profile?.echo_tone || 'warm';
   const bio  = (profile?.bio || '').trim();
+  const name = profile?.display_name || '';
 
   const toneGuide = TONE_VARIANTS[tone] || TONE_VARIANTS['warm'];
+  const bioSection = bio ? `\nAbout this person: ${bio}\n` : '';
+  const nameRef = name || (lang === 'Spanish' ? 'el usuario' : 'the user');
 
-  const bioSection = bio ? `\nAbout this person:\n${bio}\n` : '';
+  // Fetch last digest to avoid repeating the same topics
+  const { data: lastDigestRows } = await supabase
+    .from('chat_messages')
+    .select('content, created_at')
+    .eq('user_id', userId)
+    .eq('role', 'echo')
+    .order('created_at', { ascending: false })
+    .limit(30);
+
+  const lastDigest = (lastDigestRows || []).find(m => m.content && m.content.length > 200);
+  const lastDigestSection = lastDigest
+    ? `\nThe last digest you sent was:\n"""\n${lastDigest.content}\n"""\nDo NOT repeat the same topics, patterns, or question from the previous digest. Find something new.\n`
+    : '';
 
   const notesText = notes
     .map((n) => `[${n.date}]\n${n.content}`)
     .join('\n\n---\n\n');
 
-  const themesLabel      = lang === 'Spanish' ? 'Temas clave' : 'Key themes';
-  const reflectionLabel  = lang === 'Spanish' ? 'Reflexión'   : 'Reflection';
-
   const systemPrompt = `You MUST write your ENTIRE response in ${lang} only. Do NOT include any word from another language.
 You MUST NOT use the em dash character. Use commas, periods, or colons to separate ideas.
 Do not identify yourself as an AI unless directly asked.
 ${bioSection}
-You are Echo. Generate a structured digest of the user's notes from the last ${windowDays} days.
+You are Echo. Write a personal digest for ${nameRef} based on their notes from the last ${windowDays} days.
+${lastDigestSection}
+Write exactly 3 paragraphs. No headers, no bullet points, no emojis, no lists of any kind.
 
-Use this EXACT format (no deviations):
+Paragraph 1: Synthesize what happened this period naturally. Reference specific notes and their dates when it adds meaning. Do not list every day chronologically — extract what actually matters and connect it.
 
-📅 [Day name, day and month — e.g. "Miércoles, 5 de marzo" or "Wednesday, March 5"]
-• [concise summary of one note or task from that day]
-• [another note if there are multiple — omit if only one]
+Paragraph 2: Name one specific pattern, shift, or blind spot you noticed across the notes that ${nameRef} might not have seen themselves. Be concrete, not generic. Avoid obvious observations.
 
-(Repeat for each day that has notes. Only include days with actual notes.)
-
-${themesLabel}:
-• [main pattern or theme across all notes — 1 short line]
-• [second pattern — 1 short line]
-
-${reflectionLabel}:
-[1-2 sentences of personal insight addressed directly to the user. ${toneGuide}]
+Paragraph 3: End with ONE question based on a specific note that was unresolved, interesting, or worth exploring further. The question must feel like the natural start of a conversation. It must reference something real from the notes. It must be direct and personal, not generic like "how do you feel about this?".
 
 Rules:
-- Only include days with actual notes
-- Keep bullet points short and concrete
-- Maximum 2 theme bullets
-- The reflection is the only free-form paragraph`;
+- Use ${nameRef}'s name naturally at least once across the 3 paragraphs
+- Never use bullet points, dashes as list markers, or numbered lists
+- Never use emoji
+- Total length: 5 to 8 sentences across all 3 paragraphs. Be concise.
+- The question in paragraph 3 must be specific to the notes, not a generic reflection prompt
+${toneGuide}`;
 
   const apiResponse = await fetch(CLAUDE_API_URL, {
     method: 'POST',

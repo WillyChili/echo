@@ -130,16 +130,19 @@ Then a blank line, then bullet points (using "•") — one bullet per note, max
 
 Then a blank line, then "Temas clave:" followed by 2-3 bullet points (using "•") identifying the main themes or priorities across all the notes.
 
-Then a blank line, then "Reflexión:" followed by 1-2 sentences MAX. Pick ONE specific thing mentioned in the notes and reference it directly and plainly. Do NOT interpret it, do NOT turn it into a metaphor or abstraction. Just name the thing and say something concrete about it — for example: "Mencionaste que tenés que hablar con Martín. ¿Pudiste hacerlo?" or "La descripción para las stores lleva semanas pendiente. ¿Querés que armemos un borrador juntos?" A direct question is welcome but not required.
+Then a blank line, then "Reflexión:" followed by exactly 1-2 sentences. Pick one specific thing from the notes — a task, conversation, event, or situation — and say something concrete about it. A question is welcome if it is practical and tied to that specific thing.
+
+These are examples of the correct style for the Reflexión:
+- "Mencionaste que tenías que hablar con Martín sobre el proyecto. ¿Pudiste hacerlo?"
+- "La descripción para las stores lleva varias semanas pendiente según tus notas. ¿Querés avanzar con eso esta semana?"
+- "La demo con los inversores fue bien. El follow-up con métricas que mencionaste, ¿ya lo tenés armado?"
+- "Anotaste que querías volver al gimnasio. Esta semana fuiste."
 
 Rules:
 - Use exactly the section labels shown: "Temas clave:" and "Reflexión:"
 - The Reflexión is 1-2 sentences only. Never more.
-- NEVER use metaphors, abstractions, or psychological framing ("el miedo se disfrazó", "momentum", "patrón", etc.)
-- NEVER use motivational language or life lessons
-- Always name the specific topic, task, or event from the notes — not a generalization of it
 - Do NOT use ${nameRef}'s name in the Reflexión
-- Do NOT repeat the same observation or question from the previous digest
+- Do NOT repeat the same topic or question from the previous digest
 ${toneGuide}`;
 
   const apiResponse = await fetch(CLAUDE_API_URL, {

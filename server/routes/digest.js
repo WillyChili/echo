@@ -17,21 +17,22 @@ function buildDigestEmail(text, lang) {
     ? 'Este es tu resumen periódico de Echo.'
     : 'This is your periodic digest from Echo.';
 
-  const paragraphs = text
-    .split(/\n{2,}/)
-    .map(p => p.trim())
-    .filter(Boolean);
+  const blocks = text.split(/\n{2,}/).map(b => b.trim()).filter(Boolean);
 
-  const bodyHtml = paragraphs
-    .map((p, i) => {
-      // Last paragraph is the question — render it slightly distinct
-      const isQuestion = i === paragraphs.length - 1 && p.includes('?');
-      const style = isQuestion
-        ? 'margin:24px 0 0;font-size:15px;line-height:1.7;color:#374151;font-style:italic'
-        : 'margin:0 0 18px;font-size:15px;line-height:1.7;color:#374151';
-      return `<p style="${style}">${esc(p)}</p>`;
-    })
-    .join('');
+  const bodyHtml = blocks.map((block, i) => {
+    const lines = block.split('\n').map(l => l.trim()).filter(Boolean);
+    const isBulletBlock = lines.every(l => l.startsWith('- '));
+    if (isBulletBlock) {
+      const items = lines.map(l => `<li style="margin:4px 0;font-size:15px;line-height:1.6;color:#374151">${esc(l.slice(2))}</li>`).join('');
+      return `<ul style="margin:0 0 18px;padding-left:20px">${items}</ul>`;
+    }
+    // Last block = conclusion — render slightly distinct
+    const isLast = i === blocks.length - 1;
+    const style = isLast
+      ? 'margin:0;font-size:15px;line-height:1.7;color:#374151;font-style:italic'
+      : 'margin:0 0 18px;font-size:15px;line-height:1.7;color:#374151';
+    return `<p style="${style}">${esc(block)}</p>`;
+  }).join('');
 
   return `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;color:#1a1a1a;background:#ffffff">
     <p style="font-size:11px;font-weight:800;letter-spacing:0.12em;color:#9ca3af;text-transform:uppercase;margin:0 0 28px">Echo</p>
@@ -116,28 +117,22 @@ async function generateDigestForUser(userId) {
     .join('\n\n---\n\n');
 
   const systemPrompt = `You MUST write your ENTIRE response in ${lang} only. Do NOT include any word from another language.
-You MUST NOT use the em dash character. Use commas, periods, or colons to separate ideas.
+You MUST NOT use the em dash character. Use commas, periods, or colons instead.
 Do not identify yourself as an AI unless directly asked.
 ${bioSection}
-You are Echo, a personal companion that lives inside a journaling app. Your tone is natural and direct, never clinical or overly emotional.
-
-Write a short digest for ${nameRef} based on their notes from the last ${windowDays} days.
+You are Echo, a personal companion inside a journaling app. Be direct and clear, never clinical or over-emotional.
 ${lastDigestSection}
-If there are very few notes or the notes are minimal, keep the digest proportionally short. Do not overanalyze sparse content.
+Based on the notes from the last ${windowDays} days, write a digest in exactly this format:
 
-Write 2 short paragraphs maximum. No headers, no bullet points, no emojis, no lists.
+First, a bullet list summarizing each note in one short line. Use "- " to start each bullet. One bullet per note. Keep each bullet under 12 words. Do not editorialize, just state what was in the note plainly.
 
-Paragraph 1: Briefly summarize what was on ${nameRef}'s mind this period. Be natural and conversational. Reference specific notes only if they add value. 2-3 sentences max.
-
-Paragraph 2: Give ONE practical recommendation based on what you saw in the notes. It must be concrete and directly tied to something in the notes, not generic advice. Then end with one simple question that invites a conversation. 2-3 sentences max.
+Then, after the bullets, add one blank line and write a single short paragraph (2-3 sentences max) stating what Echo sees as the most important thing to focus on right now, based on what appears most urgent, unresolved, or repeated across the notes. Be specific and direct. No generic advice.
 
 Rules:
-- Total response: 4 to 5 sentences maximum. Short is better than long.
-- Never use bullet points, lists, or numbered items
 - Never use emoji
-- Do NOT over-interpret sparse or random notes. If there is little to work with, say less.
-- The recommendation must come from the notes, not from generic self-help wisdom
-- Keep psychological analysis out entirely. You are a companion, not a therapist.
+- Never use headers or bold text
+- The conclusion must reference something real from the notes, not be generic
+- If there are very few notes, keep the bullet list short and the conclusion proportionally brief
 ${toneGuide}`;
 
   const apiResponse = await fetch(CLAUDE_API_URL, {

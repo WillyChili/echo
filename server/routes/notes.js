@@ -13,6 +13,7 @@ router.get('/', async (req, res) => {
       .from('notes')
       .select('id, date, content, created_at, updated_at')
       .eq('user_id', req.user.id)
+      .order('date', { ascending: false })
       .order('created_at', { ascending: false });
 
     if (error) throw error;

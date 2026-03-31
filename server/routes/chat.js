@@ -5,7 +5,7 @@ const supabase = require('../supabase');
 const { buildSystemPrompt } = require('../echo-soul');
 
 const CLAUDE_API_URL = 'https://api.anthropic.com/v1/messages';
-const DEFAULT_MODEL = 'claude-haiku-4-5-20251001';
+const DEFAULT_MODEL = 'claude-sonnet-4-5';
 
 // All chat routes require authentication
 router.use(auth);
@@ -58,7 +58,7 @@ router.post('/', async (req, res) => {
       },
       body: JSON.stringify({
         model: DEFAULT_MODEL,
-        max_tokens: 500,
+        max_tokens: 900,
         system: systemPrompt,
         messages: contextMessages,
       }),

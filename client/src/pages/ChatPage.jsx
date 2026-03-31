@@ -173,10 +173,25 @@ export default function ChatPage() {
         const notesRes = await authFetch('/api/notes');
         if (notesRes.ok) {
           const allNotes = await notesRes.json();
-          const cutoff = new Date();
-          cutoff.setDate(cutoff.getDate() - 14);
-          const cutoffStr = cutoff.toISOString().split('T')[0];
-          notes = allNotes.filter(n => n.date >= cutoffStr);
+          const sevenDaysAgo = new Date();
+          sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+          const sevenDaysStr = sevenDaysAgo.toISOString().split('T')[0];
+
+          const thirtyDaysAgo = new Date();
+          thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+          const thirtyDaysStr = thirtyDaysAgo.toISOString().split('T')[0];
+
+          // Last 7 days: all notes (full recent context)
+          const recentNotes = allNotes.filter(n => n.date >= sevenDaysStr);
+
+          // 8-30 days: only substantial notes (>100 chars), max 5
+          const olderNotes = allNotes
+            .filter(n => n.date >= thirtyDaysStr && n.date < sevenDaysStr)
+            .filter(n => (n.content || '').length > 100)
+            .sort((a, b) => b.date.localeCompare(a.date))
+            .slice(0, 5);
+
+          notes = [...recentNotes, ...olderNotes];
         }
       } catch { /* proceed without notes */ }
 

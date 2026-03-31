@@ -34,10 +34,11 @@ export default function ChatPage() {
   const [micError, setMicError]               = useState(null);
   const [hasNotes, setHasNotes]               = useState(false);
 
-  const bottomRef    = useRef(null);
-  const inputRef     = useRef(null);
-  const scrollRef    = useRef(null);
-  const oldestTsRef  = useRef(null); // created_at of oldest loaded message
+  const bottomRef       = useRef(null);
+  const inputRef        = useRef(null);
+  const scrollRef       = useRef(null);
+  const oldestTsRef     = useRef(null); // created_at of oldest loaded message
+  const isInitialMount  = useRef(true);
 
   // ── Speech ────────────────────────────────────────────────────────────────
   const inputSnapshotRef = useRef('');
@@ -147,7 +148,12 @@ export default function ChatPage() {
 
   // ── Auto-scroll ───────────────────────────────────────────────────────────
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (isInitialMount.current) {
+      bottomRef.current?.scrollIntoView({ behavior: 'instant' });
+      isInitialMount.current = false;
+    } else {
+      bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
   }, [messages, isLoading]);
 
   // ── Send message ──────────────────────────────────────────────────────────

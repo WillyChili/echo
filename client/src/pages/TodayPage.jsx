@@ -191,16 +191,15 @@ export default function TodayPage() {
   const displayName = profileDisplayName || user?.email?.split('@')[0] || '';
 
   // EAI-16: id-based tracking (null = fresh new entry)
-  // Seed from localStorage so drafts survive app backgrounding
-  const [currentNoteId, setCurrentNoteId] = useState(() => localStorage.getItem('echo_draft_note_id') || null);
-  const [content, setContent] = useState(() => localStorage.getItem('echo_draft_content') || '');
+  const [currentNoteId, setCurrentNoteId] = useState(null);
+  const [content, setContent] = useState('');
   const [notes, setNotes] = useState([]);
   const [notesLoading, setNotesLoading] = useState(true);
   const [saveStatus, setSaveStatus] = useState('');
   const isSavingRef = useRef(false);
   const [micError, setMicError] = useState(null);
   const [showCelebration, setShowCelebration] = useState(false);
-  const [viewingDate, setViewingDate] = useState(() => localStorage.getItem('echo_draft_viewing_date') || null);
+  const [viewingDate, setViewingDate] = useState(null);
 
   // Calendar date picker
   const [selectedDate, setSelectedDate] = useState(todayDate);

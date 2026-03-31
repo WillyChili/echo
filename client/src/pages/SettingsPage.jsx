@@ -14,14 +14,12 @@ export default function SettingsPage() {
   const [deleteError, setDeleteError]           = useState(null);
   const [exporting, setExporting]               = useState(false);
 
-  const [echoTone,      setEchoTone]      = useState('warm');
-  const [toneSaved,     setToneSaved]     = useState(false);
-  const [toneLoading,   setToneLoading]   = useState(false);
+  const [echoTone,    setEchoTone]    = useState('warm');
+  const [toneLoading, setToneLoading] = useState(false);
 
   const [digestFreq,         setDigestFreq]         = useState(7);
   const [digestWindow,       setDigestWindow]       = useState(7);
   const [digestEmailEnabled, setDigestEmailEnabled] = useState(false);
-  const [digestSaved,        setDigestSaved]        = useState(false);
   const [digestLoading,      setDigestLoading]      = useState(false);
 
   // Seed echoTone from ProfileContext immediately
@@ -45,15 +43,12 @@ export default function SettingsPage() {
     if (toneLoading || tone === echoTone) return;
     setEchoTone(tone);
     setToneLoading(true);
-    setToneSaved(false);
     try {
       await authFetch('/api/profile', {
         method: 'POST',
         body: JSON.stringify({ echo_tone: tone }),
       });
       setProfileEchoTone(tone);
-      setToneSaved(true);
-      setTimeout(() => setToneSaved(false), 2000);
     } catch { /* silent */ } finally {
       setToneLoading(false);
     }
@@ -64,7 +59,6 @@ export default function SettingsPage() {
     const freq   = Math.max(1, Math.min(365, Number(digestFreq)   || 7));
     const window = Math.max(1, Math.min(365, Number(digestWindow) || 7));
     setDigestLoading(true);
-    setDigestSaved(false);
     try {
       await authFetch('/api/profile', {
         method: 'POST',
@@ -72,8 +66,6 @@ export default function SettingsPage() {
       });
       setDigestFreq(freq);
       setDigestWindow(window);
-      setDigestSaved(true);
-      setTimeout(() => setDigestSaved(false), 2500);
     } catch { /* silent */ } finally {
       setDigestLoading(false);
     }
@@ -170,7 +162,6 @@ export default function SettingsPage() {
       <div className="bg-card border border-border/60 rounded-2xl p-6 mb-4">
         <div className="flex items-center justify-between mb-1">
           <h2 className="text-sm font-medium text-foreground">{t('settings_echo_tone_title')}</h2>
-          {toneSaved && <span className="text-xs text-mint">{t('settings_echo_tone_saved')}</span>}
         </div>
         <p className="text-xs text-muted-foreground mb-4">{t(`onboarding_tone_${echoTone}_desc`)}</p>
         <div className="flex gap-2">
@@ -205,7 +196,7 @@ export default function SettingsPage() {
               min="1"
               max="365"
               value={digestFreq}
-              onChange={(e) => { setDigestSaved(false); setDigestFreq(e.target.value); }}
+              onChange={(e) => setDigestFreq(e.target.value)}
               className="w-16 bg-background border border-input rounded-xl px-3 py-2 text-sm text-foreground text-center focus:outline-none focus:ring-2 focus:ring-ring"
             />
             <span className="text-sm text-muted-foreground">{t('settings_digest_frequency_unit')}</span>
@@ -218,7 +209,7 @@ export default function SettingsPage() {
               min="1"
               max="365"
               value={digestWindow}
-              onChange={(e) => { setDigestSaved(false); setDigestWindow(e.target.value); }}
+              onChange={(e) => setDigestWindow(e.target.value)}
               className="w-16 bg-background border border-input rounded-xl px-3 py-2 text-sm text-foreground text-center focus:outline-none focus:ring-2 focus:ring-ring"
             />
             <span className="text-sm text-muted-foreground">{t('settings_digest_window_unit')}</span>
@@ -237,8 +228,6 @@ export default function SettingsPage() {
               <div className={`w-5 h-5 rounded-full bg-white shadow transition-transform ${digestEmailEnabled ? 'translate-x-4' : 'translate-x-0'}`} />
             </div>
           </div>
-
-          {digestSaved && <p className="text-xs text-mint">{t('settings_digest_saved')}</p>}
 
           <button
             type="submit"

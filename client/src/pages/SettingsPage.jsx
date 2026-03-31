@@ -8,7 +8,7 @@ import { useTranslation } from '../hooks/useTranslation';
 export default function SettingsPage() {
   const { t } = useTranslation();
   const { theme, setTheme } = useTheme();
-  const { echoTone: profileEchoTone, setEchoTone: setProfileEchoTone } = useProfile();
+  const { echoTone: profileEchoTone, setEchoTone: setProfileEchoTone, language, setLanguage } = useProfile();
   const [showDeleteModal, setShowDeleteModal]   = useState(false);
   const [deleting, setDeleting]                 = useState(false);
   const [deleteError, setDeleteError]           = useState(null);
@@ -153,6 +153,28 @@ export default function SettingsPage() {
               }`}
             >
               {t(opt.labelKey)}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Language */}
+      <div className="bg-card border border-border/60 rounded-2xl p-6 mb-4">
+        <h2 className="text-sm font-medium text-foreground mb-1">{t('edit_profile_language')}</h2>
+        <p className="text-xs text-muted-foreground mb-4">{t('settings_language_desc')}</p>
+        <div className="flex gap-2">
+          {['en', 'es'].map((lang) => (
+            <button
+              key={lang}
+              type="button"
+              onClick={() => setLanguage(lang)}
+              className={`flex-1 py-2 rounded-xl text-xs font-medium transition-colors select-none ${
+                language === lang
+                  ? 'border border-mint bg-mint/15 text-mint'
+                  : 'bg-secondary text-muted-foreground active:opacity-70'
+              }`}
+            >
+              {lang === 'en' ? t('edit_profile_lang_en') : t('edit_profile_lang_es')}
             </button>
           ))}
         </div>

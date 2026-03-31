@@ -214,30 +214,6 @@ export default function EditProfilePage() {
               <p className="text-sm text-foreground/50">{user?.email}</p>
             </Field>
 
-            <Field label={t('edit_profile_language')}>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-foreground">
-                  {language === 'en' ? t('edit_profile_lang_en') : t('edit_profile_lang_es')}
-                </span>
-                <div className="flex rounded-lg overflow-hidden border border-border/50">
-                  {['en', 'es'].map((lang) => (
-                    <button
-                      key={lang}
-                      type="button"
-                      onClick={() => { setLanguage(lang); }}
-                      className={`px-3 py-1 text-xs font-medium transition-colors select-none ${
-                        language === lang
-                          ? 'bg-foreground text-background'
-                          : 'bg-transparent text-muted-foreground active:bg-secondary'
-                      }`}
-                    >
-                      {lang.toUpperCase()}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </Field>
-
             <Field label={t('edit_profile_notifications')}>
               <div className="flex items-center justify-between" onClick={notifSupported ? toggleNotifications : undefined}>
                 <span className={`text-sm ${notifSupported ? 'text-foreground cursor-pointer' : 'text-muted-foreground/60'}`}>

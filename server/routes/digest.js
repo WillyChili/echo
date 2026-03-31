@@ -134,9 +134,11 @@ Then a blank line, then "Reflexión:" followed by exactly 1-2 sentences. Pick on
 
 These are examples of the correct style for the Reflexión:
 - "Mencionaste que tenías que hablar con Martín sobre el proyecto. ¿Pudiste hacerlo?"
-- "La descripción para las stores lleva varias semanas pendiente según tus notas. ¿Querés avanzar con eso esta semana?"
-- "La demo con los inversores fue bien. El follow-up con métricas que mencionaste, ¿ya lo tenés armado?"
-- "Anotaste que querías volver al gimnasio. Esta semana fuiste."
+- "La descripción para las stores lleva varias semanas pendiente. ¿Querés que te ayude a arrancar con un borrador?"
+- "El follow-up con métricas para los inversores lo tenés pendiente. ¿Querés organizarlo juntos?"
+- "Volviste al gimnasio esta semana después de tres semanas."
+
+Do NOT assume reasons, motivations, or emotions behind what the user wrote. Do NOT say things like "you know why", "the fear is...", "you've been avoiding it because...". Just state the fact from the note and, if relevant, offer concrete help.
 
 Rules:
 - Use exactly the section labels shown: "Temas clave:" and "Reflexión:"

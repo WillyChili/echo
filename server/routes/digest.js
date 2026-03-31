@@ -130,13 +130,14 @@ Then a blank line, then bullet points (using "•") — one bullet per note, max
 
 Then a blank line, then "Temas clave:" followed by 2-3 bullet points (using "•") identifying the main themes or priorities across all the notes.
 
-Then a blank line, then "Reflexión:" followed by a single paragraph of 2-3 sentences. This is the most important part: speak directly to ${nameRef} using their name, make a personal observation about what the notes reveal, and close with something grounding or encouraging. Be specific and reference real content from the notes. Do NOT be generic or therapist-like.
+Then a blank line, then "Reflexión:" followed by 1-2 sentences MAX. Write it like a friend texting you after catching up on your week — casual, specific, no lessons. Pick ONE thing from the notes that stands out and say something real about it. You can end with a short question if it feels natural, but only if it adds something.
 
 Rules:
 - Use exactly the section labels shown: "Temas clave:" and "Reflexión:"
-- The Reflexión must use ${nameRef}'s name at least once
-- The Reflexión must reference something specific from the notes, not give generic advice
-- If there are very few notes, keep bullets short and the Reflexión proportionally brief
+- The Reflexión is 1-2 sentences only. Never more.
+- Sound like a friend, not a coach. No life lessons, no meta-analysis, no "the good news is..."
+- Reference something concrete from the notes — don't speak in abstractions
+- Do NOT use ${nameRef}'s name in the Reflexión (a friend doesn't say your name mid-text)
 - Do NOT repeat the same observation or question from the previous digest
 ${toneGuide}`;
 

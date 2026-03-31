@@ -451,14 +451,6 @@ export default function TodayPage() {
   const isNewEntry = !currentNoteId && !viewingDate;
 
   // EAI-42: save current note (if any content) then start fresh
-  const handleNewNote = useCallback(async () => {
-    if (content.trim()) {
-      await saveAndNew();
-    } else {
-      startNewEntry();
-    }
-  }, [content, saveAndNew, startNewEntry]);
-
   const handleTouchStart = (e) => {
     touchStartY.current = e.touches[0].clientY;
   };
@@ -539,9 +531,6 @@ export default function TodayPage() {
                 </>
               )}
             </div>
-            {!isNewEntry && (
-              <Button variant="outline" size="sm" onClick={handleNewNote}>{t('today_new_note')}</Button>
-            )}
           </div>
 
           {/* Textarea with Save button inside (EAI-38) */}

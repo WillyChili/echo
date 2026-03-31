@@ -128,7 +128,7 @@ Line 1: "📅 [Day], [date]" — use the date of the most recent note, written o
 
 Then a blank line, then bullet points (using "•") — one bullet per note, max 12 words each. Plain and factual, no editorializing.
 
-Then a blank line, then "Temas clave:" followed by 2-3 bullet points (using "•") identifying the main themes or priorities across all the notes.
+Then a blank line, then "Temas clave:" followed by 2-3 bullet points (using "•"). Each bullet names a concrete topic, task, or situation that appears in the notes — not an abstract interpretation of them. For example: "Seguimiento pendiente con inversores", "Conversación con Martín sin resolver", "Vuelta al gimnasio". No metaphors, no abstract labels.
 
 Then a blank line, then "Reflexión:" followed by exactly 1-2 sentences. Pick one specific thing from the notes — a task, conversation, event, or situation — and say something concrete about it. A question is welcome if it is practical and tied to that specific thing.
 

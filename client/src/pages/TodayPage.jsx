@@ -338,6 +338,8 @@ export default function TodayPage() {
   // ── Save on demand (tap "Guardar") → archive note + fresh editor ─────────
   const saveAndNew = useCallback(async () => {
     if (!content.trim() || isSavingRef.current) return;
+    // Stop any active voice recording so the mic button resets
+    if (isRecording) stopRecording();
     isSavingRef.current = true;
     setSaveStatus('saving');
     try {
@@ -377,7 +379,7 @@ export default function TodayPage() {
     } finally {
       isSavingRef.current = false;
     }
-  }, [content, currentNoteId, todayDate, fetchAllNotes]);
+  }, [content, currentNoteId, todayDate, fetchAllNotes, isRecording, stopRecording]);
 
   // ── Open a past note into the editor ─────────────────────────────────────
   const openNote = useCallback((note) => {

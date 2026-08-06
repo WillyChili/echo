@@ -60,17 +60,20 @@ export default function Hero() {
         {/* CTAs */}
         <div className="fade-up-3 flex flex-col sm:flex-row items-center justify-center gap-3 mb-16">
 
-          {/* Primary — disabled */}
-          <span
+          {/* Primary — Play Store */}
+          <a
+            href={PLAY_STORE}
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-xl
-              bg-white/[0.06] border border-white/[0.10] text-white/30 font-bold text-sm
-              cursor-not-allowed select-none"
+              bg-[#2CD59C] text-[#070707] font-bold text-sm
+              hover:bg-[#25c48e] transition-colors duration-200"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
               <path d="M3.18 23.76c.33.18.7.24 1.06.2l12.76-11.4-2.76-2.76L3.18 23.76zm17.6-13.37L17.9 8.74l-3.06 3.06 3.06 3.06 2.9-1.66a1.65 1.65 0 000-2.81zM1.16 1.26a1.64 1.64 0 00-.16.72v19.04c0 .26.06.51.16.72l.1.1L13.1 9.9v-.3L1.26 1.16l-.1.1zm7.42 8.88L5.22 6.78l-.12.12 12.76 11.4.12-.12-9.4-8.04z"/>
             </svg>
             {T.cta_primary}
-          </span>
+          </a>
 
           {/* Secondary */}
           <button
@@ -89,13 +92,6 @@ export default function Hero() {
 
       </div>
 
-      {/* Scroll hint */}
-      <div className="absolute bottom-7 left-1/2 -translate-x-1/2 z-10 animate-bounce opacity-55 flex flex-col items-center gap-1">
-        <span className="text-white/50 text-[10px] tracking-[0.12em] uppercase font-medium select-none">Scroll</span>
-        <svg className="w-4 h-4 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7"/>
-        </svg>
-      </div>
     </section>
   );
 }

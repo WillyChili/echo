@@ -107,11 +107,14 @@ export default function Navbar() {
         {/* Desktop right: lang toggle + CTA */}
         <div className="hidden md:flex items-center gap-3">
           <LangToggle />
-          <span
-            className="px-4 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white/30 text-sm font-medium cursor-not-allowed select-none"
+          <a
+            href="https://play.google.com/store/apps/details?id=com.willychili.echo"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-4 py-1.5 rounded-lg bg-[#2CD59C] text-[#070707] text-sm font-semibold hover:bg-[#25c48e] transition-colors duration-200"
           >
             {T.download}
-          </span>
+          </a>
         </div>
 
         {/* Mobile: lang toggle + hamburger */}
@@ -163,11 +166,14 @@ export default function Navbar() {
               </button>
             );
           })}
-          <span
-            className="mt-4 flex items-center justify-center w-full py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white/30 text-sm font-medium cursor-not-allowed select-none"
+          <a
+            href="https://play.google.com/store/apps/details?id=com.willychili.echo"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 flex items-center justify-center w-full py-2.5 rounded-xl bg-[#2CD59C] text-[#070707] text-sm font-semibold hover:bg-[#25c48e] transition-colors duration-200"
           >
             {T.download}
-          </span>
+          </a>
         </div>
       </div>
     </nav>

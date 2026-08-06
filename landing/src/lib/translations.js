@@ -5,7 +5,7 @@ export const translations = {
       product: 'Product',
       features: 'Features',
       contact: 'Contact Us',
-      download: 'Download Free',
+      download: 'Download for Free',
     },
     hero: {
       badge: 'Personal AI Reflection · Android',
